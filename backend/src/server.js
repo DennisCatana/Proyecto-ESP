@@ -26,7 +26,7 @@ app.set('port',process.env.PORT || 3000)
 
 
 // Rutas 
-app.get('/',(req,res)=> res.send("Server on"))
+app.get('/',(req,res)=> res.send("servidor corriendo"))
 
 
 
