@@ -1,7 +1,8 @@
-import app from './server.js';
-import open from "open";
+const app = require('./server');
+const { connectDatabase } = require('./database');
 
-app.listen(app.get('port'), async() => {
-    console.log(`Server ok on http://localhost:${app.get('port')}`);
-    await open(`http://localhost:${app.get('port')}`);
-})
+app.listen(app.get('port'), () => {
+    console.log(`Servidor listo en http://localhost:${app.get('port')}`);
+});
+
+connectDatabase();

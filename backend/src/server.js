@@ -1,34 +1,21 @@
-// Requerir módulos
-import express from 'express'
-import dotenv from 'dotenv'
-import cors from 'cors';
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
 
+dotenv.config();
 
+const app = express();
 
-// Inicializaciones
-const app = express()
-dotenv.config()
+// Configuraciones
+app.set('port', process.env.PORT || 3000);
 
+// Middlewares
+app.use(express.json());
+app.use(cors());
 
-// Configuraciones 
+// Ruta de prueba
+app.get('/', (req, res) => {
+    res.send("Servidor corriendo");
+});
 
-
-
-// Middlewares 
-app.use(express.json())
-app.use(cors())
-
-
-
-// Variables globales
-app.set('port',process.env.PORT || 3000)
-
-
-
-// Rutas 
-app.get('/',(req,res)=> res.send("servidor corriendo"))
-
-
-
-// Exportar la instancia de express por medio de app
-export default  app
+module.exports = app;
