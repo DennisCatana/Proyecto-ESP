@@ -26,8 +26,9 @@ model Persona {
 model Usuario {
   id            Int      @id @default(autoincrement())
   password      String   @db.VarChar(255)
-  rol           Roles    @default(Instructor)           
+  rol           Roles              
   tokenSession  String?  @unique
+  cambiarPassword Boolean @default(true)
 
   personaCedula String   @unique
   persona        Persona @relation(fields: [personaCedula], references: [cedula], onDelete: Cascade)

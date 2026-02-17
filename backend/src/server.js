@@ -30,10 +30,5 @@ app.use((req,res) =>
 )
 
 
-
-app.get('/', (req, res) => {
-  res.send("Servidor corriendo")
-})
-
 // Exportar la instancia de express por medio de app
 export default app

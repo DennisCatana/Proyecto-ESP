@@ -1,31 +1,40 @@
+import { hashPassword } from '../utils/bcrypt.js';
 import { PrismaClient } from '@prisma/client';
+
+
 const prisma = new PrismaClient();
-import bcrypt from 'bcryptjs';
+
 
 
 //Crea una nueva persona
-export const registrarPersona = async (req, res) => {
-  const { cedula, grado, apellidoNombre, password, rol } = req.body
+  export const registrarPersona = async (req, res) => {
+    const { cedula, grado, apellidoNombre, rol } = req.body
 
-  if (!cedula || !apellidoNombre || !password) {
-    return res.status(400).json({
-      msg: 'cedula, grado, nombres y password son obligatorios'
-    })
-  }
-
-  try {
-    // Verificar si ya existe
-    const personaExistente = await prisma.persona.findUnique({
-      where: { cedula }
-    })
-
-    if (personaExistente) {
+    if (!cedula || !apellidoNombre || !grado) {
       return res.status(400).json({
-        msg: 'La persona con esa cédula ya está registrada'
+        msg: 'cedula, grado, nombres son obligatorios'
       })
-    }
+    } 
 
-    const passwordHash = await bcrypt.hash(password, 10)
+    try {
+      // Verificar si ya existe
+      const personaExistente = await prisma.persona.findUnique({
+        where: { cedula }
+      })
+
+      if (personaExistente) {
+        return res.status(400).json({
+          msg: 'La persona con esa cédula ya está registrada'
+        })
+      }
+      // Verificar si el rol seleccionado es válido
+      if (!rol) {
+        return res.status(400).json({ msg: "Por favor selecione un rol" });
+      }
+
+      // La contraseña inicial será la cédula
+      const passwordHash = await hashPassword(cedula);
+
 
       const nuevaPersona = await prisma.persona.create({
         data: {
@@ -35,7 +44,7 @@ export const registrarPersona = async (req, res) => {
           usuario: {
             create: {
               password: passwordHash,
-              ...(rol ? { rol } : {})
+              rol: rol
             }
           }
         },
@@ -50,17 +59,17 @@ export const registrarPersona = async (req, res) => {
         }
       })
 
-    res.status(200).json({
-      msg: 'Persona registrada correctamente',
-      persona: nuevaPersona
-    })
+      res.status(200).json({
+        msg: 'Persona registrada correctamente',
+        persona: nuevaPersona
+      })
 
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({
-      msg: 'Error al registrar persona'
-    })
-  }
+    } catch (error) {
+      console.error(error)
+      res.status(500).json({
+        msg: 'Error al registrar persona'
+      })
+    }
   }
 
 

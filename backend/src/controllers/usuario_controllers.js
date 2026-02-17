@@ -1,25 +1,27 @@
+import { comparePassword,hashPassword } from '../utils/bcrypt.js';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-import bcrypt from 'bcryptjs';
 
-//Login con cédula y password
-export const loginConCedula = async (req, res) => {
+
+//Login 
+
+export const login = async (req, res) => {
     const { cedula, password } = req.body
 
     if (!cedula || !password) {
         return res.status(400).json({
-            msg: 'cedula y password son obligatorios'
+            msg: 'cedula y contraseña son obligatorios'
         })
     }
 
     try {
+        // Buscar usuario por cédula (relación)
         const usuario = await prisma.usuario.findUnique({
             where: { personaCedula: cedula },
             include: {
                 persona: {
                     select: {
-                        cedula: true,
                         apellidoNombre: true,
                         grado: true,
                     }
@@ -28,13 +30,23 @@ export const loginConCedula = async (req, res) => {
         })
 
         if (!usuario) {
-            return res.status(401).json({ msg: 'Usuario incorrecto' })
+            return res.status(404).json({ msg: 'Usuario no encontrado' })
         }
 
-        const passwordValida = await bcrypt.compare(password, usuario.password)
+        // Comparar contraseña
+        const passwordValido = await comparePassword(password, usuario.password);
 
-        if (!passwordValida) {
+        if (!passwordValido) {
             return res.status(401).json({ msg: 'Contraseña incorrecta' })
+        }
+
+        // 👇 SI DEBE CAMBIAR CONTRASEÑA
+        if (usuario.cambiarPassword) {
+            return res.status(403).json({
+                msg: "Debe cambiar su contraseña",
+                requirePasswordChange: true,
+                cedula: usuario.personaCedula
+            });
         }
 
         return res.status(200).json({
@@ -49,7 +61,52 @@ export const loginConCedula = async (req, res) => {
     } catch (error) {
         console.error(error)
         return res.status(500).json({
-            msg: 'Error al iniciar sesión'
+            msg: 'Error al iniciar sesión', error
         })
     }
 }
+
+
+//Cambiar contraseña
+export const cambiarPassword = async (req, res) => {
+    const { cedula, nuevaPassword, confirmarPassword } = req.body;
+
+    if (!cedula || !nuevaPassword || !confirmarPassword) {
+        return res.status(400).json({
+            msg: "Datos incompletos"
+        });
+    }
+
+    if (nuevaPassword !== confirmarPassword) {
+        return res.status(400).json({
+            msg: "Las contraseñas no coinciden"
+        });
+    }
+
+    try {
+        const passwordHash = await hashPassword(nuevaPassword);
+
+        await prisma.usuario.update({
+            where: { personaCedula: cedula },
+            data: {
+                password: passwordHash,
+                cambiarPassword: false
+            }
+        });
+
+        res.status(200).json({
+            msg: "Contraseña actualizada correctamente"
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            msg: "Error al cambiar contraseña"
+        });
+    }
+};
+
+
+
+
+
