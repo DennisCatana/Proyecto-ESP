@@ -28,6 +28,7 @@ model Usuario {
   password      String   @db.VarChar(255)
   rol           Roles              
   tokenSession  String?  @unique
+  fraseSecreta           String?  @db.VarChar(255)
   cambiarPassword Boolean @default(true)
 
   personaCedula String   @unique

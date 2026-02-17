@@ -67,11 +67,17 @@ export const login = async (req, res) => {
 }
 
 
-//Cambiar contraseña
+//Cambiar contraseña inicial
 export const cambiarPassword = async (req, res) => {
-    const { cedula, nuevaPassword, confirmarPassword } = req.body;
+    const { cedula, nuevaPassword, confirmarPassword, fraseSecreta  } = req.body;
 
-    if (!cedula || !nuevaPassword || !confirmarPassword) {
+    if (!cedula || !fraseSecreta) {
+        return res.status(400).json({
+            msg: "Datos incompletos"
+        });
+    }
+
+    if (!nuevaPassword || !confirmarPassword) {
         return res.status(400).json({
             msg: "Datos incompletos"
         });
@@ -85,7 +91,83 @@ export const cambiarPassword = async (req, res) => {
 
     try {
         const passwordHash = await hashPassword(nuevaPassword);
+        const fraseHash = await hashPassword(fraseSecreta);
 
+
+        await prisma.usuario.update({
+            where: { personaCedula: cedula },
+            data: {
+                password: passwordHash,
+                fraseSecreta: fraseHash,
+                cambiarPassword: false
+            }
+        });
+
+        res.status(200).json({
+            msg: "Contraseña y frase actualizada correctamente"
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            msg: "Error al cambiar contraseña"
+        });
+    }
+};
+
+
+//Recuperar contraseña 
+export const recuperarPassword = async (req, res) => {
+
+    const { cedula, fraseSecreta, nuevaPassword, confirmarPassword } = req.body;
+
+    if (!cedula || !fraseSecreta || !nuevaPassword || !confirmarPassword) {
+        return res.status(400).json({
+            msg: "Complete todos los campos"
+        });
+    }
+        //Compara las nuevas contraseñas
+    if (nuevaPassword !== confirmarPassword) {
+        return res.status(400).json({
+            msg: "Las contraseñas no coinciden"
+        });
+    }
+
+    try {
+        //Buscar usuario
+        const usuario = await prisma.usuario.findUnique({
+            where: { personaCedula: cedula }
+        });
+
+        if (!usuario) {
+            return res.status(404).json({
+                msg: "Usuario no encontrado"
+            });
+        }
+
+        //Verificar que tenga frase secreta registrada
+        if (!usuario.fraseSecreta) {
+            return res.status(400).json({
+                msg: "El usuario no tiene frase secreta configurada"
+            });
+        }
+
+        //Comparar frase secreta
+        const fraseValida = await comparePassword(
+            fraseSecreta,
+            usuario.fraseSecreta
+        );
+
+        if (!fraseValida) {
+            return res.status(401).json({
+                msg: "Frase secreta incorrecta"
+            });
+        }
+
+        //Hashear nueva contraseña
+        const passwordHash = await hashPassword(nuevaPassword);
+
+        //Actualizar contraseña
         await prisma.usuario.update({
             where: { personaCedula: cedula },
             data: {
@@ -99,14 +181,11 @@ export const cambiarPassword = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("Error al recuperar contraseña:", error);
         res.status(500).json({
-            msg: "Error al cambiar contraseña"
+            msg: "Error en el servidor"
         });
     }
 };
-
-
-
 
 

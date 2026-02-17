@@ -16,7 +16,9 @@ app.listen(process.env.PORT || 3000, () => {
 app.use(cors())
 
 //Middleware para parsear JSON
-app.use(express.json())
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 
 //Rutas
