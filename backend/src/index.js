@@ -4,6 +4,7 @@ import { connectDatabase } from './database.js'
 
 const PORT = process.env.PORT || 3000
 
+
 // Primero conectamos la base
 connectDatabase()
   .then(() => {

@@ -1,11 +1,11 @@
 import { comparePassword,hashPassword } from '../utils/bcrypt.js';
 import { PrismaClient } from '@prisma/client';
 
+
 const prisma = new PrismaClient();
 
 
 //Login 
-
 export const login = async (req, res) => {
     const { cedula, password } = req.body
 

@@ -5,7 +5,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 
-
 //Crea una nueva persona
   export const registrarPersona = async (req, res) => {
     const { cedula, grado, apellidoNombre, rol } = req.body
@@ -32,9 +31,20 @@ const prisma = new PrismaClient();
         return res.status(400).json({ msg: "Por favor selecione un rol" });
       }
 
+      const rolesValidos = ["Administrador", "Instructor"];
+
+      if (!rol) {
+        return res.status(400).json({ msg: "Por favor seleccione un rol" });
+      }
+
+      if (!rolesValidos.includes(rol)) {
+        return res.status(400).json({
+          msg: "Rol no válido"
+        });
+      }
+
       // La contraseña inicial será la cédula
       const passwordHash = await hashPassword(cedula);
-
 
       const nuevaPersona = await prisma.persona.create({
         data: {
