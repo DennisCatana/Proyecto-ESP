@@ -18,7 +18,6 @@ model Persona {
   cedula        String   @id @unique
   grado         String?  @db.VarChar(255)
   apellidoNombre String  @db.VarChar(255)
-  email         String?  @unique @db.VarChar(255)
 
   usuario       Usuario?
 }
@@ -27,11 +26,9 @@ model Persona {
 model Usuario {
   id            Int      @id @default(autoincrement())
   password      String   @db.VarChar(255)
-  rol           Roles
-  confirmEmail  Boolean  @default(false)
-  token         String?
+  rol           Roles    @default(Instructor)           
   tokenSession  String?  @unique
 
   personaCedula String   @unique
-  persona       Persona  @relation(fields: [personaCedula], references: [cedula])
+  persona        Persona @relation(fields: [personaCedula], references: [cedula], onDelete: Cascade)
 }

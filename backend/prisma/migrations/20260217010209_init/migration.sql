@@ -15,7 +15,7 @@ CREATE TABLE "Persona" (
 CREATE TABLE "Usuario" (
     "id" SERIAL NOT NULL,
     "password" VARCHAR(255) NOT NULL,
-    "rol" "Roles" NOT NULL,
+    "rol" "Roles" NOT NULL DEFAULT 'Instructor',
     "confirmEmail" BOOLEAN NOT NULL DEFAULT false,
     "token" TEXT,
     "tokenSession" TEXT,
