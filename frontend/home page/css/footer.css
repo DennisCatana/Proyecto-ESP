@@ -1,0 +1,38 @@
+/* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--gris-oscuro), var(--negro));
+            color: var(--blanco);
+            padding: 40px 20px 20px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--plateado);
+        }
+
+        .footer-phrase {
+            background: linear-gradient(135deg, var(--azul-electrico), var(--plateado));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 30px 0;
+            padding: 20px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #555;
+            padding-top: 20px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: var(--plateado);
+        }

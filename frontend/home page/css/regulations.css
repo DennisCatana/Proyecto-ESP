@@ -1,0 +1,73 @@
+/* Reglamentos */
+        .regulations {
+            background-color: #e8f4ff;
+        }
+
+        .regulation-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--blanco);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--azul-electrico), var(--azul-oscuro));
+            color: var(--blanco);
+            padding: 20px;
+            text-align: left;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            color: var(--azul-electrico);
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f0f8ff;
+        }
+
+        button { 
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--blanco);
+            color: var(--negro);
+            text-decoration: none;
+            border-radius: 5px;
+            border-color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+    
+        .regulation-box {
+            display: flex; /* Activa Flexbox */
+            justify-content: space-between; /* Espacia las cajas: izquierda y derecha */
+            align-items: flex-start; /* Alinea al inicio verticalmente, ajusta si necesitas centrar */
+            background-color: var(--blanco);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid var(--plateado);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .regulations-box {
+            flex: 1;
+            
+        }
+
+        .regulation-box h3 {
+            color: var(--azul-electrico);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }

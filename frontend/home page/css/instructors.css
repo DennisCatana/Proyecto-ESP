@@ -1,0 +1,64 @@
+/* Instructores */
+        .instructors {
+            background-color: #ffffff;
+        }
+
+        .instructors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .instructors-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            height: 300px;
+        }
+        .instructors-title {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(rgba(0,123,255,0.9), transparent);  /* Gradiente similar al overlay inferior, pero invertido */
+            color: var(--blanco);
+            padding: 10px;  /* Padding menor para no ocupar demasiado espacio */
+            transform: translateY(-100%);  /* Oculto inicialmente, arriba */
+            transition: transform 0.3s ease;
+            text-align: center;  /* Centra el texto */
+        }
+
+        .instructors-item:hover .instructors-title {
+            transform: translateY(0);  /* Se desliza hacia abajo al hacer hover */
+        }
+
+        .instructors-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .instructors-overlay p{
+            font-size: 0.8rem;
+        }
+
+        .instructors-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .instructors-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,123,255,0.9));
+            color: var(--blanco);
+            padding: 5px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .instructors-item:hover .instructors-overlay {
+            transform: translateY(0 );
+        }

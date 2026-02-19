@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Instructores</title>
+    <style>
+        /* Variables de color */
+        :root {
+            --azul-electrico: #007BFF;
+            --azul-oscuro: #0056b3;
+            --blanco: #ffffff;
+            --plateado: #C0C0C0;
+            --gris-oscuro: #333333;
+            --negro: #000000;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--gris-oscuro);
+            background-color: #f5f5f5;
+        }
+        
+        /* Instructores */
+        .instructors {
+            background-color: var(--blanco);
+        }
+
+        .instructors-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--blanco);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--azul-electrico), var(--azul-oscuro));
+            color: var(--blanco);
+            padding: 20px;
+            text-align: left;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background-color: #f0f8ff;
+        }
+         /* Secciones generales */
+        section {
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--azul-electrico);
+            margin-bottom: 10px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 4px;
+            background-color: var(--plateado);
+        }
+        .section-title h2::before {
+            content: '';
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 4px;
+            background-color: var(--plateado);
+        }
+    </style>
+</head>
+<body>
+     <!-- Instructores -->
+    <section id="instructores" class="instructors">
+        <div class="section-title">
+            <h2>Cuadro de Instructores</h2>
+            <p>Profesionales altamente capacitados para su formación</p>
+        </div>
+        <div class="instructors-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Grado</th>
+                        <th>Nombre</th>
+                        <th>Especialidad</th>
+                        <th>Experiencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Crnl.</td>
+                        <td>TBA</td>
+                        <td>Comandante de Academia</td>
+                        <td>25 años</td>
+                    </tr>
+                    <tr>
+                        <td>Tcrn.</td>
+                        <td>TBA</td>
+                        <td>Subdirector Académico</td>
+                        <td>20 años</td>
+                    </tr>
+                    <tr>
+                        <td>Cmte.</td>
+                        <td>TBA</td>
+                        <td>Jefe de Formación</td>
+                        <td>18 años</td>
+                    </tr>
+                    <tr>
+                        <td>My.</td>
+                        <td>TBA</td>
+                        <td>Instrucción Táctica</td>
+                        <td>15 años</td>
+                    </tr>
+                    <tr>
+                        <td>Cap.</td>
+                        <td>TBA</td>
+                        <td>Derecho Policial</td>
+                        <td>12 años</td>
+                    </tr>
+                    <tr>
+                        <td>Tn.</td>
+                        <td>TBA</td>
+                        <td>Educación Física</td>
+                        <td>10 años</td>
+                    </tr>
+                    <tr>
+                        <td>Sgto. 1ro.</td>
+                        <td>TBA</td>
+                        <td>Instrucción Militar</td>
+                        <td>8 años</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</body>
+</html>
