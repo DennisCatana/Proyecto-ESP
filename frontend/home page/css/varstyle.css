@@ -1,0 +1,40 @@
+ /* Variables de colores institucionales */
+        :root {
+            --azul-electrico: #007BFF;
+            --azul-oscuro: #0056b3;
+            --blanco: #ffffff;
+            --plateado: #C0C0C0;
+            --gris-oscuro: #333333;
+            --negro: #000000;
+        }
+
+        /* Reset y estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--gris-oscuro);
+            background-color: #f5f5f5;
+        }
+
+         /*RAP*/
+        .rap {
+            background: linear-gradient(rgba(0, 123, 255, 0.408), rgba(0, 87, 179, 0.885)), url('/images/main_image.jpeg') center/cover;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--blanco);
+        }
+
+        .rap-content h2 {
+            font-size: 3rem;
+            margin-bottom: 3rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }

@@ -1,0 +1,44 @@
+/* Galería carrusel */
+        .carousel {
+            background: #e8f4ff;
+            position: relative;
+            width: 100%;
+            text-align: center;
+            margin: 0 auto;
+        }
+        .carousel img {
+        width: 80%;
+        height: 400px;
+        object-fit: cover;  /* Ajusta sin deformar */
+        border: 2px solid #ddd;  /* Borde sutil */
+        border-radius: 15px;  /* Esquinas más redondeadas */
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);  /* Sombra más pronunciada */
+        filter: brightness(1.05) saturate(1.1);  /* Mejora colores */
+        transition: transform 0.3s ease, box-shadow 0.3s ease;  /* Transición suave */
+        }
+
+        .carousel img:hover {
+            transform: scale(1.02);  /* Ligero zoom al hover */
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);  /* Sombra más intensa */
+        }
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            border-radius: 50%;
+        }
+        .arrow:hover {
+            background-color: rgba(0,0,0,0.8);
+        }
+        .left {
+            left: 10px;
+        }
+        .right {
+            right: 10px;
+        }

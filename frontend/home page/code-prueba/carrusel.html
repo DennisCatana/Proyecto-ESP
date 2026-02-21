@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrusel de Imágenes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .carousel {
+            position: relative;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+        }
+        .carousel img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            border-radius: 50%;
+        }
+        .arrow:hover {
+            background-color: rgba(0,0,0,0.8);
+        }
+        .left {
+            left: 10px;
+        }
+        .right {
+            right: 10px;
+        }
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+            .carousel {
+                width: 90%;
+            }
+            .arrow {
+                padding: 8px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="carousel">
+        <img id="carousel-image" src="" alt="Imagen del carrusel">
+        <button class="arrow left" onclick="prevImage()">&#8592;</button>
+        <button class="arrow right" onclick="nextImage()">&#8594;</button>
+    </div>
+
+    <script>
+        // Array con las rutas de tus imágenes (agrega las tuyas aquí)
+        const images = [
+            '1.png',  // Reemplaza con tu imagen 1
+            '2.png',  // Reemplaza con tu imagen 2
+            '3.jpg'   // Agrega más si quieres
+        ];
+
+        let currentIndex = 0;  // Índice de la imagen actual
+
+        // Función para mostrar la imagen actual
+        function showImage() {
+            document.getElementById('carousel-image').src = images[currentIndex];
+        }
+
+        // Función para ir a la siguiente imagen
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % images.length;  // Bucle al final
+            showImage();
+        }
+
+        // Función para ir a la imagen anterior
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;  // Bucle al inicio
+            showImage();
+        }
+
+        // Mostrar la primera imagen al cargar
+        showImage();
+    </script>
+</body>
+</html>

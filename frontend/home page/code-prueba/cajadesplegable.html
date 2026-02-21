@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Visor de PDFs con Módulos</title>
+    <style>
+        .caja { border: 1px solid #ccc; padding: 10px; width: 300px; margin-bottom: 20px; }
+        #visor { border: 1px solid #000; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Seleccionar y Ver PDF</h1>
+    
+    <div class="caja">
+        <label for="selectorArchivo">Selecciona un PDF:</label>
+        <select id="selectorArchivo">
+            <option value="">Ninguno</option>
+            <option value="doc1.pdf">Documento 1</option>
+            <option value="doc2.pdf">Documento 2</option>
+        </select>
+    </div>
+    
+    <canvas id="visor"></canvas>
+    <a id="descarga" href="#" download style="display: none; margin-top: 10px;">Descargar PDF</a>
+    
+    <!-- Cargar como módulo -->
+    <script type="module" src="visor-pdf.mjs"></script>
+</body>
+</html>

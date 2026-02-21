@@ -1,0 +1,41 @@
+ /* Ética Institucional */
+        .ethics {
+            background-color: #e8f4ff;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .value-card {
+            background-color: var(--blanco);
+            padding: 10px;
+            border-radius: 30px;
+            text-align: center;
+            border-left: 5px solid var(--azul-electrico);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .value-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .value-card h4 {
+            color: var(--azul-electrico);
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .value-card p {
+            color: var(--negro);
+            margin-bottom: 10px;
+            font-size: 0.7rem;
+        }
+
+        .value-card .icon {
+            font-size: 3rem;
+            margin-bottom: 10px;            
+        }

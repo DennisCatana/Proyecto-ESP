@@ -1,0 +1,33 @@
+/* Contactos */
+        .contact {
+            background-color: var(--blanco);
+        }
+
+        .contact-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-card {
+            background: linear-gradient(135deg, var(--azul-electrico), var(--azul-oscuro));
+            color: var(--blanco);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .contact-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .contact-card p {
+            margin-bottom: 10px;
+        }
+
+        .contact-card .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: inline;
+        }
