@@ -7,10 +7,10 @@ import { sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodema
 //Creación de usuario 
 export const registro = async (req, res) => {
     try {
-        const { nombreU, correoU, cedula, gradoU, passwordU, rol } = req.body;
+        const { nombreU, correoU, cedula, gradoU, rol } = req.body;
 
         // Validar campos
-        if (!nombreU || !correoU || !cedula || !gradoU || !passwordU || !rol) {
+        if (!nombreU || !correoU || !cedula || !gradoU || !rol) {
             return res.status(400).json({ error: "Todos los campos obligatorios deben estar completos" });
         }
 
@@ -28,7 +28,7 @@ export const registro = async (req, res) => {
         }
 
         // Encriptar contraseña
-        const passwordHash = await hashPassword(passwordU);
+        const passwordHash = await hashPassword(cedula);
 
         // Generar token de verificación
         const tokenVerificacion = tokenV();
@@ -43,7 +43,8 @@ export const registro = async (req, res) => {
                 passwordU: passwordHash,
                 rol,
                 tokenVerificacion,
-                confirmarCorreo: false
+                confirmarCorreo: false,
+                cambioPassword: true
             }
         });
 
@@ -84,7 +85,7 @@ export const confirmarCorreo = async (req, res) => {
 export const recuperarPassword = async (req, res) => {
     try {
         const { correoU } = req.body;
-        
+
         if (!correoU) return res.status(400).json({ msg: "El correo es obligatorio" });
 
         const usuario = await prisma.usuario.findUnique({ where: { correoU } });
@@ -129,21 +130,61 @@ export const nuevaPassword = async (req, res) => {
     try {
         const { token } = req.params;
         const { passwordU, confirmarpassword } = req.body;
-        if (!passwordU) return res.status(400).json({ msg: "La nueva contraseña es obligatoria" });
-        if (passwordU !== confirmarpassword) return res.status(400).json({ msg: "Las contraseñas no coinciden" });
 
-        const usuario = await prisma.usuario.findFirst({ where: { tokenRecuperacion: token } });
-        if (!usuario) return res.status(400).json({ msg: "Token de recuperación inválido" });
+        if (!passwordU || !confirmarpassword)
+            return res.status(400).json({ msg: "Todos los campos son obligatorios" });
+
+        if (passwordU !== confirmarpassword)
+            return res.status(400).json({ msg: "Las contraseñas no coinciden" });
+
+        let usuario;
+
+        // 🔹 Recuperación
+        if (token) {
+            usuario = await prisma.usuario.findFirst({
+                where: { tokenRecuperacion: token }
+            });
+
+            if (!usuario)
+                return res.status(400).json({ msg: "Token inválido" });
+        }
+        // 🔹 Primer login o cambio normal
+        else {
+            const usuarioId = req.usuario.id;
+
+            usuario = await prisma.usuario.findUnique({
+                where: { id: usuarioId }
+            });
+
+            if (!usuario)
+                return res.status(404).json({ msg: "Usuario no encontrado" });
+        }
+
+        // 🔐 No permitir usar la cédula como password
+        if (passwordU === usuario.cedula) {
+            return res.status(400).json({
+                msg: "La nueva contraseña no puede ser igual a la cédula"
+            });
+        }
+
         const passwordHash = await hashPassword(passwordU);
 
         await prisma.usuario.update({
             where: { id: usuario.id },
-            data: { passwordU: passwordHash, tokenRecuperacion: null }
+            data: {
+                passwordU: passwordHash,
+                tokenRecuperacion: null,
+                tokenRecuperacionExpira: null,
+                cambioPassword: false
+            }
         });
+
         return res.json({ msg: "Contraseña actualizada correctamente" });
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ msg: `Error en el servidor - ${error.message}` });
+        return res.status(500).json({
+            msg: `Error en el servidor - ${error.message}`
+        });
     }
 };
 
@@ -152,25 +193,72 @@ export const login = async (req, res) => {
     try {
         const { correoU, passwordU } = req.body;
 
-        const usuario = await prisma.usuario.findUnique({ where: { correoU } });
-        if (!usuario) return res.status(400).json({ msg: "Usuario no existe" });
+        if (!correoU || !passwordU)
+            return res.status(400).json({ msg: "Correo y contraseña obligatorios" });
+
+        const usuario = await prisma.usuario.findUnique({
+            where: { correoU }
+        });
+
+        if (!usuario)
+            return res.status(400).json({ msg: "Usuario no existe" });
+
+        if (!usuario.activo)
+            return res.status(403).json({ msg: "Usuario desactivado" });
 
         const valido = await comparePassword(passwordU, usuario.passwordU);
-        if (!valido) return res.status(400).json({ msg: "Contraseña incorrecta" });
 
-        // Generar token y actualizar DB
+        if (!valido)
+            return res.status(400).json({ msg: "Contraseña incorrecta" });
+
         const token = generarJWT(usuario);
+
         await prisma.usuario.update({
             where: { id: usuario.id },
             data: { tokenSession: token }
         });
 
-        // ✅ Enviar solo UNA vez la respuesta
-        return res.json({ usuario, token });
+        if (usuario.cambioPassword) {
+            return res.json({
+                msg: "Debe cambiar su contraseña",
+                cambioPassword: true,
+                token
+            });
+        }
+
+        return res.json({
+            usuario: {
+                id: usuario.id,
+                nombreU: usuario.nombreU,
+                correoU: usuario.correoU,
+                rol: usuario.rol
+            },
+            token,
+            cambioPassword: false
+        });
 
     } catch (error) {
-        // Este catch solo se ejecutará si no se ha enviado respuesta antes
-        return res.status(500).json({ msg: `Error en el servidor - ${error.message}` });
+        return res.status(500).json({
+            msg: `Error en el servidor - ${error.message}`
+        });
     }
 };
 
+//Cerrar sesión
+export const logout = async (req, res) => {
+    try {
+        const usuarioId = req.usuario.id;
+
+        await prisma.usuario.update({
+            where: { id: usuarioId },
+            data: { tokenSession: null }
+        });
+
+        return res.json({ msg: "Sesión cerrada correctamente" });
+
+    } catch (error) {
+        return res.status(500).json({
+            msg: `Error en el servidor - ${error.message}`
+        });
+    }
+};

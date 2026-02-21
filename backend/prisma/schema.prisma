@@ -35,7 +35,7 @@ model Usuario {
   correoU                     String    @unique
   passwordU                 String
   activo                    Boolean   @default(true)
-  cambioPassword  Boolean   @default(false)
+  cambioPassword  Boolean   @default(true)
   tokenSession                     String?
   tokenVerificacion         String?
   tokenRecuperacion         String?    

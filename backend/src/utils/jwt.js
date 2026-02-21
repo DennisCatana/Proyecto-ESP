@@ -19,4 +19,6 @@ export const tokenV = () => {
 
 
 
-export const verificarJWT = (token) => jwt.verify(token, process.env.JWT_SECRET);
+export const verificarJWT = (token) => {
+    return jwt.verify(token, process.env.JWT_SECRET);
+};
