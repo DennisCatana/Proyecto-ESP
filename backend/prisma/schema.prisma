@@ -7,30 +7,108 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Roles
-enum Roles {
+//////////////////////
+// ENUMS
+//////////////////////
+
+enum RolNombre {
   Administrador
   Instructor
+  Servicio
+  Alumno
 }
 
-// Modelo Persona (datos personales)
-model Persona {
-  cedula        String   @id @unique
-  grado         String?  @db.VarChar(255)
-  apellidoNombre String  @db.VarChar(255)
-
-  usuario       Usuario?
+enum TipoAccion {
+  Positiva
+  Negativa
 }
 
-// Modelo Usuario (autenticación)
+//////////////////////
+// MODELOS
+//////////////////////
+
 model Usuario {
-  id            Int      @id @default(autoincrement())
-  password      String   @db.VarChar(255)
-  rol           Roles              
-  tokenSession  String?  @unique
-  fraseSecreta           String?  @db.VarChar(255)
-  cambiarPassword Boolean @default(true)
+  id                        Int       @id @default(autoincrement())
+  cedula                    String    @unique
+  gradoU                    String
+  nombreU                   String    @unique
+  correoU                     String    @unique
+  passwordU                 String
+  activo                    Boolean   @default(true)
+  cambioPassword  Boolean   @default(false)
+  tokenSession                     String?
+  tokenVerificacion         String?
+  tokenRecuperacion         String?    
+  tokenRecuperacionExpira   DateTime?   
 
-  personaCedula String   @unique
-  persona        Persona @relation(fields: [personaCedula], references: [cedula], onDelete: Cascade)
+  confirmarCorreo           Boolean @default(false)
+
+  rol RolNombre
+
+  // Relación 1 a 1 opcional con Cadete (solo si rol = Alumno)
+  cadeteId Int?    @unique
+  cadete   Cadete? @relation(fields: [cadeteId], references: [id], onDelete: SetNull)
+
+  accionesRegistradas Accion[] @relation("AccionesRegistradas")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([rol])
+  @@index([cedula])
+}
+
+model Cadete {
+  id                Int      @id @default(autoincrement())
+  orden             String?
+  promocion         String
+  cia               String
+  nombre            String
+  edad              Int
+  cedula            String   @unique
+  seccion           String
+  genero            String?
+  habitacion        String?
+  grupo_guardia     String?
+  antiguedad        String?
+  correo            String?
+  telefono          String?
+  fecha_nacimiento  DateTime
+  seguro_medico     String?
+  numero_emergencia String?
+  parentesco        String?
+  lugar_nacimiento  String?
+  lugar_residencia  String?
+
+  estado            Boolean  @default(true)
+
+  usuario Usuario?   // Relación inversa 1–1
+  acciones Accion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([cedula])
+  @@index([promocion])
+  @@index([estado])
+}
+
+model Accion {
+  id              Int         @id @default(autoincrement())
+  tipo            TipoAccion
+  descripcion     String
+
+  cadeteId        Int
+  cadete          Cadete      @relation(fields: [cadeteId], references: [id], onDelete: Cascade)
+
+  registradoPorId Int
+  registradoPor   Usuario     @relation("AccionesRegistradas", fields: [registradoPorId], references: [id], onDelete: Restrict)
+
+  fecha           DateTime    @default(now())
+  createdAt       DateTime    @default(now())
+
+  @@index([cadeteId])
+  @@index([registradoPorId])
+  @@index([tipo])
+  @@index([fecha])
 }
