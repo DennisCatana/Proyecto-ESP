@@ -1,53 +1,39 @@
-
-import { BrowserRouter, Route, Routes } from 'react-router'
-import { Home } from './pages/Home'
+import { BrowserRouter, Route, Routes,} from 'react-router-dom'
+import ScrollToTop from './components/Scrolltotop';
 import Login from './pages/Login'
-import { Register } from './pages/Register'
-import { Forgot } from './pages/Forgot'
-import { Confirm } from './pages/Confirm'
-import { NotFound } from './pages/NotFound'
-import Dashboard from './layout/Dashboard'
-import Profile from './pages/Profile'
-import List from './pages/List'
-import Details from './pages/Details'
-import Create from './pages/Create'
-import Update from './pages/Update'
-import Chat from './pages/Chat'
-import Reset from './pages/Reset'
-import Panel from './pages/Panel'
+import Home from './pages/Home'
+import Instructors from './pages/Instructors'
+import Gallery from './pages/Gallery'
+import Contacts from './pages/Contacts'
 
+import Ethic from './pages/identity/Ethic'
+import Map from './pages/identity/Map';
+import Simbolismos from './pages/identity/Simbolismos';
 
+import Regulations from './pages/library/Regulations'
 
 function App() {
   return (
-    <>
     <BrowserRouter>
+    <ScrollToTop />
       <Routes>
-        
-        <Route index element={<Home/>}/>
-        <Route path='login' element={<Login/>}/>
-        <Route path='register' element={<Register/>}/>
-        <Route path='forgot/:id' element={<Forgot/>}/>
-        <Route path='confirm/:token' element={<Confirm/>}/>
-        <Route path='reset/:token' element={<Reset/>}/>
-        <Route path='*' element={<NotFound />} />
+        {/* Págins principales */}
+        <Route path='/' element={<Home/>}/>
+        <Route path='rAP' element={<no/>}/>
+        <Route path='values' element={<Ethic/>}/>
+        <Route path='instructors' element={<Instructors/>}/>
+        <Route path='gallery' element={<Gallery/>}/>
 
+        <Route path='contacts' element={<Contacts/>}/>
+        {/* Páginas de Identidad */}
+        <Route path='/identity/values' element={<Ethic/>}/>
+        <Route path='/identity/structure' element={<Map/>}/>
+        <Route path='/identity/simbolismos' element={<Simbolismos/>}/>
 
-        <Route path='/dashboard' element={<Dashboard/>}>
-          <Route index element={<Panel/>}/>
-          <Route path='profile' element={<Profile/>}/>
-          <Route path='list' element={<List/>}/>
-          <Route path='details/:id' element={<Details/>}/>
-          <Route path='create' element={<Create/>}/>
-          <Route path='update/:id' element={<Update/>}/>
-          <Route path='chat' element={<Chat/>}/>
-
-        </Route>
-
+        <Route path='/library/regulations' element={<Regulations/>}/>
 
       </Routes>
     </BrowserRouter>
-    </>
   )
 }
 

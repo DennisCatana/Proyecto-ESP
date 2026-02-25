@@ -1,103 +1,99 @@
-import { useState } from "react"
-import { MdVisibility, MdVisibilityOff } from "react-icons/md"
-import { Link } from "react-router"
+import React from 'react';
 
-
-
-const Login = () => {
-    const [showPassword, setShowPassword] = useState(false);
+const LoginPage = () => {
+    // Las imágenes en public/ se acceden con ruta string (sin import)
+    const images = [
+        "/images/image9.jpeg",
+        "/images/image7.jpeg",
+        "/images/image6.jpeg",
+        "/images/image10.jpeg",
+    ];
 
     return (
-        <div className="flex flex-col sm:flex-row h-screen">
+        <div className="min-h-screen flex justify-center items-center overflow-hidden relative bg-gray-100">
+        
+            {/* Estilos para la animación personalizada */}
+            <style>{`
+                @keyframes fadeSlide {
+                    0% { opacity: 0; }
+                    10% { opacity: 1; }
+                    40% { opacity: 1; }
+                    50% { opacity: 0; }
+                    100% { opacity: 0; }
+                }
+                .animate-fade-slide {
+                    animation: fadeSlide 10s infinite;
+                }
+            `}</style>
 
-            {/* Imagen */}
-            <div className="hidden sm:block sm:w-1/2 bg-[url('/public/images/doglogin.jpg')] bg-cover bg-center"></div>
+            {/* === FONDO (Background) === */}
+            <div className="fixed inset-0 z-0">
+                {images.map((img, index) => (
+                    <div
+                        key={index}
+                        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-0 animate-fade-slide"
+                        style={{
+                            backgroundImage: `url(${img})`,
+                            animationDelay: `${index * 2}s` 
+                        }}
+                    />
+                ))}
+            </div>
 
+            {/* === OVERLAY OSCURO === */}
+            <div className="fixed inset-0 bg-black/40 z-10"></div>
 
-            <div className="w-full sm:w-1/2 flex justify-center items-center bg-white">
+            {/* === CONTENEDOR PRINCIPAL === */}
+            <div className="relative z-20 w-full max-w-md px-4">
+                <div className="bg-white p-8 rounded-xl shadow-2xl">
+                    <h2 className="text-2xl font-bold text-center mb-6 text-[#153557]">
+                        Iniciar Sesión
+                    </h2>
 
-                <div className="w-4/5">
-
-                    <h1 className="text-3xl font-semibold text-center text-gray-500">Bienvenido(a)</h1>
-                
-                    <p className="text-gray-400 text-center my-4">Por favor ingresa tus datos</p>
-
-
-                    {/* Formulario */}
                     <form>
-
-                        {/* Campo Correo */}
-                        <div className="mb-3">
-                            <label className="block text-sm font-semibold mb-1">Correo electrónico</label>
+                        <div className="mb-5">
+                            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
+                                Correo electrónico
+                            </label>
                             <input
                                 type="email"
-                                placeholder="Ingresa tu correo"
-                                className="w-full rounded-md border border-gray-300 focus:ring-1 px-2 py-1 text-gray-500"
+                                id="email"
+                                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] focus:border-transparent bg-gray-50"
+                                placeholder="name@company.com"
+                                required
                             />
                         </div>
 
-
-                        {/* Campo Contraseña */}
-                        <div className="mb-3">
-                            
-                            <label className="block text-sm font-semibold mb-1">Contraseña</label>
-
-                            <div className="relative">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    placeholder="************"
-                                    className="w-full rounded-md border border-gray-300 px-3 py-2 pr-10"
-                                />
-
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700"
-                                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                                >
-                                    {showPassword ? <MdVisibilityOff size={20} /> : <MdVisibility size={20} />}
-                                </button>
-                            </div>
+                        <div className="mb-6">
+                            <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
+                                Contraseña
+                            </label>
+                            <input
+                                type="password"
+                                id="password"
+                                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] focus:border-transparent bg-gray-50"
+                                placeholder="••••••••"
+                                required
+                            />
                         </div>
 
+                        <button
+                            type="submit"
+                            className="w-full text-white bg-[#153557] hover:bg-[#0f2540] font-bold rounded-lg text-base px-5 py-3 text-center transition-colors duration-200"
+                        >
+                            Ingresar
+                        </button>
 
-                        {/* Botón login */}
-                        <Link to="/dashboard" className="block w-full py-2 text-center bg-gray-500 text-white rounded-xl hover:bg-gray-900 duration-300">
-                            Iniciar sesión
-                        </Link>
-
+                        <div className="mt-5 text-center">
+                            <a href="#" className="text-sm text-[#153557] hover:underline">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+                        </div>
                     </form>
-
-
-                    {/* Separador */}
-                    <div className="mt-6 flex items-center text-gray-400">
-                        <hr className="flex-1" />
-                        <span className="px-2 text-sm">O</span>
-                        <hr className="flex-1" />
-                    </div>
-
-
-
-
-                    {/* Enlace para olvidaste tu contraseña */}
-                    <div className="mt-5 text-xs border-b-2 py-4 text-left">
-                        <Link to="/forgot/id" className="underline text-gray-400 hover:text-gray-900">
-                            ¿Olvidaste tu contraseña?
-                        </Link>
-                    </div>
-
-
-
-                    {/* Enlaces para volver o registrarse */}
-                    <div className="mt-3 flex justify-between text-sm">
-                        <Link to="/" className="underline text-gray-400 hover:text-gray-900">Regresar</Link>
-                    </div>
-
-
                 </div>
             </div>
         </div>
     );
 };
 
-export default Login;
+export default LoginPage;
