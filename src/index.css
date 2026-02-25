@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;900&family=Roboto:wght@400;700;900&display=swap');
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-slate-800;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-slate-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-500;
+}
+
+@keyframes nodePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 
+      0 0 30px #D4A84B90,
+      0 0 60px #00B4D840,
+      inset 0 0 15px rgba(255,255,255,0.4),
+      0 10px 40px rgba(0,0,0,0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 
+      0 0 50px #FFD700,
+      0 0 80px #00B4D860,
+      inset 0 0 20px rgba(255,255,255,0.5),
+      0 10px 40px rgba(0,0,0,0.3);
+  }
+}
