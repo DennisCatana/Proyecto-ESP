@@ -2,7 +2,8 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import authRoutes from "./routers/auth_routes.js";
-import usuarioRoutes from "./routers/usuario_routes.js";
+import cadeteRoutes from "./routers/cadete_routes.js";
+import accionRoutes from "./routers/accion_routes.js";
 
 dotenv.config()
 
@@ -18,7 +19,8 @@ app.use(express.urlencoded({ extended: true }));
 //Rutas
 app.get('/',(req,res)=> res.send("API funcionando correctamente 🚀"))
 app.use("/api", authRoutes);
-app.use("/api", usuarioRoutes);
+app.use("/api", cadeteRoutes);
+app.use("/api", accionRoutes);
 
 
 

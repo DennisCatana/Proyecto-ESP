@@ -70,7 +70,7 @@ model Cadete {
   genero            String?
   habitacion        String?
   grupo_guardia     String?
-  antiguedad        String?
+  antiguedad        Int?
   correo            String?
   telefono          String?
   fecha_nacimiento  DateTime
@@ -81,6 +81,8 @@ model Cadete {
   lugar_residencia  String?
 
   estado            Boolean  @default(true)
+
+  puntajeTotal      Int      @default(0)
 
   usuario Usuario?   // Relación inversa 1–1
   acciones Accion[]
@@ -94,21 +96,40 @@ model Cadete {
 }
 
 model Accion {
-  id              Int         @id @default(autoincrement())
-  tipo            TipoAccion
-  descripcion     String
+  id               Int         @id @default(autoincrement())
 
-  cadeteId        Int
-  cadete          Cadete      @relation(fields: [cadeteId], references: [id], onDelete: Cascade)
+  cadeteId         Int
+  cadete           Cadete      @relation(fields: [cadeteId], references: [id], onDelete: Cascade)
 
-  registradoPorId Int
-  registradoPor   Usuario     @relation("AccionesRegistradas", fields: [registradoPorId], references: [id], onDelete: Restrict)
+  accionDefinidaId Int
+  accionDefinida   AccionDefinida @relation(fields: [accionDefinidaId], references: [id])
 
-  fecha           DateTime    @default(now())
-  createdAt       DateTime    @default(now())
+  registradoPorId  Int
+  registradoPor    Usuario     @relation("AccionesRegistradas", fields: [registradoPorId], references: [id], onDelete: Restrict)
+
+  observacion      String?
+  fecha            DateTime    @default(now())
 
   @@index([cadeteId])
+  @@index([accionDefinidaId])
   @@index([registradoPorId])
-  @@index([tipo])
   @@index([fecha])
+}
+
+model AccionDefinida {
+  id          Int         @id @default(autoincrement())
+  codigo      String      @unique
+  titulo      String
+  descripcion String
+  tipo        TipoAccion
+  puntaje     Int         // puede ser positivo o negativo
+
+  activa      Boolean     @default(true)
+
+  accionesAplicadas Accion[]
+
+  createdAt   DateTime @default(now())
+
+  @@index([tipo])
+  @@index([activa])
 }
