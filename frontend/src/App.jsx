@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes,} from 'react-router-dom'
 import ScrollToTop from './components/Scrolltotop';
 import Login from './pages/Login'
 import Home from './pages/Home'
+import Rap from './pages/Rap'
 import Instructors from './pages/Instructors'
 import Gallery from './pages/Gallery'
 import Contacts from './pages/Contacts'
@@ -18,8 +19,9 @@ function App() {
     <ScrollToTop />
       <Routes>
         {/* Págins principales */}
-        <Route path='/' element={<Home/>}/>
-        <Route path='rAP' element={<no/>}/>
+        <Route path='/' element={<Login/>}/>
+        <Route path='/home' element={<Home/>}/>
+        <Route path='rAP' element={<Rap/>}/>
         <Route path='values' element={<Ethic/>}/>
         <Route path='instructors' element={<Instructors/>}/>
         <Route path='gallery' element={<Gallery/>}/>

@@ -5,7 +5,7 @@ const NavbarDesktop = () => {
     const [openDropdown, setOpenDropdown] = useState(null);
 
     const simpleLinks = [
-        { name: 'Inicio', path: '/' },
+        { name: 'Inicio', path: '/home' },
         { name: 'APP', path: '/rap' },
         { name: 'Contactos', path: '/contacts' },
         { name: 'Galería', path: '/gallery' },

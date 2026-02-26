@@ -1,6 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import React from 'react';
 
 const LoginPage = () => {
+
+    const navigate = useNavigate(); // 👈 Hook de navegación
+
     // Las imágenes en public/ se acceden con ruta string (sin import)
     const images = [
         "/images/image9.jpeg",
@@ -9,9 +13,18 @@ const LoginPage = () => {
         "/images/image10.jpeg",
     ];
 
+    const handleSubmit = (e) => {
+        e.preventDefault(); // evita recarga
+
+        // 🔐 Aquí luego irá tu login real con backend
+
+        navigate("/home"); // redirige a Home
+    };
+
+
     return (
         <div className="min-h-screen flex justify-center items-center overflow-hidden relative bg-gray-100">
-        
+
             {/* Estilos para la animación personalizada */}
             <style>{`
                 @keyframes fadeSlide {
@@ -34,7 +47,7 @@ const LoginPage = () => {
                         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-0 animate-fade-slide"
                         style={{
                             backgroundImage: `url(${img})`,
-                            animationDelay: `${index * 2}s` 
+                            animationDelay: `${index * 2}s`
                         }}
                     />
                 ))}
@@ -50,28 +63,26 @@ const LoginPage = () => {
                         Iniciar Sesión
                     </h2>
 
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <div className="mb-5">
-                            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
+                            <label className="block mb-2 text-sm font-medium text-gray-900">
                                 Correo electrónico
                             </label>
                             <input
                                 type="email"
-                                id="email"
-                                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] focus:border-transparent bg-gray-50"
-                                placeholder="name@company.com"
+                                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
+                                placeholder="denniscataña@gmail.com"
                                 required
                             />
                         </div>
 
                         <div className="mb-6">
-                            <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">
+                            <label className="block mb-2 text-sm font-medium text-gray-900">
                                 Contraseña
                             </label>
                             <input
                                 type="password"
-                                id="password"
-                                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] focus:border-transparent bg-gray-50"
+                                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
                                 placeholder="••••••••"
                                 required
                             />
@@ -79,7 +90,7 @@ const LoginPage = () => {
 
                         <button
                             type="submit"
-                            className="w-full text-white bg-[#153557] hover:bg-[#0f2540] font-bold rounded-lg text-base px-5 py-3 text-center transition-colors duration-200"
+                            className="w-full text-white bg-[#153557] hover:bg-[#0f2540] font-bold rounded-lg text-base px-5 py-3 transition-colors duration-200"
                         >
                             Ingresar
                         </button>
