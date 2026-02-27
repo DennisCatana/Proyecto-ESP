@@ -7,8 +7,7 @@ const NavbarDesktop = () => {
     const navigate = useNavigate();
 
     const cerrarSesion = () => {
-        //localStorage.removeItem("token"); // elimina tu JWT
-        navigate("/", { replace: true }); // vuelve al login
+        navigate("/", { replace: true });
     };
 
     const simpleLinks = [
@@ -19,12 +18,13 @@ const NavbarDesktop = () => {
     ];
 
     const scaleItems = [
-        { name: 'Cúpula Policial', path: '/identity/mission' },
-        { name: 'Cúpula Institucional', path: '/identity/values' },
-        { name: 'Instructores', path: '/instructors' },
-        { name: 'Brigadieres', path: '/identity/structure' },
-        { name: 'Comandantes', path: '/identity/hymn' },
-    ]
+        { name: '- Mando Politico', path: '/identity/mission' },
+        { name: '- Cúpula Intitucional', path: '/organic/minstitucional' },
+        { name: '- Cúpula ESP', path: '/identity/esp' },
+        { name: '- Instructores', path: '/organic/instructors' },
+        { name: '- Brigadieres', path: '/organic/brigs' },
+        { name: '- Comandantes', path: '/organic/comandantes' },
+    ];
 
     const identityItems = [
         { name: 'Historia', path: '/identity/history' },
@@ -42,47 +42,47 @@ const NavbarDesktop = () => {
     ];
 
     return (
-        <nav className="flex">
-            <ul className="flex items-center gap-5 list-none m-0 p-0 px-15">
+        <nav className="flex justify-between items-center w-full">
+
+            <ul className="flex items-center gap-5 list-none m-0 p-0 px-10">
+
                 {/* Links simples */}
                 {simpleLinks.map((link) => (
                     <li key={link.name}>
                         <Link
                             to={link.path}
-                            className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20"
+                            className="text-white font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20"
                         >
                             {link.name}
                         </Link>
                     </li>
                 ))}
 
-                {/* Dropdown - Escalafón */}
+                {/* Dropdown Orgánico */}
                 <li
                     className="relative"
-                    onMouseEnter={() => setOpenDropdown('scale')}
+                    onMouseEnter={() => setOpenDropdown('organic')}
                     onMouseLeave={() => setOpenDropdown(null)}
                 >
-                    <Link
-                        className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1 cursor-pointer"
-                    >
+                    <button className="text-white font-medium px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1">
                         Orgánico
                         <svg
-                            className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'scale' ? 'rotate-180' : ''}`}
+                            className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'organic' ? 'rotate-180' : ''}`}
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
-                    </Link>
+                    </button>
 
-                    {openDropdown === 'scale' && (
-                        <div className="absolute top-full left-0 min-w-42 bg-white rounded-lg shadow-xl py-2 z-50 animate-fade-in">
+                    {openDropdown === 'organic' && (
+                        <div className="absolute top-full left-0 min-w-44 bg-white rounded-lg shadow-xl py-2 z-50">
                             {scaleItems.map((item) => (
                                 <Link
                                     key={item.name}
                                     to={item.path}
-                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition"
                                 >
                                     {item.name}
                                 </Link>
@@ -91,15 +91,13 @@ const NavbarDesktop = () => {
                     )}
                 </li>
 
-                {/* Dropdown - Identidad */}
+                {/* Dropdown Identidad */}
                 <li
                     className="relative"
                     onMouseEnter={() => setOpenDropdown('identity')}
                     onMouseLeave={() => setOpenDropdown(null)}
                 >
-                    <Link
-                        className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1 cursor-pointer"
-                    >
+                    <button className="text-white font-medium px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1">
                         Identidad
                         <svg
                             className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'identity' ? 'rotate-180' : ''}`}
@@ -109,15 +107,15 @@ const NavbarDesktop = () => {
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
-                    </Link>
+                    </button>
 
                     {openDropdown === 'identity' && (
-                        <div className="absolute top-full left-0 min-w-42 bg-white rounded-lg shadow-xl py-2 z-50 animate-fade-in">
+                        <div className="absolute top-full left-0 min-w-44 bg-white rounded-lg shadow-xl py-2 z-50">
                             {identityItems.map((item) => (
                                 <Link
                                     key={item.name}
                                     to={item.path}
-                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition"
                                 >
                                     {item.name}
                                 </Link>
@@ -126,15 +124,13 @@ const NavbarDesktop = () => {
                     )}
                 </li>
 
-                {/* Dropdown - Biblioteca */}
+                {/* Dropdown Biblioteca */}
                 <li
                     className="relative"
                     onMouseEnter={() => setOpenDropdown('library')}
                     onMouseLeave={() => setOpenDropdown(null)}
                 >
-                    <Link
-                        className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1 cursor-pointer"
-                    >
+                    <button className="text-white font-medium px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1">
                         Biblioteca
                         <svg
                             className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'library' ? 'rotate-180' : ''}`}
@@ -144,15 +140,15 @@ const NavbarDesktop = () => {
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
-                    </Link>
+                    </button>
 
                     {openDropdown === 'library' && (
-                        <div className="absolute top-full left-0 min-w-42 bg-white rounded-lg shadow-xl py-2 z-50 animate-fade-in">
+                        <div className="absolute top-full left-0 min-w-44 bg-white rounded-lg shadow-xl py-2 z-50">
                             {libraryItems.map((item) => (
                                 <Link
                                     key={item.name}
                                     to={item.path}
-                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition"
                                 >
                                     {item.name}
                                 </Link>
@@ -160,12 +156,13 @@ const NavbarDesktop = () => {
                         </div>
                     )}
                 </li>
+
             </ul>
 
-            {/* BOTÓN CERRAR SESIÓN */}
+            {/* Botón Cerrar Sesión */}
             <button
                 onClick={cerrarSesion}
-                className="mr-5 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition-all duration-200 flex items-center justify-center"
+                className="mr-5 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition flex items-center justify-center"
                 title="Cerrar sesión"
             >
                 <FiLogOut size={18} />

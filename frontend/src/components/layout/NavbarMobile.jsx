@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-    FiLogOut, 
-    FiBookOpen, 
-    FiUser, 
-    FiHome, 
-    FiGrid, 
-    FiUsers, 
-    FiImage, 
-    FiPhone 
+import {
+    FiLogOut,
+    FiBookOpen,
+    FiUser,
+    FiHome,
+    FiGrid,
+    FiUsers,
+    FiImage,
+    FiPhone
 } from "react-icons/fi";
 
 const NavbarMobile = () => {
@@ -26,9 +26,17 @@ const NavbarMobile = () => {
     const simpleLinks = [
         { name: 'Inicio', path: '/home', icon: FiHome },
         { name: 'APP', path: '/rap', icon: FiGrid },
-        { name: 'Estructura Orgánica', path: '/officers', icon: FiUsers },
         { name: 'Galería', path: '/gallery', icon: FiImage },
         { name: 'Servicios', path: '/contacts', icon: FiPhone },
+    ];
+
+    const organicItems = [
+        { name: '- Mando Politico', path: '/identity/mission' },
+        { name: '- Cúpula Intitucional', path: '/identity/values' },
+        { name: '- Cúpula ESP', path: '/identity/esp' },
+        { name: '- Instructores', path: '/organic/instructors' },
+        { name: '- Brigadieres', path: '/organic/brigs' },
+        { name: '- Comandantes', path: '/organic/comandantes' },
     ];
 
     const doctrineItems = [
@@ -57,7 +65,7 @@ const NavbarMobile = () => {
 
     return (
         <div className="relative">
-            
+
             {/* Botón hamburguesa */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
@@ -95,6 +103,45 @@ const NavbarMobile = () => {
                             );
                         })}
 
+                        {/* Dropdown Orgánico */}
+                        <li>
+                            <button
+                                onClick={() => toggleDropdown('organic')}
+                                className="w-full flex items-center justify-between px-4 py-2 text-white hover:bg-white/20 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <FiUsers size={18} />
+                                    <span>Orgánico</span>
+                                </div>
+
+                                <svg
+                                    className={`w-5 h-5 transition-transform duration-300 ${openDropdown === 'organic' ? 'rotate-180' : ''
+                                        }`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            {openDropdown === 'organic' && (
+                                <ul className="bg-blue-800/50">
+                                    {organicItems.map((item) => (
+                                        <li key={item.name}>
+                                            <Link
+                                                to={item.path}
+                                                className="block text-white/90 px-8 py-2 text-sm hover:bg-white/10 transition-colors"
+                                                onClick={closeMenu}
+                                            >
+                                                {item.name}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </li>
+
                         {/* Dropdown - Identidad */}
                         <li>
                             <button
@@ -107,9 +154,8 @@ const NavbarMobile = () => {
                                 </div>
 
                                 <svg
-                                    className={`w-5 h-5 transition-transform duration-300 ${
-                                        openDropdown === 'doctrine' ? 'rotate-180' : ''
-                                    }`}
+                                    className={`w-5 h-5 transition-transform duration-300 ${openDropdown === 'doctrine' ? 'rotate-180' : ''
+                                        }`}
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -147,9 +193,8 @@ const NavbarMobile = () => {
                                 </div>
 
                                 <svg
-                                    className={`w-5 h-5 transition-transform duration-300 ${
-                                        openDropdown === 'regulations' ? 'rotate-180' : ''
-                                    }`}
+                                    className={`w-5 h-5 transition-transform duration-300 ${openDropdown === 'regulations' ? 'rotate-180' : ''
+                                        }`}
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
