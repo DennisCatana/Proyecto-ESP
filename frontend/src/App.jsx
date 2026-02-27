@@ -41,8 +41,7 @@ function App() {
         <Route path='/identity/structure' element={<Map />} />
         <Route path='/identity/simbolismos' element={<Simbolismos />} />
 
-        <Route path='/library/regulations' element={<Regulations />} />
-
+        <Route path='/library/regulations' element={<Biblioteca />} />
       </Routes>
     </BrowserRouter>
   )
