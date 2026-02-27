@@ -21,12 +21,6 @@ const instructors = [
       phrase: 'La verdadera fuerza de voluntad, se forja como el acero en el fuego, dominando nuestros miedos y superando las dificultades.' 
     },
     { 
-      image: 'images/photos/Tnte.Sarango.jpeg', 
-      name: 'Tnte. Sarango Cuenca Joel Steveen', 
-      phrase: 'Persistir, insistir y nunca desistir hasta alcanzar el objetivo.' 
-    },
-    // Additional instructors without photos - using placeholder
-    { 
       image: 'images/image1.jpeg', 
       name: 'Tnte. Estrella Viscarra Yessenia Poema', 
       phrase: 'Frase.' 
@@ -35,6 +29,11 @@ const instructors = [
       image: 'images/image2.jpeg', 
       name: 'Tnte. Escobar Cevallos Yajaira Marcela', 
       phrase: 'Frase' 
+    }, 
+    { 
+      image: 'images/photos/Tnte.Sarango.jpeg', 
+      name: 'Tnte. Sarango Cuenca Joel Steveen', 
+      phrase: 'Persistir, insistir y nunca desistir hasta alcanzar el objetivo.' 
     },
     { 
       image: 'images/photos/Tnte.Cedeño.jpeg', 

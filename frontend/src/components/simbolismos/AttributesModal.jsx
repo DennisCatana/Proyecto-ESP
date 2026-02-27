@@ -9,11 +9,24 @@ const COLORS = {
   doradoClaro: '#E8C872',
 };
 
-// Data for attributes options
+// Data for attributes options - ORDER: Bastón, Sable, Sablín
 const attributesOptions = {
+  baston: {
+    id: 'baston',
+    name: 'El Bastón',
+    type: 'weapon',
+    description: 'El bastón de mando es el símbolo máximo de la autoridad institucional. Representa el poder deleg ado por el Estado y la responsabilidad suprema del mando.',
+    parts: [
+      { id: 'cabeza', name: 'Cabeza', description: 'Parte superior decorativa, representa la autoridad suprema' },
+      { id: 'cuerpo', name: 'Cuerpo', description: 'Varilla central, simboliza la continuidad institucional' },
+      { id: 'base', name: 'Base', description: 'Fundamento del mando, estabilidad y servicio' },
+      { id: 'bocamayor', name: 'Bocamayor', description: 'Anillo superior, honor al rango' },
+      { id: 'bocamenor', name: 'Bocamenor', description: 'Anillo inferior, continuidad del mando' },
+    ]
+  },
   sable: {
     id: 'sable',
-    name: 'Sable (Oficiales)',
+    name: 'El Sable',
     type: 'weapon',
     description: 'El sable es el arma tradicional de los oficiales de la Policía Nacional. Representa la autoridad, el honor y la tradición militar que se remonta a los orígenes de la institución policial.',
     parts: [
@@ -26,7 +39,7 @@ const attributesOptions = {
   },
   sablin: {
     id: 'sablin',
-    name: 'Sablín (Suboficiales)',
+    name: 'El Sablín',
     type: 'weapon',
     description: 'El sablín es el arma tradicional de los suboficiales. Simboliza la experiencia, el conocimiento táctico y el liderazgo en el servicio.',
     parts: [
@@ -36,24 +49,11 @@ const attributesOptions = {
       { id: 'pomo', name: 'Pomo', description: 'Extremo decorativo, honor al rango' },
       { id: 'vaina', name: 'Vaina', description: 'Funda protectora, disciplina operacional' },
     ]
-  },
-  baston: {
-    id: 'baston',
-    name: 'Bastón de Mando (Generales)',
-    type: 'weapon',
-    description: 'El bastón de mando es el símbolo máximo de la autoridad institucional. Representa el poder deleg ado por el Estado y la responsabilidad suprema del mando.',
-    parts: [
-      { id: 'cabeza', name: 'Cabeza', description: 'Parte superior decorativa, representa la autoridad suprema' },
-      { id: 'cuerpo', name: 'Cuerpo', description: 'Varilla central, simboliza la continuidad institucional' },
-      { id: 'base', name: 'Base', description: 'Fundamento del mando, estabilidad y servicio' },
-      { id: 'bocamayor', name: 'Bocamayor', description: 'Anillo superior, honor al rango' },
-      { id: 'bocamenor', name: 'Bocamenor', description: 'Anillo inferior, continuidad del mando' },
-    ]
   }
 };
 
 const AttributesModal = ({ onClose }) => {
-  const [selectedOption, setSelectedOption] = useState('sable');
+  const [selectedOption, setSelectedOption] = useState('baston');
   const [selectedPart, setSelectedPart] = useState(null);
   
   const currentOption = attributesOptions[selectedOption];

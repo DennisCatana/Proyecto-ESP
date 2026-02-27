@@ -10,7 +10,7 @@ import Ethic from './pages/identity/Ethic'
 import Map from './pages/identity/Map';
 import Simbolismos from './pages/identity/Simbolismos';
 
-import Regulations from './pages/library/Regulations'
+import Biblioteca from './pages/Biblioteca';
 
 function App() {
   return (
@@ -19,7 +19,6 @@ function App() {
       <Routes>
         {/* Págins principales */}
         <Route path='/' element={<Home/>}/>
-        <Route path='rAP' element={<no/>}/>
         <Route path='values' element={<Ethic/>}/>
         <Route path='instructors' element={<Instructors/>}/>
         <Route path='gallery' element={<Gallery/>}/>
@@ -30,7 +29,14 @@ function App() {
         <Route path='/identity/structure' element={<Map/>}/>
         <Route path='/identity/simbolismos' element={<Simbolismos/>}/>
 
-        <Route path='/library/regulations' element={<Regulations/>}/>
+        {/* Biblioteca SPA */}
+        <Route path='/biblioteca' element={<Biblioteca/>}/>
+        
+        {/* Legacy routes - redirect to Biblioteca */}
+        <Route path='/library/regulations' element={<Biblioteca/>}/>
+        <Route path='/library/disciplinary' element={<Biblioteca/>}/>
+        <Route path='/library/internal' element={<Biblioteca/>}/>
+        <Route path='/library/procedures' element={<Biblioteca/>}/>
 
       </Routes>
     </BrowserRouter>

@@ -27,12 +27,6 @@ const NavbarDesktop = () => {
         { name: 'Más datos', path: '/identity/hymn' },
     ];
 
-    const libraryItems = [
-        { name: 'Reglamentos', path: '/library/regulations' },
-        { name: 'Horarios', path: '/library/disciplinary' },
-        { name: 'Formatos', path: '/library/internal' },
-        { name: 'Más documentos', path: '/library/procedures' },
-    ];
 
     return (
         <nav className="flex">
@@ -119,39 +113,14 @@ const NavbarDesktop = () => {
                     )}
                 </li>
 
-                {/* Dropdown - Biblioteca */}
-                <li
-                    className="relative"
-                    onMouseEnter={() => setOpenDropdown('library')}
-                    onMouseLeave={() => setOpenDropdown(null)}
-                    >
+                {/* Biblioteca - Simple Link */}
+                <li>
                     <Link
+                        to="/biblioteca"
                         className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1 cursor-pointer"
                     >
                         Biblioteca
-                        <svg
-                        className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'library' ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
                     </Link>
-
-                    {openDropdown === 'library' && (
-                        <div className="absolute top-full left-0 min-w-42 bg-white rounded-lg shadow-xl py-2 z-50 animate-fade-in">
-                        {libraryItems.map((item) => (
-                            <Link
-                            key={item.name}
-                            to={item.path}
-                            className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                            >
-                            {item.name}
-                            </Link>
-                        ))}
-                        </div>
-                    )}
                 </li>
             </ul>
         </nav>

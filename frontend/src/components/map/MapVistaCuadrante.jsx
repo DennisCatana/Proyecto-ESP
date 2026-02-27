@@ -5,7 +5,7 @@ const MapVistaCuadrante = ({ id, ubicaciones, onSelectUbicacion, ubicacionSelecc
     const cuadrante = cuadrantes[id];
     
     return (
-        <div className="relative w-full h-full bg-slate-200 overflow-hidden">
+        <div className="relative w-full h-full overflow-hidden">
             {/* Imagen de fondo del cuadrante */}
             <div className="absolute inset-0">
                 <img 
@@ -16,7 +16,7 @@ const MapVistaCuadrante = ({ id, ubicaciones, onSelectUbicacion, ubicacionSelecc
                         e.target.style.display = 'none';
                     }}
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-slate-200 via-slate-800/70 to-slate-200/50" />
+                <div className="absolute inset-0 bg-linear-to-t from-slate-900/30 via-slate-900/50 to-slate-900/300" />
             </div>
 
             {/* Grid de referencia */}

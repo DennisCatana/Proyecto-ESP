@@ -15,28 +15,52 @@ const COLORS = {
 // Data for ceremonies - vertical timeline
 const ceremoniesData = [
   {
-    id: 'juramento',
-    title: 'Juramento a la Bandera',
-    date: 'Inicio de cada ciclo académico',
-    description: 'Ceremonia donde los cadetes juran lealtad a la patria y se comprometen a cumplir con honor su deber policial. Este acto marca el inicio formal de su formación institucional, representando el compromiso supremo con la nación y la aceptación voluntaria de los deberes y responsabilidades que implica ser policía.',
+    id: 'institucionalizacion',
+    title: '13 de enero – Institucionalización',
+    date: '1846',
+    description: 'Fecha histórica que marca la institucionalización de la Policía Nacional, estableciendo las bases de la organización policial moderna en Ecuador.',
   },
   {
-    id: 'ascensos',
-    title: 'Ceremonia de Ascensos',
-    date: 'Anualmente',
-    description: 'Acto solemne donde se reconocen los méritos y logros de los oficiales y cadetes que ascienden en el escalafón institucional. Celebra el desarrollo profesional y la dedicación de quienes han demostrado excelencia en su formación y servicio.',
+    id: 'profesionalizacion',
+    title: '2 de marzo – Profesionalización',
+    date: 'Sin fecha específica',
+    description: 'Momento clave en que la institución policial inicia su proceso de profesionalización, elevando los estándares de formación y servicio.',
   },
   {
-    id: 'honores',
-    title: 'Honores Fúnebres',
-    date: 'Según corresponda',
-    description: 'Ceremonia dedicada a honrar la memoria de los héroes policiales caídos en cumplimiento del deber. Reconoce el sacrificio supremo y mantiene viva la memoria de quienes entregan su vida en servicio a la nación.',
+    id: 'escudo_bandera',
+    title: '4 de julio – Escudo y Bandera',
+    date: '1959',
+    description: 'Adopción oficial del escudo y la bandera como símbolos institucionales, representando la identidad y tradición de la Policía Nacional.',
   },
   {
-    id: 'graduacion',
-    title: 'Ceremonia de Graduación',
-    date: 'Fin de cada ciclo',
-    description: 'Acto académico solemne donde los cadetes reciben sus títulos y se convierten en oficiales de policía. Marca la culminación de una etapa de formación y el inicio de una nueva carrera al servicio de la sociedad.',
+    id: 'servicio_pasivo',
+    title: '8 de julio – Policía en Servicio Pasivo',
+    date: 'Sin fecha específica',
+    description: 'Reconocimiento a los oficiales que pasan a situación de servicio pasivo, manteniendo su vínculo institucional y honor.',
+  },
+  {
+    id: 'incineracion',
+    title: '26 de septiembre – Incineración de la Bandera',
+    date: 'Sin fecha específica',
+    description: 'Ceremonia solemne donde se incineran las banderas que han llegado al final de su vida útil, con el máximo respeto y honor institucional.',
+  },
+  {
+    id: 'virgen_cisne',
+    title: '12 de septiembre – Virgen del Cisne (Patrona)',
+    date: 'Sin fecha específica',
+    description: 'Celebración de la Virgen del Cisne como patrona de la institución policial, fortaleciendo los valores espirituales y culturales.',
+  },
+  {
+    id: 'grupos_especiales',
+    title: 'Creación de Grupos Especiales',
+    date: 'GOM, GOE, GEMA, GIR',
+    description: 'Constitución de los grupos especiales de la Policía Nacional: Grupo de Operaciones Motorizadas (GOM), Grupo de Operaciones Especiales (GOE), Grupo de Especialidades Médicas (GEMA) y Grupo de Investigación (GIR).',
+  },
+  {
+    id: 'llama_eterna',
+    title: 'La Llama Eterna',
+    date: '2026',
+    description: 'Símbolo de memoria y eterno sacrificio de los héroes policiales caídos en cumplimiento del deber, representando la llama que nunca se apaga.',
   },
 ];
 
@@ -73,7 +97,7 @@ const CeremoniesModal = ({ onClose }) => {
               ACTOS CEREMONIALES
             </h2>
             <p className="text-slate-600 max-w-2xl mx-auto">
-              Los eventos institucionales que representan la tradición, el honor y el compromiso de la Policía Nacional con la sociedad
+              Las fechas históricas y ceremonias que marcan la tradición y evolución de la Policía Nacional
             </p>
           </div>
           
