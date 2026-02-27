@@ -58,7 +58,7 @@ const LoginPage = () => {
             {/* === CONTENEDOR PRINCIPAL === */}
             <div className="relative z-20 w-full max-w-md px-4">
                 <h1 className="text-2xl font-bold text-center mb-6 text-[#1a4572]">
-                    AETHERNUS<br />
+                    AETERNUS<br />
                     LXXXIX
                 </h1>
 
