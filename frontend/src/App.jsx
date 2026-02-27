@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes,} from 'react-router-dom'
 import ScrollToTop from './components/Scrolltotop';
 import Login from './pages/Login'
 import Home from './pages/Home'
+import Rap from './pages/Rap'
 import Instructors from './pages/Instructors'
 import Gallery from './pages/Gallery'
 import Contacts from './pages/Contacts'

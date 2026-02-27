@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { registrarAccion, obtenerAccionesDeCadete, crearAccionDefinida } from "../controllers/accion_controllers.js";
+import { listarAcciones, registrarAccion} from "../controllers/accion_controllers.js";
 import { protegerRuta } from "../middlewares/auth_middleware.js";
 
 const router = Router();
 
-// Listar cadetes
+// Listar acciones definidas
+router.get("/acciones", listarAcciones);
+// Registrar una acción aplicada a un cadete
+router.post("/registroaccion", protegerRuta, registrarAccion);
 
-router.post("/registraraccion", protegerRuta, registrarAccion);
-router.post("/definida", protegerRuta, crearAccionDefinida);
-router.get("/cadete/:id", protegerRuta, obtenerAccionesDeCadete);
 
 
 export default router;

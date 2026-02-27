@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { FiLogOut } from "react-icons/fi";
 
 const NavbarDesktop = () => {
     const [openDropdown, setOpenDropdown] = useState(null);
+    const navigate = useNavigate();
+
+    const cerrarSesion = () => {
+        //localStorage.removeItem("token"); // elimina tu JWT
+        navigate("/", { replace: true }); // vuelve al login
+    };
 
     const simpleLinks = [
         { name: 'Inicio', path: '/' },
         { name: 'APP', path: '/rap' },
-        { name: 'Contactos', path: '/contacts' },
+        { name: 'Servicios', path: '/contacts' },
         { name: 'Galería', path: '/gallery' },
     ];
 
@@ -35,10 +42,10 @@ const NavbarDesktop = () => {
                 {simpleLinks.map((link) => (
                     <li key={link.name}>
                         <Link
-                        to={link.path}
-                        className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20"
+                            to={link.path}
+                            className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20"
                         >
-                        {link.name}
+                            {link.name}
                         </Link>
                     </li>
                 ))}
@@ -48,31 +55,31 @@ const NavbarDesktop = () => {
                     className="relative"
                     onMouseEnter={() => setOpenDropdown('scale')}
                     onMouseLeave={() => setOpenDropdown(null)}
-                    >
+                >
                     <Link
                         className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1 cursor-pointer"
                     >
-                        Jerarquía
+                        Orgánico
                         <svg
-                        className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'scale' ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                            className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'scale' ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                         >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </Link>
 
                     {openDropdown === 'scale' && (
                         <div className="absolute top-full left-0 min-w-42 bg-white rounded-lg shadow-xl py-2 z-50 animate-fade-in">
-                        {scaleItems.map((item) => (
-                            <Link
-                            key={item.name}
-                            to={item.path}
-                            className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                            >
-                            {item.name}
-                            </Link>
+                            {scaleItems.map((item) => (
+                                <Link
+                                    key={item.name}
+                                    to={item.path}
+                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                >
+                                    {item.name}
+                                </Link>
                             ))}
                         </div>
                     )}
@@ -83,38 +90,42 @@ const NavbarDesktop = () => {
                     className="relative"
                     onMouseEnter={() => setOpenDropdown('identity')}
                     onMouseLeave={() => setOpenDropdown(null)}
-                    >
+                >
                     <Link
                         className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1 cursor-pointer"
                     >
                         Identidad
                         <svg
-                        className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'identity' ? 'rotate-180' : ''}`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                            className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'identity' ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
                         >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </Link>
 
                     {openDropdown === 'identity' && (
                         <div className="absolute top-full left-0 min-w-42 bg-white rounded-lg shadow-xl py-2 z-50 animate-fade-in">
-                        {identityItems.map((item) => (
-                            <Link
-                            key={item.name}
-                            to={item.path}
-                            className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                            >
-                            {item.name}
-                            </Link>
+                            {identityItems.map((item) => (
+                                <Link
+                                    key={item.name}
+                                    to={item.path}
+                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+                                >
+                                    {item.name}
+                                </Link>
                             ))}
                         </div>
                     )}
                 </li>
 
-                {/* Biblioteca - Simple Link */}
-                <li>
+                {/* Dropdown - Biblioteca */}
+                <li
+                    className="relative"
+                    onMouseEnter={() => setOpenDropdown('library')}
+                    onMouseLeave={() => setOpenDropdown(null)}
+                >
                     <Link
                         to="/biblioteca"
                         className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1 cursor-pointer"
@@ -123,6 +134,16 @@ const NavbarDesktop = () => {
                     </Link>
                 </li>
             </ul>
+
+            {/* BOTÓN CERRAR SESIÓN */}
+            <button
+                onClick={cerrarSesion}
+                className="mr-5 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition-all duration-200 flex items-center justify-center"
+                title="Cerrar sesión"
+            >
+                <FiLogOut size={18} />
+            </button>
+
         </nav>
     );
 };

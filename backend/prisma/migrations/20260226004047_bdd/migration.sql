@@ -13,9 +13,11 @@ CREATE TABLE "Usuario" (
     "correoU" TEXT NOT NULL,
     "passwordU" TEXT NOT NULL,
     "activo" BOOLEAN NOT NULL DEFAULT true,
-    "cambioPassword" BOOLEAN NOT NULL DEFAULT false,
+    "cambioPassword" BOOLEAN NOT NULL DEFAULT true,
     "tokenSession" TEXT,
     "tokenVerificacion" TEXT,
+    "tokenRecuperacion" TEXT,
+    "tokenRecuperacionExpira" TIMESTAMP(3),
     "confirmarCorreo" BOOLEAN NOT NULL DEFAULT false,
     "rol" "RolNombre" NOT NULL,
     "cadeteId" INTEGER,
@@ -28,7 +30,6 @@ CREATE TABLE "Usuario" (
 -- CreateTable
 CREATE TABLE "Cadete" (
     "id" SERIAL NOT NULL,
-    "orden" TEXT,
     "promocion" TEXT NOT NULL,
     "cia" TEXT NOT NULL,
     "nombre" TEXT NOT NULL,
@@ -38,7 +39,7 @@ CREATE TABLE "Cadete" (
     "genero" TEXT,
     "habitacion" TEXT,
     "grupo_guardia" TEXT,
-    "antiguedad" TEXT,
+    "antiguedad" INTEGER,
     "correo" TEXT,
     "telefono" TEXT,
     "fecha_nacimiento" TIMESTAMP(3) NOT NULL,
@@ -48,6 +49,7 @@ CREATE TABLE "Cadete" (
     "lugar_nacimiento" TEXT,
     "lugar_residencia" TEXT,
     "estado" BOOLEAN NOT NULL DEFAULT true,
+    "puntajeTotal" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -57,14 +59,29 @@ CREATE TABLE "Cadete" (
 -- CreateTable
 CREATE TABLE "Accion" (
     "id" SERIAL NOT NULL,
-    "tipo" "TipoAccion" NOT NULL,
-    "descripcion" TEXT NOT NULL,
     "cadeteId" INTEGER NOT NULL,
+    "accionDefinidaId" INTEGER NOT NULL,
     "registradoPorId" INTEGER NOT NULL,
+    "observacion" TEXT,
+    "puntajeAplicado" DECIMAL(5,2) NOT NULL,
+    "puntajeAcumulado" DECIMAL(7,2) NOT NULL,
     "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Accion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AccionDefinida" (
+    "id" SERIAL NOT NULL,
+    "codigo" TEXT NOT NULL,
+    "titulo" TEXT NOT NULL,
+    "descripcion" TEXT NOT NULL,
+    "tipo" "TipoAccion" NOT NULL,
+    "puntaje" DOUBLE PRECISION NOT NULL,
+    "activa" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AccionDefinida_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -101,19 +118,31 @@ CREATE INDEX "Cadete_estado_idx" ON "Cadete"("estado");
 CREATE INDEX "Accion_cadeteId_idx" ON "Accion"("cadeteId");
 
 -- CreateIndex
+CREATE INDEX "Accion_accionDefinidaId_idx" ON "Accion"("accionDefinidaId");
+
+-- CreateIndex
 CREATE INDEX "Accion_registradoPorId_idx" ON "Accion"("registradoPorId");
 
 -- CreateIndex
-CREATE INDEX "Accion_tipo_idx" ON "Accion"("tipo");
+CREATE INDEX "Accion_fecha_idx" ON "Accion"("fecha");
 
 -- CreateIndex
-CREATE INDEX "Accion_fecha_idx" ON "Accion"("fecha");
+CREATE UNIQUE INDEX "AccionDefinida_codigo_key" ON "AccionDefinida"("codigo");
+
+-- CreateIndex
+CREATE INDEX "AccionDefinida_tipo_idx" ON "AccionDefinida"("tipo");
+
+-- CreateIndex
+CREATE INDEX "AccionDefinida_activa_idx" ON "AccionDefinida"("activa");
 
 -- AddForeignKey
 ALTER TABLE "Usuario" ADD CONSTRAINT "Usuario_cadeteId_fkey" FOREIGN KEY ("cadeteId") REFERENCES "Cadete"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Accion" ADD CONSTRAINT "Accion_cadeteId_fkey" FOREIGN KEY ("cadeteId") REFERENCES "Cadete"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Accion" ADD CONSTRAINT "Accion_accionDefinidaId_fkey" FOREIGN KEY ("accionDefinidaId") REFERENCES "AccionDefinida"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Accion" ADD CONSTRAINT "Accion_registradoPorId_fkey" FOREIGN KEY ("registradoPorId") REFERENCES "Usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

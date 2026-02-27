@@ -1,7 +1,7 @@
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
-import SectionTitle from '../components/ui/SectionTitle';
-import InstructorCard from '../components/ui/instructors/InstructorCard';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import SectionTitle from '../../components/ui/SectionTitle';
+import InstructorCard from '../../components/ui/instructors/InstructorCard';
 
 const Instructors = () => {
   const instructors = [
@@ -15,25 +15,26 @@ const Instructors = () => {
       name: 'Cptn. Herrera Flores Raúl Efren',
       phrase: 'Para un corazón encendido por la llama de la voluntad humana, no hay miedo o reto más grande que él, este lo convierte en soberano de su destino, creador de lo impensable, dueño de su alma.'
     },
-    { 
-      image: 'images/photos/Cptn.Vinueza.jpeg', 
-      name: 'Cptn. Vinueza Sánchez', 
-      phrase: 'La verdadera fuerza de voluntad, se forja como el acero en el fuego, dominando nuestros miedos y superando las dificultades.' 
+    {
+      image: 'images/photos/Cptn.Vinueza.jpeg',
+      name: 'Cptn. Vinueza Sánchez Daniel Rolando',
+      phrase: 'La verdadera fuerza de voluntad, se forja como el acero en el fuego, dominando nuestros miedos y superando las dificultades.'
     },
-    { 
-      image: 'images/image1.jpeg', 
-      name: 'Tnte. Estrella Viscarra Yessenia Poema', 
-      phrase: 'Frase.' 
+    // Additional instructors without photos - using placeholder
+    {
+      image: 'images/image1.jpeg',
+      name: 'Tnte. Estrella Viscarra Yessenia Poema',
+      phrase: 'Frase.'
     },
-    { 
-      image: 'images/image2.jpeg', 
-      name: 'Tnte. Escobar Cevallos Yajaira Marcela', 
-      phrase: 'Frase' 
-    }, 
-    { 
-      image: 'images/photos/Tnte.Sarango.jpeg', 
-      name: 'Tnte. Sarango Cuenca Joel Steveen', 
-      phrase: 'Persistir, insistir y nunca desistir hasta alcanzar el objetivo.' 
+    {
+      image: 'images/image2.jpeg',
+      name: 'Tnte. Escobar Cevallos Yajaira Marcela',
+      phrase: 'Frase'
+    },
+    {
+      image: 'images/photos/Tnte.Sarango.jpeg',
+      name: 'Tnte. Sarango Cuenca Joel Steveen',
+      phrase: 'Persistir, insistir y nunca desistir hasta alcanzar el objetivo.'
     },
     {
       image: 'images/photos/Tnte.Cedeño.jpeg',

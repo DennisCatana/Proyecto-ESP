@@ -10,7 +10,7 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
   ];
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-[#0056b3] to-[#003d80] sticky top-16 h-fit flex-shrink-0">
+    <aside className="w-64 bg-linear-to-b from-[#0056b3] to-[#003d80] sticky top-16 h-fit shrink-0">
       <div className="p-6">
         <h2 className="text-white text-xl font-bold mb-2 flex items-center gap-2">
           <BookOpen className="w-6 h-6 text-white" />

@@ -13,7 +13,7 @@ const HimnarioItem = ({ title, author, description, audioUrl }) => {
   return (
     <div className="bg-white rounded-lg shadow-md border-t-4 border-[#007BFF] hover:shadow-xl transition-all duration-300 overflow-hidden">
       <div className="p-6">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#007BFF] to-[#0056b3] flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 rounded-full bg-linear-to-br from-[#007BFF] to-[#0056b3] flex items-center justify-center mx-auto mb-4">
           <Music className="w-8 h-8 text-white" />
         </div>
         <h3 className="text-[#0056b3] font-bold text-lg text-center mb-2">

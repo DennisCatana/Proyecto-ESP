@@ -1,99 +1,88 @@
 import prisma from "../prisma/client.js";
 
+// Función para estadísticas
+export const obtenerEstadisticasCadete = async (cadeteId) => {
+    const [positivas, negativas, total] = await Promise.all([
+        prisma.accion.count({ where: { cadeteId, accionDefinida: { tipo: "Positiva" } } }),
+        prisma.accion.count({ where: { cadeteId, accionDefinida: { tipo: "Negativa" } } }),
+        prisma.accion.count({ where: { cadeteId } })
+    ]);
+    return { positivas, negativas, total };
+};
+
+//Registrar acción para un cadete
 export const registrarAccion = async (req, res) => {
-    const { cadeteId, accionDefinidaId, observacion } = req.body;
-    const usuarioId = req.usuario.id; // viene del middleware JWT
+    const { cadeteId, codigo, observacion } = req.body;
+    const usuarioId = req.usuario.id;
 
     try {
+        // Transacción para asegurar consistencia de puntajes
+        const accionCreada = await prisma.$transaction(async (tx) => {
+            // 1️⃣ Buscar acción definida por código
+            const accionDef = await tx.accionDefinida.findUnique({ where: { codigo } });
+            if (!accionDef) throw new Error("La acción no existe");
+            if (!accionDef.activa) throw new Error("La acción está inactiva");
 
-        const resultado = await prisma.$transaction(async (tx) => {
+            // 2️⃣ Determinar puntos a aplicar
+            const puntosAplicados = accionDef.tipo === "Negativa"
+                ? -parseFloat(accionDef.puntaje)
+                : parseFloat(accionDef.puntaje);
 
-            // 1️⃣ Buscar acción definida
-            const accionDef = await tx.accionDefinida.findUnique({
-                where: { id: accionDefinidaId }
+            // 3️⃣ Obtener puntaje acumulado actual del cadete desde acciones registradas
+            const sumaActual = await tx.accion.aggregate({
+                where: { cadeteId },
+                _sum: { puntajeAplicado: true }
             });
+            const totalActual = parseFloat(sumaActual._sum.puntajeAplicado || 0);
 
-            if (!accionDef || !accionDef.activa) {
-                throw new Error("Acción no válida o inactiva");
-            }
+            // 4️⃣ Calcular nuevo puntaje acumulado
+            const nuevoTotal = totalActual + puntosAplicados;
 
-            // 2️⃣ Crear acción aplicada
-            const accionCreada = await tx.accion.create({
+            // 5️⃣ Crear la acción
+            const accion = await tx.accion.create({
                 data: {
                     cadeteId,
-                    accionDefinidaId,
+                    accionDefinidaId: accionDef.id,
                     registradoPorId: usuarioId,
-                    observacion
+                    observacion,
+                    puntajeAplicado: puntosAplicados,
+                    puntajeAcumulado: nuevoTotal
                 }
             });
 
-            // 3️⃣ Actualizar puntaje del cadete
+            // 6️⃣ Actualizar puntaje total del cadete
             await tx.cadete.update({
                 where: { id: cadeteId },
-                data: {
-                    puntajeTotal: {
-                        increment: accionDef.puntaje
-                    }
-                }
+                data: { puntajeTotal: nuevoTotal }
             });
 
-            return accionCreada;
+            return accion;
         });
 
-        res.json({
+        // 🔹 Obtener estadísticas después de registrar
+        const estadisticas = await obtenerEstadisticasCadete(cadeteId);
+
+        return res.status(201).json({
             msg: "Acción registrada correctamente",
-            accion: resultado
+            accion: accionCreada,
+            estadisticas
         });
 
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        return res.status(400).json({ error: error.message });
     }
 };
 
 
-export const obtenerAccionesDeCadete = async (req, res) => {
-    const { id } = req.params;
 
+//Listar todos las acciones definidas
+export const listarAcciones = async (req, res) => {
     try {
-        const acciones = await prisma.accion.findMany({
-            where: { cadeteId: Number(id) },
-            include: {
-                accionDefinida: true,
-                registradoPor: {
-                    select: {
-                        nombreU: true,
-                        gradoU: true
-                    }
-                }
-            },
-            orderBy: { fecha: "desc" }
+        const acciones = await prisma.accionDefinida.findMany({
+            include: { accionesAplicadas: true }
         });
-
         res.json(acciones);
-
     } catch (error) {
         res.status(500).json({ error: error.message });
-    }
-};
-
-
-export const crearAccionDefinida = async (req, res) => {
-    const { codigo, titulo, descripcion, tipo, puntaje } = req.body;
-
-    try {
-        const accion = await prisma.accionDefinida.create({
-            data: {
-                codigo,
-                titulo,
-                descripcion,
-                tipo,
-                puntaje
-            }
-        });
-
-        res.json(accion);
-
-    } catch (error) {
-        res.status(400).json({ error: error.message });
     }
 };
