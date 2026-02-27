@@ -15,7 +15,7 @@ import Ethic from './pages/identity/Ethic'
 import Map from './pages/identity/Map';
 import Simbolismos from './pages/identity/Simbolismos';
 
-import Regulations from './pages/library/Regulations'
+import Biblioteca from './pages/Biblioteca';
 
 function App() {
   return (

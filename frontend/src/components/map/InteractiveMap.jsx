@@ -96,7 +96,7 @@ const InteractiveMap = () => {
                             {/* Imagen de fondo principal */}
                             <div className="absolute inset-0">
                                 <img 
-                                    src="/images/esp.png" 
+                                    src="/images/mapImages/esp.png" 
                                     alt="Escuela Superior de Policía"
                                     className="w-full h-full object-contain"
                                     onError={(e) => {

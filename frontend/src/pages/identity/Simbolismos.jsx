@@ -6,8 +6,7 @@ import {
   HeraldryModal,
   AttributesModal,
   CeremoniesModal,
-  PolifemoModal,
-  TreeModal
+  EmblemasModal
 } from '../../components/simbolismos';
 
 // Colores institucionales - VERSIÓN MEJORADA Y MAS VIBRANTE
@@ -35,12 +34,12 @@ const COLORS = {
 };
 
 // Symbol data for the radar - Full names only, NO icons
+// 4 nodes evenly distributed at 90 degree intervals
 const symbols = [
   { id: 'heraldica', label: 'Heráldica', angle: -90 },
-  { id: 'atributos', label: 'Atributos de Mando', angle: -18 },
-  { id: 'ceremonias', label: 'Actos Ceremoniales', angle: 54 },
-  { id: 'polifemo', label: 'Polifemo', angle: 126 },
-  { id: 'arbol', label: 'Árbol', angle: 198 },
+  { id: 'atributos', label: 'Atributos de Mando', angle: 0 },
+  { id: 'ceremonias', label: 'Actos Ceremoniales', angle: 90 },
+  { id: 'emblemas', label: 'Emblemas', angle: 180 },
 ];
 
 // Custom Radar Node - text only, NO icons
@@ -223,11 +222,11 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
           }}
         />
         
-        {/* Subtitle */}
+{/* Subtitle */}
         <div className="relative z-10 text-center mb-6 pt-6">
           <p className="text-base max-w-2xl mx-auto font-medium"
              style={{ color: COLORS.plateadoBrillante }}>
-            Explora los cinco pilares fundamentales de nuestra identidad institucional
+            Explora los cuatro pilares fundamentales de nuestros símbolos institucionales
           </p>
         </div>
         
@@ -272,7 +271,7 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
                 type="rotate" 
                 from="0 50 50" 
                 to="360 50 50" 
-                dur="8s" 
+                dur="2s" 
                 repeatCount="indefinite" 
               />
             </circle>
@@ -284,12 +283,12 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
                 type="rotate" 
                 from="360 50 50" 
                 to="0 50 50" 
-                dur="15s" 
+                dur="5s" 
                 repeatCount="indefinite" 
               />
             </circle>
             
-            {/* Connection lines - gradientes */}
+{/* Connection lines - gradientes */}
             {symbols.map((symbol, i) => {
               const angleRad = symbol.angle * Math.PI / 180;
               const radius = 38;
@@ -302,17 +301,50 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
                   y1="50" 
                   x2={x} 
                   y2={y} 
-                  stroke="url(#lineGrad)"
-                  strokeWidth="0.4"
-                  strokeDasharray="3 2"
-                  opacity="0.7"
+                  stroke={COLORS.doradoMetalico}
+                  strokeWidth="0.8"
+                  opacity="0.8"
                 />
               );
             })}
           </svg>
           
-          {/* Central Core - versión mejorada */}
+{/* Central Core - versión mejorada con señales emitidas */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            {/* Señales emitidas desde el centro */}
+            <div 
+              className="absolute inset-0 rounded-full animate-ping"
+              style={{ 
+                background: `radial-gradient(circle, transparent 30%, ${COLORS.azulElectrico}20 60%, transparent 100%)`,
+                animationDuration: '2s',
+                animationDelay: '0s',
+              }}
+            />
+            <div 
+              className="absolute inset-0 rounded-full animate-ping"
+              style={{ 
+                background: `radial-gradient(circle, transparent 30%, ${COLORS.doradoMetalico}20 60%, transparent 100%)`,
+                animationDuration: '2s',
+                animationDelay: '0.5s',
+              }}
+            />
+            <div 
+              className="absolute inset-0 rounded-full animate-ping"
+              style={{ 
+                background: `radial-gradient(circle, transparent 30%, ${COLORS.azulElectrico}20 60%, transparent 100%)`,
+                animationDuration: '2s',
+                animationDelay: '1s',
+              }}
+            />
+            <div 
+              className="absolute inset-0 rounded-full animate-ping"
+              style={{ 
+                background: `radial-gradient(circle, transparent 30%, ${COLORS.doradoMetalico}20 60%, transparent 100%)`,
+                animationDuration: '2s',
+                animationDelay: '1.5s',
+              }}
+            />
+            
             <div 
               className="w-36 h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-full flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
               style={{ 
@@ -462,12 +494,11 @@ const Simbolismos = () => {
       
       <Footer />
       
-      {/* Modals with blurred backdrop */}
+{/* Modals with blurred backdrop */}
       {activeModal === 'heraldica' && <HeraldryModal onClose={closeModal} />}
       {activeModal === 'atributos' && <AttributesModal onClose={closeModal} />}
       {activeModal === 'ceremonias' && <CeremoniesModal onClose={closeModal} />}
-      {activeModal === 'polifemo' && <PolifemoModal onClose={closeModal} />}
-      {activeModal === 'arbol' && <TreeModal onClose={closeModal} />}
+      {activeModal === 'emblemas' && <EmblemasModal onClose={closeModal} />}
     </div>
   );
 };

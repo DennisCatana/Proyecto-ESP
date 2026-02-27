@@ -11,7 +11,7 @@ const NavbarDesktop = () => {
     };
 
     const simpleLinks = [
-        { name: 'Inicio', path: '/home' },
+        { name: 'Inicio', path: '/' },
         { name: 'APP', path: '/rap' },
         { name: 'Servicios', path: '/contacts' },
         { name: 'Galería', path: '/gallery' },
@@ -34,12 +34,6 @@ const NavbarDesktop = () => {
         { name: 'Más datos', path: '/identity/hymn' },
     ];
 
-    const libraryItems = [
-        { name: 'Reglamentos', path: '/library/regulations' },
-        { name: 'Horarios', path: '/library/disciplinary' },
-        { name: 'Formatos', path: '/library/internal' },
-        { name: 'Más documentos', path: '/library/procedures' },
-    ];
 
     return (
         <nav className="flex justify-between items-center w-full">
@@ -130,7 +124,9 @@ const NavbarDesktop = () => {
                     onMouseEnter={() => setOpenDropdown('library')}
                     onMouseLeave={() => setOpenDropdown(null)}
                 >
-                    <button className="text-white font-medium px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1">
+                    <Link
+                        className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1 cursor-pointer"
+                    >
                         Biblioteca
                         <svg
                             className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'library' ? 'rotate-180' : ''}`}
@@ -140,15 +136,15 @@ const NavbarDesktop = () => {
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                         </svg>
-                    </button>
+                    </Link>
 
                     {openDropdown === 'library' && (
-                        <div className="absolute top-full left-0 min-w-44 bg-white rounded-lg shadow-xl py-2 z-50">
+                        <div className="absolute top-full left-0 min-w-42 bg-white rounded-lg shadow-xl py-2 z-50 animate-fade-in">
                             {libraryItems.map((item) => (
                                 <Link
                                     key={item.name}
                                     to={item.path}
-                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition"
+                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
                                 >
                                     {item.name}
                                 </Link>

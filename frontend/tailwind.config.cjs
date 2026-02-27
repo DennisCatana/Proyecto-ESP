@@ -12,6 +12,9 @@ module.exports = {
         'azul-oscuro': '#0056b3',
         'plateado': '#C0C0C0',
         'gris-oscuro': '#333333',
+        'dorado': '#D4AF37',
+        'dorado-claro': '#E5C155',
+        'dorado-oscuro': '#B8962E',
         primary: '#dc2626', // red-600
         secondary: '#1e293b', // slate-800
       },
