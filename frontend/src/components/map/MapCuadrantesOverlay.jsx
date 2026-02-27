@@ -27,7 +27,7 @@ const MapCuadrantesOverlay = ({ onSelect }) => {
                     className={`absolute bg-linear-to-br ${cuadrantes[id].color} opacity-30 hover:opacity-80 
                         border-2 ${cuadrantes[id].borderColor} hover:border-white/70 rounded-lg 
                         flex items-center justify-center cursor-pointer transition-all
-                        group overflow-hidden`}
+                        group`}
                     style={{
                         top: pos.top,
                         left: pos.left,
@@ -39,11 +39,13 @@ const MapCuadrantesOverlay = ({ onSelect }) => {
                 >
                     <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent opacity-0 
                         group-hover:opacity-100 transition-opacity" />
-                    <div className="text-center text-white p-4">
-                        <span className="md:text-1xl font-bold block mb-1">
+                    
+                    {/* Nombre y lugares - siempre visible */}
+                    <div className="flex flex-col items-center justify-center p-2 pointer-events-none">
+                        <span className="text-white text-xs md:text-lg font-bold drop-shadow-lg">
                             {cuadrantes[id].nombre}
                         </span>
-                        <span className="text-sm md:text-base opacity-100">
+                        <span className="text-white text-[10px] md:text-sm font-semibold drop-shadow-md">
                             {ubicaciones[id]?.length} lugares
                         </span>
                     </div>
