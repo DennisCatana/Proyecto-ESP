@@ -1,8 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import React from 'react';
+import { FiMail, FiLock } from "react-icons/fi";
 
 const LoginPage = () => {
-
     const navigate = useNavigate(); // 👈 Hook de navegación
 
     // Las imágenes en public/ se acceden con ruta string (sin import)
@@ -58,34 +57,49 @@ const LoginPage = () => {
 
             {/* === CONTENEDOR PRINCIPAL === */}
             <div className="relative z-20 w-full max-w-md px-4">
+                <h1 className="text-2xl font-bold text-center mb-6 text-[#1a4572]">
+                    AETHERNUS<br />
+                    LXXXIX
+                </h1>
+
                 <div className="bg-white p-8 rounded-xl shadow-2xl">
                     <h2 className="text-2xl font-bold text-center mb-6 text-[#153557]">
                         Iniciar Sesión
                     </h2>
 
                     <form onSubmit={handleSubmit}>
+
                         <div className="mb-5">
                             <label className="block mb-2 text-sm font-medium text-gray-900">
                                 Correo electrónico
                             </label>
-                            <input
-                                type="email"
-                                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
-                                placeholder="denniscataña@gmail.com"
-                                required
-                            />
+
+                            <div className="relative">
+                                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+
+                                <input
+                                    type="email"
+                                    className="w-full pl-10 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
+                                    placeholder="denniscataña@gmail.com"
+                                    required
+                                />
+                            </div>
                         </div>
 
                         <div className="mb-6">
                             <label className="block mb-2 text-sm font-medium text-gray-900">
                                 Contraseña
                             </label>
-                            <input
-                                type="password"
-                                className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
-                                placeholder="••••••••"
-                                required
-                            />
+                            <div className="relative">
+                                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+
+                                <input
+                                    type="password"
+                                    className="w-full pl-10 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
+                                    placeholder="**************"
+                                    required
+                                />
+                            </div>
                         </div>
 
                         <button

@@ -38,7 +38,7 @@ const images = [
         <img 
           src={images[currentIndex]} 
           alt={`Gallery ${currentIndex + 1}`}
-          className="w-[80%] h-[400px] mx-auto object-cover rounded-xl border-2 border-gray-200 shadow-lg"
+          className="w-[80%] h-100 mx-auto object-cover rounded-xl border-2 border-gray-200 shadow-lg"
           style={{
             filter: 'brightness(1.05) saturate(1.1)',
           }}

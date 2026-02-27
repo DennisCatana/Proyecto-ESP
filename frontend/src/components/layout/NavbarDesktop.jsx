@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FiLogOut } from "react-icons/fi";
 
 const NavbarDesktop = () => {
     const [openDropdown, setOpenDropdown] = useState(null);
@@ -13,7 +14,7 @@ const NavbarDesktop = () => {
     const simpleLinks = [
         { name: 'Inicio', path: '/home' },
         { name: 'APP', path: '/rap' },
-        { name: 'Contactos', path: '/contacts' },
+        { name: 'Servicios', path: '/contacts' },
         { name: 'Galería', path: '/gallery' },
     ];
 
@@ -64,7 +65,7 @@ const NavbarDesktop = () => {
                     <Link
                         className="text-white no-underline font-medium transition-all duration-300 px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1 cursor-pointer"
                     >
-                        Jerarquía
+                        Orgánico
                         <svg
                             className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'scale' ? 'rotate-180' : ''}`}
                             fill="none"
@@ -160,12 +161,14 @@ const NavbarDesktop = () => {
                     )}
                 </li>
             </ul>
+
             {/* BOTÓN CERRAR SESIÓN */}
             <button
                 onClick={cerrarSesion}
-                className="mr-10 bg-red-600 px-4 py-2 rounded text-white hover:bg-red-700 transition"
+                className="mr-5 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition-all duration-200 flex items-center justify-center"
+                title="Cerrar sesión"
             >
-                Cerrar sesión
+                <FiLogOut size={18} />
             </button>
 
         </nav>
