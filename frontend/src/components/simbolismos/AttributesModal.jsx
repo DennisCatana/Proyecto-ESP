@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 
+const IMAGES = {
+  baston: '/src/assets/heraldry/baston.jpg', 
+  sable: '/src/assets/heraldry/sable.jpg',
+  sablin: '/src/assets/heraldry/sablin.jpeg',
+};
+
 // Colores institucionales - más claros
 const COLORS = {
   azulElectrico: '#3B82F6',
@@ -59,13 +65,13 @@ const AttributesModal = ({ onClose }) => {
   const currentOption = attributesOptions[selectedOption];
   
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+    <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
       {/* Blurred backdrop */}
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal - Lighter colors */}
       <div 
-        className="relative bg-gradient-to-b from-slate-100 to-slate-200 border-2 rounded-xl max-w-6xl w-full my-8 max-h-[90vh] overflow-y-auto"
+        className="relative bg-linear-to-b from-slate-100 to-slate-200 border-2 rounded-xl max-w-6xl w-full my-8 max-h-[90vh] overflow-y-auto"
         style={{ 
           borderColor: COLORS.doradoMetalico,
           boxShadow: `0 0 40px rgba(212, 168, 75, 0.3)`
@@ -140,21 +146,38 @@ const AttributesModal = ({ onClose }) => {
                 {currentOption.name}
               </h3>
               
-              {/* Image container */}
+              {/* Image container - with arrow indicator */}
               <div 
-                className="w-full h-64 md:h-80 rounded-xl overflow-hidden"
+                className="w-full h-64 md:h-80 rounded-xl overflow-hidden relative"
                 style={{ 
                   background: 'white',
                   border: `1px solid #cbd5e1`
                 }}
               >
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <p className="text-slate-400 text-sm">
-                      Imagen: {selectedOption}.png
-                    </p>
+                <img 
+                  src={IMAGES[selectedOption]} 
+                  alt={currentOption.name}
+                  className="w-full h-full object-contain"
+                />
+                {/* Arrow indicator for selected part */}
+                {selectedPart && (
+                  <div 
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center animate-bounce"
+                    style={{ color: COLORS.doradoMetalico }}
+                  >
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      className="h-12 w-12 drop-shadow-lg"
+                      fill="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+                    </svg>
+                    <span className="text-xs font-bold bg-white px-2 py-1 rounded shadow mt-1">
+                      {currentOption.parts.find(p => p.id === selectedPart)?.name}
+                    </span>
                   </div>
-                </div>
+                )}
               </div>
             </div>
             

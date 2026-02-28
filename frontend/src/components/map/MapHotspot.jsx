@@ -3,15 +3,35 @@ import { useFloating, flip, shift, offset, FloatingArrow } from '@floating-ui/re
 import { motion } from 'framer-motion';
 import { MapPin, Info, User } from 'lucide-react';
 
-const MapHotspot = ({ ubicacion, onSelect, isSelected, tipo = 'ubicacion' }) => {
+// Colores por cuadrante
+const getColorByCuadrante = (cuadranteId) => {
+    switch (cuadranteId) {
+        case 1: return { base: 'bg-blue-600', hover: 'hover:bg-blue-500', border: 'border-blue-300', icon: 'text-blue-600', iconBg: 'bg-blue-600/20', text: 'text-blue-500' };
+        case 2: return { base: 'bg-green-600', hover: 'hover:bg-green-500', border: 'border-green-300', icon: 'text-green-600', iconBg: 'bg-green-600/20', text: 'text-green-500' };
+        case 3: return { base: 'bg-purple-600', hover: 'hover:bg-purple-500', border: 'border-purple-300', icon: 'text-purple-600', iconBg: 'bg-purple-600/20', text: 'text-purple-500' };
+        case 4: return { base: 'bg-orange-500', hover: 'hover:bg-orange-400', border: 'border-orange-300', icon: 'text-orange-500', iconBg: 'bg-orange-500/20', text: 'text-orange-500' };
+        default: return { base: 'bg-red-600', hover: 'hover:bg-red-500', border: 'border-white', icon: 'text-red-600', iconBg: 'bg-red-600/20', text: 'text-red-500' };
+    }
+};
+
+const MapHotspot = ({ ubicacion, onSelect, isSelected, tipo = 'ubicacion', cuadranteId }) => {
     const [isHover, setIsHover] = useState(false);
 
-    // Color según el tipo
-    const colorBase = tipo === 'heroe' ? 'bg-amber-500' : 'bg-red-600';
-    const colorHover = tipo === 'heroe' ? 'hover:bg-amber-400' : 'hover:bg-red-500';
-    const borderColor = tipo === 'heroe' ? 'border-amber-300' : 'border-white';
-    const iconColor = tipo === 'heroe' ? 'text-amber-500' : 'text-red-600';
-    const iconBg = tipo === 'heroe' ? 'bg-amber-600/20' : 'bg-red-600/20';
+    // Determinar el color a usar
+    let colors;
+    if (tipo === 'heroe') {
+        colors = { base: 'bg-amber-500', hover: 'hover:bg-amber-400', border: 'border-amber-300', icon: 'text-amber-500', iconBg: 'bg-amber-600/20', text: 'text-amber-500' };
+    } else if (cuadranteId) {
+        colors = getColorByCuadrante(cuadranteId);
+    } else {
+        colors = { base: 'bg-red-600', hover: 'hover:bg-red-500', border: 'border-white', icon: 'text-red-600', iconBg: 'bg-red-600/20', text: 'text-red-500' };
+    }
+
+    const colorBase = colors.base;
+    const colorHover = colors.hover;
+    const borderColor = colors.border;
+    const iconColor = colors.icon;
+    const iconBg = colors.iconBg;
 
     const { refs, floatingStyles, context } = useFloating({
         placement: 'top',

@@ -346,7 +346,7 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
             />
             
             <div 
-              className="w-36 h-36 md:w-48 md:h-48 lg:w-56 lg:h-56 rounded-full flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
+              className="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 rounded-full flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
               style={{ 
                 background: `
                   radial-gradient(circle at 30% 30%, ${COLORS.blancoPerla} 0%, ${COLORS.plateadoBrilliant} 30%, ${COLORS.plateado} 100%)
@@ -378,9 +378,9 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
                 }}
               />
               
-              {/* Shield Image */}
+              {/* Shield Image - más grande */}
               <div 
-                className="w-24 h-24 md:w-36 md:h-36 lg:w-44 lg:h-44 rounded-full overflow-hidden border-2"
+                className="w-36 h-36 md:w-48 md:h-48 lg:w-60 lg:h-60 rounded-full overflow-hidden border-2"
                 style={{ 
                   borderColor: COLORS.doradoMetalico,
                   boxShadow: `inset 0 0 20px rgba(0,0,0,0.3)`,

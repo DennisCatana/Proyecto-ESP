@@ -32,29 +32,29 @@ const InteractiveMap = () => {
     };
 
     return (
-        <div className="flex flex-col bg-slate-900 rounded-xl overflow-hidden">
+        <div className="flex flex-col bg-slate-900 rounded-xl overflow-hidden w-full h-full min-h-[500px] md:min-h-[700px] lg:min-h-[800px] xl:min-h-[1000px]">
             {/* Barra de navegación del mapa */}
-            <div className="flex items-center justify-between p-4 bg-slate-800 border-b border-slate-700">
-                <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-2 sm:p-4 bg-slate-800 border-b border-slate-700 gap-2">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     {cuadranteActual && (
                         <button 
                             onClick={handleBack}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-white"
+                            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-white text-sm sm:text-base"
                         >
-                            <ChevronLeft size={20} />
-                            <span>Volver</span>
+                            <ChevronLeft size={18} />
+                            <span className="hidden sm:inline">Volver</span>
                         </button>
                     )}
-                    <div className="flex items-center gap-2 px-4 py-2 bg-slate-700 rounded-lg">
-                        <Home size={18} className="text-blue-500" />
-                        <span className="text-sm text-white">
+                    <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 bg-slate-700 rounded-lg">
+                        <Home size={16} className="text-blue-500" />
+                        <span className="text-xs sm:text-sm text-white whitespace-nowrap">
                             {cuadranteActual ? cuadrantes[cuadranteActual].nombre : 'Vista General'}
                         </span>
                     </div>
                 </div>
                 
                 {/* Leyenda */}
-                <div className="hidden md:flex items-center gap-4">
+                <div className="hidden lg:flex items-center gap-4">
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse" />
                         <span className="text-gray-400 text-sm">Ubicación</span>
@@ -67,7 +67,7 @@ const InteractiveMap = () => {
             </div>
 
             {/* Mapa */}
-            <div className="flex-1 relative" style={{ minHeight: '1000px' }}>
+            <div className="flex-1 relative w-full" style={{ minHeight: '400px' }}>
                 <AnimatePresence mode="wait">
                     {cuadranteActual ? (
                         <motion.div
@@ -129,7 +129,8 @@ const InteractiveMap = () => {
                 {ubicacionSeleccionada && (
                     <MapInfoPanel 
                         ubicacion={ubicacionSeleccionada} 
-                        onClose={handleCloseInfo} 
+                        onClose={handleCloseInfo}
+                        cuadranteId={cuadranteActual || ubicacionSeleccionada.cuadranteId}
                     />
                 )}
             </AnimatePresence>

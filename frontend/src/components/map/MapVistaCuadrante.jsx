@@ -33,6 +33,7 @@ const MapVistaCuadrante = ({ id, ubicaciones, onSelectUbicacion, ubicacionSelecc
                     ubicacion={ubicacion}
                     onSelect={onSelectUbicacion}
                     isSelected={ubicacionSeleccionada?.id === ubicacion.id}
+                    cuadranteId={id}
                 />
             ))}
         </div>

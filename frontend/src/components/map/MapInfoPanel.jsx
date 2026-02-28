@@ -1,13 +1,37 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, X, Users, Clock, Image as ImageIcon, Phone, Mail } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const MapInfoPanel = ({ ubicacion, onClose }) => {
+// Colores por cuadrante
+const getColorByCuadrante = (cuadranteId, esHeroe = false) => {
+    if (esHeroe) return 'text-amber-400'; // Color dorado para héroes
+    
+    switch (cuadranteId) {
+        case 1: return 'text-blue-500';
+        case 2: return 'text-green-500';
+        case 3: return 'text-purple-500';
+        case 4: return 'text-orange-500';
+        default: return 'text-red-500';
+    }
+};
+
+const MapInfoPanel = ({ ubicacion, onClose, cuadranteId }) => {
     const [imagenActual, setImagenActual] = useState(0);
     
     if (!ubicacion) return null;
     
     const imagenes = ubicacion.imagenes || ["/images"];
+    // Verificar si es un héroe (tiene la propiedad 'grado')
+    const esHeroe = !!ubicacion.grado;
+    const tituloColor = getColorByCuadrante(cuadranteId, esHeroe);
+
+    const imagenAnterior = () => {
+        setImagenActual((prev) => (prev - 1 + imagenes.length) % imagenes.length);
+    };
+
+    const siguienteImagen = () => {
+        setImagenActual((prev) => (prev + 1) % imagenes.length);
+    };
 
     return (
         <AnimatePresence>
@@ -15,131 +39,83 @@ const MapInfoPanel = ({ ubicacion, onClose }) => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
             >
                 <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
                 <motion.div
                     initial={{ scale: 0.9, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.9, y: 20 }}
-                    className="relative bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                    className="relative bg-slate-800 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl max-h-[95vh] overflow-hidden"
                 >
-                    {/* Imagen principal */}
-                    <div className="relative h-64 bg-gray-800 rounded-t-2xl overflow-hidden">
+                    {/* Carrusel de imágenes */}
+                    <div className="relative h-48 sm:h-56 md:h-64 bg-gray-800">
                         <img 
                             src={imagenes[imagenActual]} 
                             alt={ubicacion.nombre}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                                e.target.src = "/images";
+                                e.target.src = "/images/image1.jpeg";
                             }}
                         />
-                        <div className="absolute inset-0 bg-linear-to-t from-slate-800 via-transparent to-transparent" />
                         
-                        {/* Navegación de imágenes */}
+                        {/* Botones de navegación del carrusel */}
                         {imagenes.length > 1 && (
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                                {imagenes.map((_, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => setImagenActual(idx)}
-                                        className={`w-2 h-2 rounded-full transition-colors ${
-                                            idx === imagenActual ? 'bg-white' : 'bg-white/50'
-                                        }`}
-                                    />
-                                ))}
-                            </div>
+                            <>
+                                <button 
+                                    onClick={imagenAnterior}
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                                >
+                                    <ChevronLeft size={18} className="text-white" />
+                                </button>
+                                <button 
+                                    onClick={siguienteImagen}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                                >
+                                    <ChevronRight size={18} className="text-white" />
+                                </button>
+                                
+                                {/* Indicadores */}
+                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                                    {imagenes.map((_, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setImagenActual(idx)}
+                                            className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                                                idx === imagenActual ? 'bg-white' : 'bg-white/50'
+                                            }`}
+                                        />
+                                    ))}
+                                </div>
+                            </>
                         )}
 
                         <button 
                             onClick={onClose} 
-                            className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                            className="absolute top-2 right-2 p-1.5 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
                         >
-                            <X size={20} className="text-white" />
+                            <X size={16} className="text-white" />
                         </button>
                     </div>
 
                     {/* Contenido */}
-                    <div className="p-6 space-y-4">
-                        <div>
-                            <h2 className="text-2xl font-bold text-white">{ubicacion.nombre}</h2>
-                            <p className="text-red-500 text-sm mt-1">Escuela Superior de Policía</p>
-                        </div>
+                    <div className="p-4 sm:p-6">
+                        <h2 className={`text-xl sm:text-2xl font-bold mb-3 ${tituloColor}`}>
+                            {ubicacion.nombre}
+                        </h2>
                         
-                        <div>
-                            <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
-                                <MapPin size={18} className="text-red-500" /> Descripción
-                            </h3>
-                            <p className="text-gray-300 leading-relaxed">{ubicacion.descripcion}</p>
-                        </div>
-
-                        {/* Mini galería */}
-                        {imagenes.length > 1 && (
-                            <div>
-                                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                                    <ImageIcon size={18} className="text-red-500" /> Galería
-                                </h3>
-                                <div className="grid grid-cols-4 gap-2">
-                                    {imagenes.map((img, idx) => (
-                                        <button
-                                            key={idx}
-                                            onClick={() => setImagenActual(idx)}
-                                            className={`aspect-video rounded-lg overflow-hidden border-2 transition-colors ${
-                                                idx === imagenActual ? 'border-red-500' : 'border-transparent opacity-60 hover:opacity-100'
-                                            }`}
-                                        >
-                                            <img 
-                                                src={img} 
-                                                alt={`Imagen ${idx + 1}`}
-                                                className="w-full h-full object-contain"
-                                                onError={(e) => {
-                                                    e.target.src = "/images";
-                                                }}
-                                            />
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-slate-700/50 p-4 rounded-xl">
-                                <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
-                                    <Users size={16} className="text-red-500" /> Capacidad
-                                </div>
-                                <p className="text-white font-semibold">{ubicacion.capacidad}</p>
-                            </div>
-                            <div className="bg-slate-700/50 p-4 rounded-xl">
-                                <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
-                                    <Clock size={16} className="text-red-500" /> Horario
-                                </div>
-                                <p className="text-white font-semibold">{ubicacion.horario}</p>
-                            </div>
-                        </div>
-
-                        {/* Contacto */}
-                        <div className="border-t border-gray-600 pt-4">
-                            <h3 className="text-white font-semibold mb-3">Información de Contacto</h3>
-                            <div className="space-y-2">
-                                <div className="flex items-center gap-3 text-gray-300">
-                                    <Phone size={16} className="text-red-500" />
-                                    <span>+593 2 xxx xxxx</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-gray-300">
-                                    <Mail size={16} className="text-red-500" />
-                                    <span>informes@esp.edu.ec</span>
-                                </div>
-                            </div>
-                        </div>
+                        <p className="text-gray-300 text-justify text-sm sm:text-base leading-relaxed">
+                            {ubicacion.descripcion}
+                        </p>
                     </div>
 
                     {/* Footer */}
-                    <div className="p-4 border-t border-gray-700 flex gap-3">
-                        <button onClick={onClose} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium transition-colors">
+                    <div className="p-3 sm:p-4 border-t border-gray-700">
+                        <button 
+                            onClick={onClose} 
+                            className="w-full py-2.5 sm:py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg sm:rounded-xl font-medium transition-colors text-sm sm:text-base"
+                        >
                             Cerrar
-                        </button>
-                        <button className="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-medium transition-colors">
-                            Cómo Llegar
                         </button>
                     </div>
                 </motion.div>
