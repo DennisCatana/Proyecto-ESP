@@ -6,7 +6,9 @@ import Rap from './pages/Rap'
 import Gallery from './pages/Gallery'
 import Contacts from './pages/Contacts'
 
+import Politicos from './pages/organic/politic'
 import Minstitucional from './pages/organic/Minstitucional'
+import Cupula from './pages/organic/Cupula'
 import Instructors from './pages/organic/Instructors';
 import Brigs from './pages/organic/brigs'
 import Comandantes from './pages/organic/comandantes'
@@ -25,13 +27,14 @@ function App() {
         {/* Págins principales */}
         <Route path='/' element={<Login />} />
         <Route path='/home' element={<Home />} />
-        <Route path='rAP' element={<Rap />} />
+        <Route path='rap' element={<Rap />} />
         <Route path='values' element={<Ethic />} />
         <Route path='gallery' element={<Gallery />} />
         <Route path='contacts' element={<Contacts />} />
 
-
+        <Route path='/organic/politicos' element={<Politicos />} />
         <Route path='/organic/minstitucional' element={<Minstitucional />} />
+        <Route path='/organic/cupula' element={<Cupula />} />
         <Route path='/organic/instructors' element={<Instructors />} />
         <Route path='/organic/brigs' element={<Brigs />} />
         <Route path='/organic/comandantes' element={<Comandantes />} />

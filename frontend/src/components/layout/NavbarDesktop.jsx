@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FiLogOut } from "react-icons/fi";
 
@@ -11,16 +11,16 @@ const NavbarDesktop = () => {
     };
 
     const simpleLinks = [
-        { name: 'Inicio', path: '/' },
+        { name: 'Inicio', path: '/home' },
         { name: 'APP', path: '/rap' },
         { name: 'Servicios', path: '/contacts' },
         { name: 'Galería', path: '/gallery' },
     ];
 
     const scaleItems = [
-        { name: '- Mando Politico', path: '/identity/mission' },
+        { name: '- Mando Politico', path: '/organic/politicos' },
         { name: '- Cúpula Intitucional', path: '/organic/minstitucional' },
-        { name: '- Cúpula ESP', path: '/identity/esp' },
+        { name: '- Cúpula ESP', path: '/organic/cupula' },
         { name: '- Instructores', path: '/organic/instructors' },
         { name: '- Brigadieres', path: '/organic/brigs' },
         { name: '- Comandantes', path: '/organic/comandantes' },
@@ -32,6 +32,13 @@ const NavbarDesktop = () => {
         { name: 'Ética Institucional', path: '/identity/values' },
         { name: 'Mapa interactivo', path: '/identity/structure' },
         { name: 'Más datos', path: '/identity/hymn' },
+    ];
+
+    const libraryItems = [
+        { name: 'Reglamentos', path: '/library/regulations' },
+        { name: 'Horarios', path: '/library/disciplinary' },
+        { name: 'Formatos', path: '/library/internal' },
+        { name: 'Más documentos', path: '/library/procedures' },
     ];
 
 

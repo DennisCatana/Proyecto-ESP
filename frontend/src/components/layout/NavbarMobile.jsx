@@ -1,15 +1,6 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {
-    FiLogOut,
-    FiBookOpen,
-    FiUser,
-    FiHome,
-    FiGrid,
-    FiUsers,
-    FiImage,
-    FiPhone
-} from "react-icons/fi";
+import { FiLogOut, FiBookOpen, FiUser, FiHome, FiGrid, FiUsers, FiImage, FiPhone } from "react-icons/fi";
 
 const NavbarMobile = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +13,6 @@ const NavbarMobile = () => {
         setIsOpen(false);
     };
 
-    // 🔥 Guardamos el componente del icono, no JSX
     const simpleLinks = [
         { name: 'Inicio', path: '/home', icon: FiHome },
         { name: 'APP', path: '/rap', icon: FiGrid },
@@ -31,9 +21,9 @@ const NavbarMobile = () => {
     ];
 
     const organicItems = [
-        { name: '- Mando Politico', path: '/identity/mission' },
-        { name: '- Cúpula Intitucional', path: '/identity/values' },
-        { name: '- Cúpula ESP', path: '/identity/esp' },
+        { name: '- Mando Politico', path: '/organic/politicos' },
+        { name: '- Cúpula Intitucional', path: '/organic/minstitucional' },
+        { name: '- Cúpula ESP', path: '/organic/cupula' },
         { name: '- Instructores', path: '/organic/instructors' },
         { name: '- Brigadieres', path: '/organic/brigs' },
         { name: '- Comandantes', path: '/organic/comandantes' },
