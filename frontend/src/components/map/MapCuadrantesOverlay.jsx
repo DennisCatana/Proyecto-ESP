@@ -37,7 +37,7 @@ const MapCuadrantesOverlay = ({ onSelect }) => {
                         borderRadius: 0  // Importante para que no conflito con clip-path
                     }}
                 >
-                    <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent opacity-0 
+                    <div className="absolute inset-0 bg-linear-to-r from-white/10 to-transparent opacity-0 
                         group-hover:opacity-100 transition-opacity" />
                     
                     {/* Nombre y lugares - siempre visible */}

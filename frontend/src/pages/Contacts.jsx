@@ -90,7 +90,7 @@ const Contacts = () => {
         <div className="max-w-7xl mx-auto">
 
           <SectionTitle
-            title="Contactos"
+            title="Servicios"
             subtitle="Comuníquese con nuestros servicios internos"
           />
 

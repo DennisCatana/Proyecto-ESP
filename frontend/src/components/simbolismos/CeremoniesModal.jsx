@@ -86,7 +86,7 @@ const ImageCarousel = ({ eventId }) => {
   };
   
   return (
-    <div className="relative w-full h-40 md:h-48 rounded-lg mb-3 overflow-hidden">
+    <div className="relative w-full h-40 md:h-48 rounded-lg mb-3">
       <img 
         src={images[currentIndex]} 
         alt={`${eventId} - Imagen ${currentIndex + 1}`}
@@ -140,7 +140,7 @@ const CeremoniesModal = ({ onClose }) => {
   const [expandedEvent, setExpandedEvent] = useState(null);
   
   return (
-    <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+    <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4">
       {/* Blurred backdrop - closes event when clicking outside */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm" 

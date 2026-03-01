@@ -20,7 +20,7 @@ const MapInfoPanel = ({ ubicacion, onClose, cuadranteId }) => {
     
     if (!ubicacion) return null;
     
-    const imagenes = ubicacion.imagenes || ["/images"];
+    const imagenes = ubicacion.imagenes || ["/images/image1.jpeg"];
     // Verificar si es un héroe (tiene la propiedad 'grado')
     const esHeroe = !!ubicacion.grado;
     const tituloColor = getColorByCuadrante(cuadranteId, esHeroe);

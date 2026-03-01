@@ -193,13 +193,13 @@ const HeraldryModal = ({ onClose }) => {
   const currentParts = getParts(selectedOption);
   
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+    <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4 ">
       {/* Blurred backdrop */}
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
       
       {/* Modal */}
       <div 
-        className="relative text-justify bg-linear-to-b from-slate-100 to-slate-200 border-2 rounded-xl max-w-6xl w-full my-8 max-h-[90vh] overflow-y-auto"
+        className="relative bg-linear-to-b from-slate-100 to-slate-200 border-2 rounded-xl max-w-6xl w-full my-8 max-h-[90vh] overflow-y-auto"
         style={{ 
           borderColor: COLORS.doradoMetalico,
           boxShadow: `0 0 40px rgba(212, 168, 75, 0.3)`
