@@ -65,7 +65,7 @@ const AttributesModal = ({ onClose }) => {
   const currentOption = attributesOptions[selectedOption];
   
   return (
-    <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+    <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4 ">
       {/* Blurred backdrop */}
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
       

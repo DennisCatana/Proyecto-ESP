@@ -113,7 +113,7 @@ const ImageCarousel = ({ emblemaId }) => {
   };
   
   return (
-    <div className="relative w-full h-64 md:h-80 rounded-xl overflow-hidden">
+    <div className="relative w-full h-64 md:h-80 rounded-xl">
       <img 
         src={images[currentIndex]} 
         alt={`${emblemaId} - Imagen ${currentIndex + 1}`}
@@ -174,7 +174,7 @@ const EmblemasModal = ({ onClose }) => {
   const currentEmblema = emblemasData[selectedEmblema];
   
   return (
-    <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto">
+    <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4">
       {/* Blurred backdrop */}
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
       

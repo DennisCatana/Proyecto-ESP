@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/library/Sidebar';
 import ContentPanel from '../components/library/ContentPanel';
 import RegulationCard from '../components/library/RegulationCard';
@@ -11,6 +11,11 @@ import Footer from '../components/layout/Footer';
 
 const Biblioteca = () => {
   const [activeSection, setActiveSection] = useState('normativa');
+
+  // Scroll to top when activeSection changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [activeSection]);
 
   // Data for regulations (Normativa) - Documentos existentes
   const regulations = [
@@ -221,15 +226,15 @@ const Biblioteca = () => {
   const getSectionInfo = () => {
     switch (activeSection) {
       case 'normativa':
-        return { title: 'Normativa', subtitle: 'Reglamentos y documentos oficiales de la institucion' };
+        return { title: 'Normativa', subtitle: 'Reglamentos y documentos oficiales de la institución' };
       case 'horarios':
         return { title: 'Horarios', subtitle: 'Documentos de horarios y cronograma de actividades' };
       case 'formatos':
         return { title: 'Formatos', subtitle: 'Plantillas y formatos descargables' };
       case 'articulos':
-        return { title: 'Articulos', subtitle: 'Publicaciones y articulos de interes institucional' };
+        return { title: 'Articulos', subtitle: 'Publicaciones y artículos de interés institucional' };
       case 'himnario':
-        return { title: 'Himnario', subtitle: 'Coleccion de himnos institucionales' };
+        return { title: 'Himnario', subtitle: 'Colección de himnos institucionales' };
       default:
         return { title: 'Biblioteca', subtitle: '' };
     }

@@ -1,4 +1,5 @@
-import { Music } from 'lucide-react';
+import { Music, Pause, Square, RotateCcw, Repeat } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
 
 const Himnario = () => {
   // Data for hymns (Himnario)
@@ -11,35 +12,130 @@ const Himnario = () => {
   const hymns = [
     {
       id: 1,
-      title: 'Himno de la Escuela Superior de Policía',
-      author: 'Letra: Tnl. Jorge Salem',
-      description: 'Himno oficial institucional',
-      audioUrl: null
+      title: 'Himno a la Bandera',
+      author: 'Himno patrio',
+      description: 'Audio institucional',
+      audioUrl: '/src/assets/audios/Himno-Bandera.mpeg'
     },
     {
       id: 2,
-      title: 'Himno a la Bandera',
-      author: 'Autor:',
-      description: 'Himno patrio',
-      audioUrl: null
+      title: 'Himno al Ecuador',
+      author: 'Himno nacional',
+      description: 'Audio institucional',
+      audioUrl: '/src/assets/audios/Himno-Ecuador.mpeg'
     },
     {
       id: 3,
-      title: 'Himno Nacional del Ecuador',
-      author: 'Autor:',
-      description: 'Himno nacional',
-      audioUrl: null
+      title: 'Himno a la Patria',
+      author: 'Himno patrio',
+      description: 'Audio institucional',
+      audioUrl: '/src/assets/audios/Himno-Patria.mpeg'
+    },
+    {
+      id: 4,
+      title: 'Himno a la Policial',
+      author: 'Himno institucional',
+      description: 'Audio institucional',
+      audioUrl: '/src/assets/audios/Himno-Policia.mpeg'
+    },
+    {
+      id: 5,
+      title: 'Himno a los Héroes',
+      author: 'Himno commemorativo',
+      description: 'Audio institucional',
+      audioUrl: '/src/assets/audios/Himno-Heroes.mpeg'
     },
   ];
+
+  // Reference to keep track of currently playing audio
+  const currentAudioRef = useRef(null);
+  
+  // State to track currently playing hymn ID and playing status
+  const [playingHymnId, setPlayingHymnId] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLooping, setIsLooping] = useState(false);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+        currentAudioRef.current = null;
+      }
+    };
+  }, []);
 
   // Function to play hymn
   const playHymn = (hymn) => {
     if (hymn.audioUrl) {
+      // If clicking on the same hymn that is playing, toggle pause/play
+      if (playingHymnId === hymn.id) {
+        if (isPlaying) {
+          currentAudioRef.current.pause();
+          setIsPlaying(false);
+        } else {
+          currentAudioRef.current.play();
+          setIsPlaying(true);
+        }
+        return;
+      }
+      
+      // Stop currently playing audio if exists
+      if (currentAudioRef.current) {
+        currentAudioRef.current.pause();
+        currentAudioRef.current.currentTime = 0;
+      }
+      
+      // Create and play new audio
       const audio = new Audio(hymn.audioUrl);
+      audio.onended = () => {
+        if (isLooping) {
+          audio.currentTime = 0;
+          audio.play();
+        } else {
+          setIsPlaying(false);
+          setPlayingHymnId(null);
+        }
+      };
+      currentAudioRef.current = audio;
+      setPlayingHymnId(hymn.id);
+      setIsPlaying(true);
       audio.play();
     } else {
       alert('Audio pendiente de agregar. Por favor contacte al administrador.');
     }
+  };
+
+  // Function to pause the current hymn
+  const pauseHymn = () => {
+    if (currentAudioRef.current && isPlaying) {
+      currentAudioRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  // Function to stop (pause and reset) the current hymn
+  const stopHymn = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      setPlayingHymnId(null);
+    }
+  };
+
+  // Function to restart the current hymn
+  const restartHymn = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  // Function to toggle loop mode
+  const toggleLoop = () => {
+    setIsLooping(!isLooping);
   };
 
   // Universal document viewer function
@@ -58,6 +154,71 @@ const Himnario = () => {
 
   return (
     <div className="space-y-6">
+      {/* Audio Control Panel - Shows when a hymn is playing */}
+      {playingHymnId && (
+        <div className="bg-[#0056b3] text-white rounded-lg shadow-lg p-4 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
+                <Music className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-sm text-white/70">Reproduciendo:</p>
+                <p className="font-bold">{hymns.find(h => h.id === playingHymnId)?.title}</p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={isPlaying ? pauseHymn : () => {
+                  if (currentAudioRef.current) {
+                    currentAudioRef.current.play();
+                    setIsPlaying(true);
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-2 bg-white text-[#0056b3] rounded-full hover:bg-gray-100 transition-colors text-sm font-medium"
+              >
+                {isPlaying ? (
+                  <>
+                    <Pause className="w-4 h-4" />
+                    Pausar
+                  </>
+                ) : (
+                  <>
+                    <Music className="w-4 h-4" />
+                    Continuar
+                  </>
+                )}
+              </button>
+              <button
+                onClick={restartHymn}
+                className="flex items-center gap-1 px-3 py-2 bg-white text-[#0056b3] rounded-full hover:bg-gray-100 transition-colors text-sm font-medium"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Reiniciar
+              </button>
+              <button
+                onClick={toggleLoop}
+                className={`flex items-center gap-1 px-3 py-2 rounded-full transition-colors text-sm font-medium ${
+                  isLooping 
+                    ? 'bg-[#ffc107] text-[#0056b3] hover:bg-[#e0a800]' 
+                    : 'bg-white text-[#0056b3] hover:bg-gray-100'
+                }`}
+              >
+                <Repeat className="w-4 h-4" />
+                {isLooping ? 'Repetir: ON' : 'Repetir'}
+              </button>
+              <button
+                onClick={stopHymn}
+                className="flex items-center gap-1 px-3 py-2 border border-white text-white rounded-full hover:bg-white/10 transition-colors text-sm font-medium"
+              >
+                <Square className="w-4 h-4" />
+                Detener
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Himnario Document Section */}
       <div className="bg-white rounded-lg shadow-md border-l-4 border-[#007BFF] hover:shadow-xl transition-all duration-300">
         <div className="p-5 flex items-center justify-between">
@@ -112,7 +273,7 @@ const Himnario = () => {
         {hymns.map((hymn) => (
           <div key={hymn.id} className="bg-white rounded-lg shadow-md border-t-4 border-[#007BFF] hover:shadow-xl transition-all duration-300 overflow-hidden">
             <div className="p-6">
-              <div className="w-16 h-16 rounded-full bg-linear-to-br from-[#007BFF] to-[#0056b3] flex items-center justify-center mx-auto mb-4">
+              <div className="grid-cols-1 w-16 h-16 rounded-full bg-linear-to-br from-[#007BFF] to-[#0056b3] flex items-center justify-center mx-auto mb-4">
                 <Music className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-[#0056b3] font-bold text-lg text-center mb-2">
@@ -124,13 +285,44 @@ const Himnario = () => {
               <p className="text-gray-500 text-xs text-center mb-4">
                 {hymn.description}
               </p>
-              <div className="flex justify-center">
+              <div className="flex justify-center gap-3">
                 <button
                   onClick={() => playHymn(hymn)}
-                  className="flex items-center gap-2 px-6 py-2 bg-[#007BFF] text-white rounded-full hover:bg-[#0056b3] transition-colors text-sm font-medium"
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors text-sm font-medium ${
+                    playingHymnId === hymn.id
+                      ? 'bg-[#ffc107] text-[#0056b3] hover:bg-[#e0a800]'
+                      : 'bg-[#007BFF] text-white hover:bg-[#0056b3]'
+                  }`}
                 >
-                  <Music className="w-4 h-4" />
-                  Reproducir
+                  {playingHymnId === hymn.id && isPlaying ? (
+                    <>
+                      <Pause className="w-4 h-4" />
+                      Pausar
+                    </>
+                  ) : (
+                    <>
+                      <Music className="w-4 h-4" />
+                      Reproducir
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    if (hymn.audioUrl) {
+                      const link = document.createElement('a');
+                      link.href = hymn.audioUrl;
+                      link.download = hymn.title + '.mpeg';
+                      link.click();
+                    } else {
+                      alert('Audio pendiente de agregar. Por favor contacte al administrador.');
+                    }
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 border border-[#007BFF] text-[#007BFF] rounded-full hover:bg-[#e8f4ff] transition-colors text-sm font-medium"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Descargar
                 </button>
               </div>
             </div>

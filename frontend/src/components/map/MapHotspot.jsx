@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useFloating, flip, shift, offset, FloatingArrow } from '@floating-ui/react';
 import { motion } from 'framer-motion';
-import { MapPin, Info, User } from 'lucide-react';
+import { Info, User } from 'lucide-react';
 
 // Colores por cuadrante
 const getColorByCuadrante = (cuadranteId) => {
@@ -14,24 +14,21 @@ const getColorByCuadrante = (cuadranteId) => {
     }
 };
 
+// Helper function to get colors based on tipo and cuadranteId
+const getColors = (tipo, cuadranteId) => {
+    if (tipo === 'heroe') {
+        return { base: 'bg-amber-500', hover: 'hover:bg-amber-400', border: 'border-amber-300', icon: 'text-amber-500', iconBg: 'bg-amber-600/20', text: 'text-amber-500' };
+    } else if (cuadranteId) {
+        return getColorByCuadrante(cuadranteId);
+    }
+    return { base: 'bg-red-600', hover: 'hover:bg-red-500', border: 'border-white', icon: 'text-red-600', iconBg: 'bg-red-600/20', text: 'text-red-500' };
+};
+
 const MapHotspot = ({ ubicacion, onSelect, isSelected, tipo = 'ubicacion', cuadranteId }) => {
     const [isHover, setIsHover] = useState(false);
 
-    // Determinar el color a usar
-    let colors;
-    if (tipo === 'heroe') {
-        colors = { base: 'bg-amber-500', hover: 'hover:bg-amber-400', border: 'border-amber-300', icon: 'text-amber-500', iconBg: 'bg-amber-600/20', text: 'text-amber-500' };
-    } else if (cuadranteId) {
-        colors = getColorByCuadrante(cuadranteId);
-    } else {
-        colors = { base: 'bg-red-600', hover: 'hover:bg-red-500', border: 'border-white', icon: 'text-red-600', iconBg: 'bg-red-600/20', text: 'text-red-500' };
-    }
-
-    const colorBase = colors.base;
-    const colorHover = colors.hover;
-    const borderColor = colors.border;
-    const iconColor = colors.icon;
-    const iconBg = colors.iconBg;
+    // Memoize colors to prevent recalculation
+    const colors = getColors(tipo, cuadranteId);
 
     const { refs, floatingStyles, context } = useFloating({
         placement: 'top',
@@ -52,8 +49,8 @@ const MapHotspot = ({ ubicacion, onSelect, isSelected, tipo = 'ubicacion', cuadr
                 onMouseLeave={() => setIsHover(false)}
                 onClick={() => onSelect(ubicacion)}
                 className={`absolute w-5 h-5 -ml-5 -mt-5 rounded-full flex items-center justify-center 
-                    cursor-pointer transition-all shadow-lg z-10 border-2 ${borderColor}
-                    ${isSelected ? `${colorBase} scale-125` : `${colorBase} ${colorHover} hover:scale-110}`}`}
+                    cursor-pointer transition-all shadow-lg z-10 border-2 ${colors.border}
+                    ${isSelected ? `${colors.base} scale-125` : `${colors.base} ${colors.hover} hover:scale-110}`}`}
                 style={{ left: `${ubicacion.x}%`, top: `${ubicacion.y}%` }}
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
@@ -61,7 +58,7 @@ const MapHotspot = ({ ubicacion, onSelect, isSelected, tipo = 'ubicacion', cuadr
                 transition={{ repeat: isSelected ? Infinity : 0, duration: 1.5 }}
             >
                 
-                <span className={`absolute inset-0 rounded-full ${colorBase} animate-ping opacity-75`} />
+                <span className={`absolute inset-0 rounded-full ${colors.base} animate-ping opacity-75`} />
             </motion.button>
 
             {isHover && (
@@ -73,11 +70,11 @@ const MapHotspot = ({ ubicacion, onSelect, isSelected, tipo = 'ubicacion', cuadr
                     <FloatingArrow ref={refs.arrow} context={context} className="fill-slate-800" />
                     <div className="p-4">
                         <div className="flex items-start gap-3">
-                            <div className={`p-2 ${iconBg} rounded-lg shrink-0`}>
+                            <div className={`p-2 ${colors.iconBg} rounded-lg shrink-0`}>
                                 {tipo === 'heroe' ? (
-                                    <User size={20} className={iconColor} />
+                                    <User size={20} className={colors.icon} />
                                 ) : (
-                                    <Info size={20} className={iconColor} />
+                                    <Info size={20} className={colors.icon} />
                                 )}
                             </div>
                             <div>
@@ -96,4 +93,14 @@ const MapHotspot = ({ ubicacion, onSelect, isSelected, tipo = 'ubicacion', cuadr
     );
 };
 
-export default MapHotspot;
+// Memoize the component with custom comparison
+export default memo(MapHotspot, (prevProps, nextProps) => {
+    return (
+        prevProps.ubicacion.id === nextProps.ubicacion.id &&
+        prevProps.ubicacion.x === nextProps.ubicacion.x &&
+        prevProps.ubicacion.y === nextProps.ubicacion.y &&
+        prevProps.isSelected === nextProps.isSelected &&
+        prevProps.tipo === nextProps.tipo &&
+        prevProps.cuadranteId === nextProps.cuadranteId
+    );
+});

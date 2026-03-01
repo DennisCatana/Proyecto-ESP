@@ -225,7 +225,7 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
 {/* Subtitle */}
         <div className="relative z-10 text-center mb-6 pt-6">
           <p className="text-base max-w-2xl mx-auto font-medium"
-             style={{ color: COLORS.plateadoBrillante }}>
+            style={{ color: COLORS.plateadoBrillante }}>
             Explora los cuatro pilares fundamentales de nuestros símbolos institucionales
           </p>
         </div>
@@ -378,7 +378,7 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
                 }}
               />
               
-              {/* Shield Image - más grande */}
+              {/* Shield Image */}
               <div 
                 className="w-36 h-36 md:w-48 md:h-48 lg:w-60 lg:h-60 rounded-full overflow-hidden border-2"
                 style={{ 
@@ -395,7 +395,7 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
             </div>
           </div>
           
-          {/* Nodes - full names, NO icons */}
+          {/* Nodes */}
           {symbols.map(symbol => (
             <AnimatedRadarNode
               key={symbol.id}
@@ -469,13 +469,11 @@ const Simbolismos = () => {
   const closeModal = () => setActiveModal(null);
   
   return (
-    <div className="min-h-screen flex flex-col font-segoe" style={{ background: '#fffff' }}>
+    <div className="min-h-screen flex flex-col font-segoe">
       <Header />
       
       <main className="grow py-8 px-5" style={{ 
-        background: `
-          radial-gradient(ellipse at top, #fffff 100%, #ffffff 100%, #fffff 100%)
-        ` 
+        background: `#fffff` 
       }}>
         <div className="max-w-300 mx-auto">
           {/* Title Section */}

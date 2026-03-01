@@ -16,7 +16,7 @@ const MapVistaCuadrante = ({ id, ubicaciones, onSelectUbicacion, ubicacionSelecc
                         e.target.style.display = 'none';
                     }}
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-slate-900/30 via-slate-900/50 to-slate-900/300" />
+                                <div className="absolute inset-0 bg-linear-to-t from-slate-900/30 via-slate-900/50 to-slate-900/30" />
             </div>
 
             {/* Grid de referencia */}
