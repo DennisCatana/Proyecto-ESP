@@ -64,11 +64,12 @@ const Instructors = () => {
       <main className="grow py-16 px-5">
         <div className="max-w-300 mx-auto">
           <SectionTitle
-            title="Cuadro de Instructores"
+            title="Cuadro de Instructores de la Primera Compañía"
             subtitle="Profesionales altamente capacitados para su formación"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="flex flex-wrap justify-center gap-6
+                        grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
             {instructors.map((instructor, index) => (
               <InstructorCard key={index} {...instructor} />
             ))}

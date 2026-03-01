@@ -1,13 +1,11 @@
 import { lazy, Suspense, Component } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import ScrollToTop from './components/Scrolltotop';
+import ScrollToTop from './components/Scrolltotop'
 
-// Error Boundary Component
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
-  }
+    this.state = { hasError: false, error: null }}
 
   static getDerivedStateFromError(error) {
     return { hasError: true, error };
@@ -54,6 +52,10 @@ const Map = lazy(() => import('./pages/identity/Map'))
 const Simbolismos = lazy(() => import('./pages/identity/Simbolismos'))
 const Historia = lazy(() => import('./pages/identity/Historia'))
 const Biblioteca = lazy(() => import('./pages/Biblioteca'))
+const Politicos = lazy(() => import('./pages/organic/politic'))
+const Cupula = lazy(() => import('./pages/organic/Cupula'))
+
+
 
 // Loading component
 const Loading = () => (
@@ -64,26 +66,30 @@ const Loading = () => (
 
 function App() {
   return (
-    <ErrorBoundary>
-      <BrowserRouter>
-        <ScrollToTop />
-        <Suspense fallback={<Loading />}>
-          <Routes>
+
+  <ErrorBoundary>
+    <BrowserRouter>
+      <Suspense>
+        <Routes>
+          <ScrollToTop />
             {/* Págins principales */}
             <Route path='/' element={<Login />} />
             <Route path='/home' element={<Home />} />
-            <Route path='rAP' element={<Rap />} />
+            <Route path='rap' element={<Rap />} />
             <Route path='values' element={<Ethic />} />
             <Route path='gallery' element={<Gallery />} />
             <Route path='contacts' element={<Contacts />} />
 
 
+            {/* Páginas del organico */}
+            <Route path='/organic/politicos' element={<Politicos />} />
             <Route path='/organic/minstitucional' element={<Minstitucional />} />
+            <Route path='/organic/cupula' element={<Cupula />} />
             <Route path='/organic/instructors' element={<Instructors />} />
             <Route path='/organic/brigs' element={<Brigs />} />
             <Route path='/organic/comandantes' element={<Comandantes />} />
 
-{/* Páginas de Identidad */}
+            {/* Páginas de Identidad */}
             <Route path='/identity/values' element={<Ethic />} />
             <Route path='/identity/structure' element={<Map />} />
             <Route path='/identity/simbolismos' element={<Simbolismos />} />

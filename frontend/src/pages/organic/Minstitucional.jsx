@@ -35,7 +35,7 @@ const Minstitucional = () => {
             name: 'GraD. Jorge Renato Cevallos Núñez',
             phrase: 'DIRECTOR NACIONAL DE EDUCACIÓN',
         },
-                {
+        {
             image: '/images/photos/Barreiros.jpeg',
             name: 'GraD. Cristian Germán Barreiros Tumipamba',
             phrase: 'COORDINADOR ADMINISTRATIVO FINANCIERO',
@@ -57,7 +57,8 @@ const Minstitucional = () => {
                         subtitle="Cupula o columna vertebral de la Policía Nacional del Ecuador"
                     />
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div className="flex flex-wrap justify-center gap-6 
+                        grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
                         {Minstitucional.map((Minstitucional, index) => (
                             <InstructorCard key={index} {...Minstitucional} />
                         ))}
