@@ -81,7 +81,7 @@ model Cadete {
 
   estado            Boolean  @default(true)
 
-  puntajeTotal      Int      @default(0)
+  puntajeTotal      Decimal  @db.Decimal(7,2)
 
   usuario Usuario?   // Relación inversa 1–1
   acciones Accion[]

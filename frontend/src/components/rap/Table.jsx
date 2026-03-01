@@ -144,6 +144,7 @@ const Table = () => {
 
             {modal === "agregar" && (
                 <ModalFormulario
+                    tipo="Positiva"
                     accion="Agregar Acción"
                     cadete={cadeteSeleccionado}
                     onClose={cerrarModal}
@@ -152,6 +153,7 @@ const Table = () => {
 
             {modal === "eliminar" && (
                 <ModalFormulario
+                    tipo="Negativa"
                     accion="Eliminar Acción"
                     cadete={cadeteSeleccionado}
                     onClose={cerrarModal}

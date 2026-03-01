@@ -1,0 +1,75 @@
+/* Tamaño tipo A4 */
+.pdf-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm;
+    margin: 10mm auto;
+    background: rgb(206, 137, 137);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    page-break-after: always;
+    box-sizing: border-box;
+}
+
+/* Header */
+.pdf-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.pdf-header h1 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: rgb(36, 34, 34);
+}
+
+/* Grid de personajes */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+/* Tarjeta reutilizable */
+.card {
+    border: 1px solid #995dbd;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.card img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.card h3 {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.card p {
+    margin: 0;
+    font-size: 12px;
+    color: #555;
+}
+
+/* Footer */
+.pdf-footer {
+    position: absolute;
+    bottom: 15mm;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 12px;
+    color: gray;
+}

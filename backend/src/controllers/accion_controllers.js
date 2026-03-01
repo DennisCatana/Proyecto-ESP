@@ -1,4 +1,5 @@
 import prisma from "../prisma/client.js";
+import { Prisma } from "@prisma/client";
 
 // Función para estadísticas
 export const obtenerEstadisticasCadete = async (cadeteId) => {
@@ -13,53 +14,67 @@ export const obtenerEstadisticasCadete = async (cadeteId) => {
 //Registrar acción para un cadete
 export const registrarAccion = async (req, res) => {
     const { cadeteId, codigo, observacion } = req.body;
-    const usuarioId = req.usuario.id;
 
     try {
-        // Transacción para asegurar consistencia de puntajes
+
         const accionCreada = await prisma.$transaction(async (tx) => {
-            // 1️⃣ Buscar acción definida por código
-            const accionDef = await tx.accionDefinida.findUnique({ where: { codigo } });
+
+            // 1️⃣ Buscar acción definida
+            const accionDef = await tx.accionDefinida.findUnique({
+                where: { codigo }
+            });
+
             if (!accionDef) throw new Error("La acción no existe");
             if (!accionDef.activa) throw new Error("La acción está inactiva");
 
-            // 2️⃣ Determinar puntos a aplicar
-            const puntosAplicados = accionDef.tipo === "Negativa"
-                ? -parseFloat(accionDef.puntaje)
-                : parseFloat(accionDef.puntaje);
+            // 2️⃣ Calcular puntos aplicados
+            let puntosAplicados = new Prisma.Decimal(accionDef.puntaje);
 
-            // 3️⃣ Obtener puntaje acumulado actual del cadete desde acciones registradas
+            if (accionDef.tipo === "Negativa") {
+                puntosAplicados = puntosAplicados.negated();
+            }
+
+            // 3️⃣ Obtener suma actual
             const sumaActual = await tx.accion.aggregate({
                 where: { cadeteId },
                 _sum: { puntajeAplicado: true }
             });
-            const totalActual = parseFloat(sumaActual._sum.puntajeAplicado || 0);
 
-            // 4️⃣ Calcular nuevo puntaje acumulado
-            const nuevoTotal = totalActual + puntosAplicados;
+            const totalActual = sumaActual._sum.puntajeAplicado
+                ? new Prisma.Decimal(sumaActual._sum.puntajeAplicado)
+                : new Prisma.Decimal(0);
 
-            // 5️⃣ Crear la acción
+            const nuevoTotal = totalActual.plus(puntosAplicados);
+
+            // 4️⃣ Crear acción
             const accion = await tx.accion.create({
                 data: {
-                    cadeteId,
-                    accionDefinidaId: accionDef.id,
-                    registradoPorId: usuarioId,
+                    cadete: {
+                        connect: { id: cadeteId }
+                    },
+                    accionDefinida: {
+                        connect: { id: accionDef.id }
+                    },
+                    registradoPor: {
+                        connect: { id: req.usuario.id }   
+                    },
                     observacion,
                     puntajeAplicado: puntosAplicados,
                     puntajeAcumulado: nuevoTotal
                 }
             });
 
-            // 6️⃣ Actualizar puntaje total del cadete
+            // 5️⃣ Actualizar puntaje del cadete
             await tx.cadete.update({
                 where: { id: cadeteId },
-                data: { puntajeTotal: nuevoTotal }
+                data: {
+                    puntajeTotal: nuevoTotal
+                }
             });
 
             return accion;
         });
 
-        // 🔹 Obtener estadísticas después de registrar
         const estadisticas = await obtenerEstadisticasCadete(cadeteId);
 
         return res.status(201).json({
@@ -69,10 +84,10 @@ export const registrarAccion = async (req, res) => {
         });
 
     } catch (error) {
+        console.error(error);
         return res.status(400).json({ error: error.message });
     }
 };
-
 
 
 //Listar todos las acciones definidas
@@ -84,5 +99,63 @@ export const listarAcciones = async (req, res) => {
         res.json(acciones);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+export const obtenerResumenCadete = async (req, res) => {
+    try {
+        const cadeteId = parseInt(req.params.id);
+
+        if (isNaN(cadeteId)) {
+            return res.status(400).json({ error: "ID inválido" });
+        }
+
+        // 1️⃣ Verificar que exista el cadete
+        const cadete = await prisma.cadete.findUnique({
+            where: { id: cadeteId }
+        });
+
+        if (!cadete) {
+            return res.status(404).json({ error: "Cadete no encontrado" });
+        }
+
+        // 2️⃣ Obtener acciones con relaciones
+        const acciones = await prisma.accion.findMany({
+            where: { cadeteId },
+            orderBy: { fecha: "desc" },
+            include: {
+                accionDefinida: true,
+                registradoPor: true
+            }
+        });
+
+        // 3️⃣ Estadísticas (paralelo para mejor rendimiento)
+        const [totalAcciones, accionesPositivas, accionesNegativas] = await Promise.all([
+            prisma.accion.count({ where: { cadeteId } }),
+            prisma.accion.count({
+                where: {
+                    cadeteId,
+                    accionDefinida: { tipo: "Positiva" }
+                }
+            }),
+            prisma.accion.count({
+                where: {
+                    cadeteId,
+                    accionDefinida: { tipo: "Negativa" }
+                }
+            })
+        ]);
+
+        return res.json({
+            puntajeTotal: cadete.puntajeTotal,
+            totalAcciones,
+            accionesPositivas,
+            accionesNegativas,
+            acciones
+        });
+
+    } catch (error) {
+        console.error("Error en obtenerResumenCadete:", error);
+        res.status(500).json({ error: "Error interno del servidor" });
     }
 };

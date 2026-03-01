@@ -2,6 +2,8 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import SectionTitle from '../../components/ui/SectionTitle';
 import InstructorCard from '../../components/ui/instructors/InstructorCard';
+import GeneratePDFButton from "../../components/pdf/buttonPDF";
+
 
 const Instructors = () => {
   const instructors = [
@@ -62,7 +64,8 @@ const Instructors = () => {
     <div className="min-h-screen flex flex-col font-segoe">
       <Header />
       <main className="grow py-16 px-5">
-        <div className="max-w-300 mx-auto">
+        <div className="max-w-6xl mx-auto">
+
           <SectionTitle
             title="Cuadro de Instructores de la Primera Compañía"
             subtitle="Profesionales altamente capacitados para su formación"
@@ -74,6 +77,17 @@ const Instructors = () => {
               <InstructorCard key={index} {...instructor} />
             ))}
           </div>
+
+          {/* Botón PDF reutilizable */}
+          <GeneratePDFButton
+            title="Instructores"
+            subtitle="LXXXIX"
+            logo="/images/logo.png" // opcional
+            data={instructors}
+            layout="grid" // puedes cambiar a "pyramid"
+            fileName="Mando_Politico_Ecuador.pdf"
+            label="Descargar Mando Político"
+          />
         </div>
       </main>
       <Footer />

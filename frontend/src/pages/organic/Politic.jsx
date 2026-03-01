@@ -1,13 +1,10 @@
-import { useRef } from "react";
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import SectionTitle from '../../components/ui/SectionTitle';
 import InstructorCard from '../../components/ui/instructors/InstructorCard';
-import Pdf from '../../components/utils/archivo';
+import GeneratePDFButton from "../../components/pdf/buttonPDF";
 
 const Politicos = () => {
-
-    const contentRef = useRef();
 
     const Politicos = [
         {
@@ -30,31 +27,36 @@ const Politicos = () => {
     return (
         <div className="min-h-screen flex flex-col font-segoe">
             <Header />
+
             <main className="grow py-16 px-5">
                 <div className="max-w-6xl mx-auto">
+
                     <SectionTitle
                         title="Mando Político del Ecuador"
-                        subtitle="Profesionales altamente capacitados de dirigen al país"
+                        subtitle="Profesionales altamente capacitados que dirigen al país"
                     />
 
-                    {/* Botón para descargar PDF */}
-                    <div ref={contentRef} className="bg-white p-8 rounded-lg">
-                        <div className="flex flex-wrap justify-center gap-6">
-                            {Politicos.map((politico, index) => (
-                                <InstructorCard key={index} {...politico} />
-                            ))}
-                        </div>
+                    {/* Cards */}
+                    <div className="flex flex-wrap justify-center gap-6">
+                        {Politicos.map((politico, index) => (
+                            <InstructorCard key={index} {...politico} />
+                        ))}
                     </div>
-                    
-                    <Pdf
-                        targetRef={contentRef}
+
+                    {/* Botón PDF reutilizable */}
+                    <GeneratePDFButton
+                        title="Mando Político"
+                        subtitle="República del Ecuador"
+                        logo="/images/logo.png" // opcional
+                        data={Politicos}
+                        layout="grid" // puedes cambiar a "pyramid"
                         fileName="Mando_Politico_Ecuador.pdf"
                         label="Descargar Mando Político"
                     />
 
-                    
                 </div>
             </main>
+
             <Footer />
         </div>
     );
