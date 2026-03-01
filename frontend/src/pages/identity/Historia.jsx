@@ -95,7 +95,7 @@ const Historia = () => {
   }, []);
 
   const [titleText] = useTypewriter('Historia Institucional', 80);
-  const [ref, offset] = useParallax(0.3);
+  const [ref, offset] = useParallax(0.9);
 
   return (
     <div className="min-h-screen flex flex-col font-segoe">
