@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../services/api";
 
-export const ModalResumen = ({ onClose, cadete }) => {
+export const ModalResumen = ({ onClose, cadete, refresh  }) => {
 
     const [acciones, setAcciones] = useState([]);
     const [total, setTotal] = useState(0);
@@ -13,7 +13,7 @@ export const ModalResumen = ({ onClose, cadete }) => {
         if (cadete?.id) {
             cargarResumen();
         }
-    }, [cadete]);
+    }, [cadete, refresh]);
 
     const cargarResumen = async () => {
         try {

@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { api } from "../../services/api";
+import Select from "react-select";
 
-export const ModalFormulario = ({ onClose, cadete, tipo }) => {
+export const ModalFormulario = ({ onClose, cadete, tipo, onAccionRegistrada }) => {
 
     const [acciones, setAcciones] = useState([]);
     const [codigoSeleccionado, setCodigoSeleccionado] = useState("");
     const [observacion, setObservacion] = useState("");
+    const opciones = acciones.map(a => ({
+        value: a.codigo,
+        label: a.descripcion
+    }));
+    const [fecha, setFechaHora] = useState("");
 
     useEffect(() => {
         cargarAcciones();
@@ -14,10 +20,10 @@ export const ModalFormulario = ({ onClose, cadete, tipo }) => {
     const cargarAcciones = async () => {
         try {
             const data = await api.get("/acciones");
-            
+
             // Filtrar por tipo (Positiva / Negativa)
             const filtradas = data.filter(a => a.tipo === tipo && a.activa);
-            
+
             setAcciones(filtradas);
         } catch (error) {
             console.error("Error cargando acciones:", error);
@@ -40,6 +46,7 @@ export const ModalFormulario = ({ onClose, cadete, tipo }) => {
             });
 
             alert("Acción registrada correctamente");
+            onAccionRegistrada();
             onClose();
 
         } catch (error) {
@@ -59,18 +66,24 @@ export const ModalFormulario = ({ onClose, cadete, tipo }) => {
 
                 <form onSubmit={handleSubmit}>
 
-                    <select
-                        value={codigoSeleccionado}
-                        onChange={(e) => setCodigoSeleccionado(e.target.value)}
-                        className="w-full border p-2 mb-4 rounded"
-                    >
-                        <option value="">Seleccione acción</option>
-                        {acciones.map(a => (
-                            <option key={a.id} value={a.codigo}>
-                                {a.descripcion}
-                            </option>
-                        ))}
-                    </select>
+                    <div className="mb-4">
+                        <Select
+                            options={opciones}
+                            value={opciones.find(o => o.value === codigoSeleccionado) || null}
+                            onChange={(selected) => setCodigoSeleccionado(selected?.value || "")}
+                            placeholder="Seleccione acción"
+                            isClearable
+                        />
+                    </div>
+
+                    <div className="mb-4">
+                        <input
+                            type="datetime-local"
+                            value={fecha}
+                            onChange={(e) => setFechaHora(e.target.value)}
+                            className="w-full border p-2 rounded"
+                        />
+                    </div>
 
                     <textarea
                         placeholder="Observación (opcional)"
@@ -90,11 +103,10 @@ export const ModalFormulario = ({ onClose, cadete, tipo }) => {
 
                         <button
                             type="submit"
-                            className={`px-4 py-2 rounded text-white ${
-                                tipo === "Positiva"
-                                    ? "bg-green-600"
-                                    : "bg-red-600"
-                            }`}
+                            className={`px-4 py-2 rounded text-white ${tipo === "Positiva"
+                                ? "bg-green-600"
+                                : "bg-red-600"
+                                }`}
                         >
                             Guardar
                         </button>

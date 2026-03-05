@@ -73,6 +73,7 @@ function App() {
         <Suspense fallback={<Loading />}>
           <Routes>
             {/* Páginas principales */}
+            
             <Route path='/' element={<Login />} />
             <Route path='/home' element={<Home />} />
             <Route path='rap' element={<Rap />} />

@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiMail, FiLock } from "react-icons/fi";
+import { api } from "../services/api"; // ajusta la ruta si es necesario
 
 const LoginPage = () => {
+    const [correoU, setCorreoU] = useState("");
+    const [passwordU, setPasswordU] = useState("");
     const navigate = useNavigate(); // 👈 Hook de navegación
 
     // Las imágenes en public/ se acceden con ruta string (sin import)
@@ -12,12 +16,33 @@ const LoginPage = () => {
         "/images/image10.jpeg",
     ];
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault(); // evita recarga
+        const data = await api.post("/login", {
+            correoU,
+            passwordU
+        });
 
-        // 🔐 Aquí luego irá tu login real con backend
+        if (data.token) {
 
-        navigate("/home"); // redirige a Home
+            localStorage.setItem("token", data.token);
+
+            if (data.usuario) {
+                localStorage.setItem("usuario", JSON.stringify(data.usuario));
+            }
+
+            if (data.cambioPassword) {
+                navigate("/cambiar-password");
+            } else {
+                navigate("/home");
+            }
+
+        } else {
+            alert(data.msg);
+        }
+
+
+        //navigate("/home"); // redirige a Home
     };
 
 
@@ -79,6 +104,8 @@ const LoginPage = () => {
 
                                 <input
                                     type="email"
+                                    value={correoU}
+                                    onChange={(e) => setCorreoU(e.target.value)}
                                     className="w-full pl-10 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
                                     placeholder="denniscataña@gmail.com"
                                     required
@@ -95,6 +122,8 @@ const LoginPage = () => {
 
                                 <input
                                     type="password"
+                                    value={passwordU}
+                                    onChange={(e) => setPasswordU(e.target.value)}
                                     className="w-full pl-10 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
                                     placeholder="**************"
                                     required

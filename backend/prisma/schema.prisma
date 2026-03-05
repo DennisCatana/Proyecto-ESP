@@ -109,7 +109,7 @@ model Accion {
   observacion      String?
   puntajeAplicado  Decimal  @db.Decimal(5,2)   // cuánto sumó o restó
   puntajeAcumulado Decimal  @db.Decimal(7,2)  
-  fecha            DateTime    @default(now())
+  fecha            String?   
 
   @@index([cadeteId])
   @@index([accionDefinidaId])

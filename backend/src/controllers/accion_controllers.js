@@ -13,16 +13,32 @@ export const obtenerEstadisticasCadete = async (cadeteId) => {
 
 //Registrar acción para un cadete
 export const registrarAccion = async (req, res) => {
-    const { cadeteId, codigo, observacion } = req.body;
+
+    console.log("========== REGISTRAR ACCION ==========");
+    console.log("DATABASE_URL:", process.env.DATABASE_URL);
+
+    const cadeteId = parseInt(req.body.cadeteId);
+    const { codigo, observacion } = req.body;
+
+    if (isNaN(cadeteId)) {
+        return res.status(400).json({ error: "Cadete ID inválido" });
+    }
 
     try {
 
+        console.log("📌 Datos recibidos:", { cadeteId, codigo, observacion });
+        console.log("📌 Usuario que registra:", req.usuario?.id);
+
         const accionCreada = await prisma.$transaction(async (tx) => {
+
+            console.log("🔹 Iniciando transacción...");
 
             // 1️⃣ Buscar acción definida
             const accionDef = await tx.accionDefinida.findUnique({
                 where: { codigo }
             });
+
+            console.log("🔹 Acción definida encontrada:", accionDef);
 
             if (!accionDef) throw new Error("La acción no existe");
             if (!accionDef.activa) throw new Error("La acción está inactiva");
@@ -34,6 +50,8 @@ export const registrarAccion = async (req, res) => {
                 puntosAplicados = puntosAplicados.negated();
             }
 
+            console.log("🔹 Puntos aplicados:", puntosAplicados.toString());
+
             // 3️⃣ Obtener suma actual
             const sumaActual = await tx.accion.aggregate({
                 where: { cadeteId },
@@ -44,7 +62,11 @@ export const registrarAccion = async (req, res) => {
                 ? new Prisma.Decimal(sumaActual._sum.puntajeAplicado)
                 : new Prisma.Decimal(0);
 
+            console.log("🔹 Total actual:", totalActual.toString());
+
             const nuevoTotal = totalActual.plus(puntosAplicados);
+
+            console.log("🔹 Nuevo total:", nuevoTotal.toString());
 
             // 4️⃣ Crear acción
             const accion = await tx.accion.create({
@@ -56,13 +78,15 @@ export const registrarAccion = async (req, res) => {
                         connect: { id: accionDef.id }
                     },
                     registradoPor: {
-                        connect: { id: req.usuario.id }   
+                        connect: { id: req.usuario.id }
                     },
                     observacion,
                     puntajeAplicado: puntosAplicados,
                     puntajeAcumulado: nuevoTotal
                 }
             });
+
+            console.log("✅ ACCIÓN CREADA DENTRO DE LA TRANSACCIÓN:", accion);
 
             // 5️⃣ Actualizar puntaje del cadete
             await tx.cadete.update({
@@ -72,8 +96,12 @@ export const registrarAccion = async (req, res) => {
                 }
             });
 
+            console.log("🔹 Cadete actualizado correctamente");
+
             return accion;
         });
+
+        console.log("✅ TRANSACCIÓN COMPLETADA. Acción final:", accionCreada);
 
         const estadisticas = await obtenerEstadisticasCadete(cadeteId);
 
@@ -84,11 +112,10 @@ export const registrarAccion = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("❌ ERROR EN registrarAccion:", error);
         return res.status(400).json({ error: error.message });
     }
 };
-
 
 //Listar todos las acciones definidas
 export const listarAcciones = async (req, res) => {
@@ -103,6 +130,11 @@ export const listarAcciones = async (req, res) => {
 };
 
 export const obtenerResumenCadete = async (req, res) => {
+
+    console.log("========== RESUMEN CADETE ==========");
+    console.log("DATABASE_URL:", process.env.DATABASE_URL);
+
+    
     try {
         const cadeteId = parseInt(req.params.id);
 

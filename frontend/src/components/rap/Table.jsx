@@ -10,8 +10,9 @@ const Table = () => {
     const [cadetes, setCadetes] = useState([]);
     const [busqueda, setBusqueda] = useState("");
     const [paginaActual, setPaginaActual] = useState(1);
-    const [modal, setModal] = useState(null);
     const [cadeteSeleccionado, setCadeteSeleccionado] = useState(null);
+    const [refreshResumen, setRefreshResumen] = useState(0);
+    const [modal, setModal] = useState(null);
 
     const registrosPorPagina = 10;
 
@@ -148,6 +149,7 @@ const Table = () => {
                     accion="Agregar Acción"
                     cadete={cadeteSeleccionado}
                     onClose={cerrarModal}
+                    onAccionRegistrada={() => setRefreshResumen(prev => prev + 1)}
                 />
             )}
 
@@ -157,6 +159,7 @@ const Table = () => {
                     accion="Eliminar Acción"
                     cadete={cadeteSeleccionado}
                     onClose={cerrarModal}
+                    onAccionRegistrada={() => setRefreshResumen(prev => prev + 1)}
                 />
             )}
 
@@ -164,6 +167,8 @@ const Table = () => {
                 <ModalResumen
                     cadete={cadeteSeleccionado}
                     onClose={cerrarModal}
+                    refresh={refreshResumen}
+
                 />
             )}
         </>
