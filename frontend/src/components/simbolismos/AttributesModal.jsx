@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
 const IMAGES = {
-  baston: '/src/assets/heraldry/baston.jpg', 
-  sable: '/src/assets/heraldry/sable.jpg',
-  sablin: '/src/assets/heraldry/sablin.jpeg',
+  baston: '/src/assets/images/heraldry/baston.jpg', 
+  sable: '/src/assets/images/heraldry/sable.jpg',
+  sablin: '/src/assets/images/heraldry/sablin.jpeg',
 };
 
-// Colores institucionales - más claros
+// Colores institucionales
 const COLORS = {
   azulElectrico: '#3B82F6',
   azulOscuro: '#1E40AF',
@@ -15,7 +15,7 @@ const COLORS = {
   doradoClaro: '#E8C872',
 };
 
-// Data for attributes options - ORDER: Bastón, Sable, Sablín
+// Data for attributes options - ORDER: Bastón, Sable, Sablín (con coordenadas x, y en %)
 const attributesOptions = {
   baston: {
     id: 'baston',
@@ -23,11 +23,11 @@ const attributesOptions = {
     type: 'weapon',
     description: 'El bastón de mando es el símbolo máximo de la autoridad institucional. Representa el poder deleg ado por el Estado y la responsabilidad suprema del mando.',
     parts: [
-      { id: 'cabeza', name: 'Cabeza', description: 'Parte superior decorativa, representa la autoridad suprema' },
-      { id: 'cuerpo', name: 'Cuerpo', description: 'Varilla central, simboliza la continuidad institucional' },
-      { id: 'base', name: 'Base', description: 'Fundamento del mando, estabilidad y servicio' },
-      { id: 'bocamayor', name: 'Bocamayor', description: 'Anillo superior, honor al rango' },
-      { id: 'bocamenor', name: 'Bocamenor', description: 'Anillo inferior, continuidad del mando' },
+      { id: 'cabeza', name: 'Cabeza', description: 'Parte superior decorativa, representa la autoridad suprema', x: 50, y: 8 },
+      { id: 'bocamayor', name: 'Bocamayor', description: 'Anillo superior, honor al rango', x: 50, y: 18 },
+      { id: 'cuerpo', name: 'Cuerpo', description: 'Varilla central, simboliza la continuidad institucional', x: 50, y: 50 },
+      { id: 'bocamenor', name: 'Bocamenor', description: 'Anillo inferior, continuidad del mando', x: 50, y: 82 },
+      { id: 'base', name: 'Base', description: 'Fundamento del mando, estabilidad y servicio', x: 50, y: 92 },
     ]
   },
   sable: {
@@ -36,11 +36,11 @@ const attributesOptions = {
     type: 'weapon',
     description: 'El sable es el arma tradicional de los oficiales de la Policía Nacional. Representa la autoridad, el honor y la tradición militar que se remonta a los orígenes de la institución policial.',
     parts: [
-      { id: 'hoja', name: 'Hoja', description: 'Parte cortante del sable, simboliza la capacidad de acción y defensa' },
-      { id: 'empuñadura', name: 'Empuñadura', description: 'Parte donde se agarra el arma, representa el control y dominio' },
-      { id: 'guarda', name: 'Guarda', description: 'Protección de la mano, simboliza la protección del lawful' },
-      { id: 'pomo', name: 'Pomo', description: 'Extremo del mango, representa la culminación del deber' },
-      { id: 'vaina', name: 'Vaina', description: 'Funda del sable, representa la disciplina y el autocontrol' },
+      { id: 'hoja', name: 'Hoja', description: 'Parte cortante del sable, simboliza la capacidad de acción y defensa', x: 50, y: 35 },
+      { id: 'guarda', name: 'Guarda', description: 'Protección de la mano, simboliza la protección del lawful', x: 50, y: 55 },
+      { id: 'empuñadura', name: 'Empuñadura', description: 'Parte donde se agarra el arma, representa el control y dominio', x: 50, y: 70 },
+      { id: 'pomo', name: 'Pomo', description: 'Extremo del mango, representa la culminación del deber', x: 50, y: 82 },
+      { id: 'vaina', name: 'Vaina', description: 'Funda del sable, representa la disciplina y el autocontrol', x: 85, y: 50 },
     ]
   },
   sablin: {
@@ -49,13 +49,48 @@ const attributesOptions = {
     type: 'weapon',
     description: 'El sablín es el arma tradicional de los suboficiales. Simboliza la experiencia, el conocimiento táctico y el liderazgo en el servicio.',
     parts: [
-      { id: 'hoja', name: 'Hoja', description: 'Parte cortante del sablín, representa la efectividad en el servicio' },
-      { id: 'empuñadura', name: 'Empuñadura', description: 'Agarre del arma, simboliza el dominio técnico' },
-      { id: 'guarda', name: 'Guarda', description: 'Protección manual, representa la responsabilidad' },
-      { id: 'pomo', name: 'Pomo', description: 'Extremo decorativo, honor al rango' },
-      { id: 'vaina', name: 'Vaina', description: 'Funda protectora, disciplina operacional' },
+      { id: 'hoja', name: 'Hoja', description: 'Parte cortante del sablín, representa la efectividad en el servicio', x: 50, y: 30 },
+      { id: 'guarda', name: 'Guarda', description: 'Protección manual, representa la responsabilidad', x: 50, y: 52 },
+      { id: 'empuñadura', name: 'Empuñadura', description: 'Agarre del arma, simboliza el dominio técnico', x: 50, y: 68 },
+      { id: 'pomo', name: 'Pomo', description: 'Extremo decorativo, honor al rango', x: 50, y: 80 },
+      { id: 'vaina', name: 'Vaina', description: 'Funda protectora, disciplina operacional', x: 85, y: 50 },
     ]
   }
+};
+
+// Componente de flecha posicionable
+const PositionedArrow = ({ x, y, label, color }) => {
+  return (
+    <div
+      className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center animate-bounce z-20"
+      style={{
+        left: `${x}%`,
+        top: `${y}%`,
+      }}
+    >
+      {/* Flecha pointing down */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-10 w-10 drop-shadow-lg"
+        fill={color}
+        viewBox="0 0 24 24"
+        style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+      >
+        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+      </svg>
+      {/* Label badge */}
+      <span 
+        className="text-xs font-bold px-2 py-1 rounded shadow mt-1 whitespace-nowrap"
+        style={{ 
+          backgroundColor: 'white', 
+          color: color,
+          border: `2px solid ${color}`
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  );
 };
 
 const AttributesModal = ({ onClose }) => {
@@ -63,6 +98,10 @@ const AttributesModal = ({ onClose }) => {
   const [selectedPart, setSelectedPart] = useState(null);
   
   const currentOption = attributesOptions[selectedOption];
+  const arrowColor = COLORS.doradoMetalico;
+  
+  // Obtener las coordenadas de la parte seleccionada
+  const selectedPartData = currentOption.parts.find(p => p.id === selectedPart);
   
   return (
     <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4 ">
@@ -146,7 +185,7 @@ const AttributesModal = ({ onClose }) => {
                 {currentOption.name}
               </h3>
               
-              {/* Image container - with arrow indicator */}
+              {/* Image container - with positioned arrow */}
               <div 
                 className="w-full h-64 md:h-80 rounded-xl overflow-hidden relative"
                 style={{ 
@@ -159,24 +198,14 @@ const AttributesModal = ({ onClose }) => {
                   alt={currentOption.name}
                   className="w-full h-full object-contain"
                 />
-                {/* Arrow indicator for selected part */}
-                {selectedPart && (
-                  <div 
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center animate-bounce"
-                    style={{ color: COLORS.doradoMetalico }}
-                  >
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="h-12 w-12 drop-shadow-lg"
-                      fill="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
-                    </svg>
-                    <span className="text-xs font-bold bg-white px-2 py-1 rounded shadow mt-1">
-                      {currentOption.parts.find(p => p.id === selectedPart)?.name}
-                    </span>
-                  </div>
+                {/* Flecha posicionable para la parte seleccionada */}
+                {selectedPart && selectedPartData && (
+                  <PositionedArrow 
+                    x={selectedPartData.x} 
+                    y={selectedPartData.y} 
+                    label={selectedPartData.name}
+                    color={arrowColor}
+                  />
                 )}
               </div>
             </div>

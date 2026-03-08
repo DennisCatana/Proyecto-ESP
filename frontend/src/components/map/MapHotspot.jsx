@@ -82,7 +82,6 @@ const MapHotspot = ({ ubicacion, onSelect, isSelected, tipo = 'ubicacion', cuadr
                                 {ubicacion.grado && (
                                     <p className="text-amber-400 text-sm">{ubicacion.grado}</p>
                                 )}
-                                <p className="text-gray-300 text-sm mt-1">{ubicacion.descripcion}</p>
                             </div>
                         </div>
                         

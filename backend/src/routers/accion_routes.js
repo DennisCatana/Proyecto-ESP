@@ -1,15 +1,21 @@
 import { Router } from "express";
-import { listarAcciones, registrarAccion, obtenerResumenCadete} from "../controllers/accion_controllers.js";
+import { listarAcciones, registrarAccion, listarAccionesDisciplinarias, obtenerAccionesPorCadete } from "../controllers/accion_controllers.js";
 import { protegerRuta } from "../middlewares/auth_middleware.js";
+import { autorizarRoles } from "../middlewares/role_middleware.js";
 
 const router = Router();
 
-// Listar acciones definidas
-router.get("/acciones", listarAcciones);
-// Registrar una acción aplicada a un cadete
-router.post("/registroaccion",protegerRuta, registrarAccion);
+// Listar acciones definidas - accesible para Instructor y Administrador
+router.get("/acciones", protegerRuta, autorizarRoles("Administrador", "Instructor"), listarAcciones);
 
-router.get("/cadeteresumen/:id", obtenerResumenCadete);
+// Listar todas las acciones disciplinarias (registros) - accesible para Instructor y Administrador
+router.get("/accionesdisciplinarias", protegerRuta, autorizarRoles("Administrador", "Instructor"), listarAccionesDisciplinarias);
 
+// Obtener acciones de un cadete específico - accesible para Instructor y Administrador
+router.get("/acciones/:cadeteId", protegerRuta, autorizarRoles("Administrador", "Instructor"), obtenerAccionesPorCadete);
+
+// Registrar una acción aplicada a un cadete - solo Instructor y Administrador
+router.post("/registroaccion", protegerRuta, autorizarRoles("Administrador", "Instructor"), registrarAccion);
 
 export default router;
+

@@ -33,8 +33,7 @@ const COLORS = {
   negroSuave: '#1E293B',
 };
 
-// Symbol data for the radar - Full names only, NO icons
-// 4 nodes evenly distributed at 90 degree intervals
+
 const symbols = [
   { id: 'heraldica', label: 'Heráldica', angle: -90 },
   { id: 'atributos', label: 'Atributos de Mando', angle: 0 },
@@ -42,7 +41,7 @@ const symbols = [
   { id: 'emblemas', label: 'Emblemas', angle: 180 },
 ];
 
-// Custom Radar Node - text only, NO icons
+// Custom Radar Node
 const AnimatedRadarNode = ({ label, angle, isActive, onClick }) => {
   const angleRad = angle * Math.PI / 180;
   const radius = 38;
@@ -59,7 +58,7 @@ const AnimatedRadarNode = ({ label, angle, isActive, onClick }) => {
       }}
       onClick={onClick}
     >
-      {/* Animated glow ring - más brillante */}
+      {/* Animated glow ring*/}
       {isActive && (
         <div 
           className="absolute inset-0 rounded-full animate-ping"
@@ -71,7 +70,7 @@ const AnimatedRadarNode = ({ label, angle, isActive, onClick }) => {
         />
       )}
       
-      {/* Main node - versión mejorada con más contraste */}
+      {/* Main node*/}
       <div 
           className={`relative w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 ${
             isActive ? 'border-2' : 'border'
@@ -107,7 +106,7 @@ const AnimatedRadarNode = ({ label, angle, isActive, onClick }) => {
             animation: isActive ? 'nodePulse 2s ease-in-out infinite' : 'none',
           }}
         >
-        {/* Brillantez interior (efecto gloss) */}
+        {/* Brillantez interior */}
         <div 
           className="absolute inset-0 rounded-xl pointer-events-none"
           style={{
@@ -132,7 +131,7 @@ const AnimatedRadarNode = ({ label, angle, isActive, onClick }) => {
           }}
         />
         
-        {/* Corner decorations - más visibles */}
+        {/* Corner decorations */}
         <div 
           className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 rounded-sm transition-all duration-300" 
           style={{ 
@@ -162,7 +161,7 @@ const AnimatedRadarNode = ({ label, angle, isActive, onClick }) => {
           }} 
         />
         
-        {/* Label - texto mejorado */}
+        {/* Label*/}
         <span 
           className={`text-xs md:text-sm font-bold text-center px-2 leading-tight drop-shadow-md`}
           style={{ 
@@ -258,7 +257,7 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
               </filter>
             </defs>
             
-            {/* Animated concentric circles - más coloridos */}
+            {/* Animated concentric circles */}
             <circle cx="50" cy="50" r="47" fill="none" stroke={COLORS.azulProfundo} strokeWidth="0.3" opacity="0.6" />
             <circle cx="50" cy="50" r="38" fill="none" stroke={COLORS.azulElectrico} strokeWidth="0.3" opacity="0.5" />
             <circle cx="50" cy="50" r="28" fill="none" stroke={COLORS.doradoMetalico} strokeWidth="0.3" opacity="0.4" />
@@ -309,7 +308,7 @@ const RadarSection = ({ activeModal, setActiveModal }) => {
             })}
           </svg>
           
-{/* Central Core - versión mejorada con señales emitidas */}
+{/* Central Core con señales emitidas */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             {/* Señales emitidas desde el centro */}
             <div 

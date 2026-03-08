@@ -7,52 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//////////////////////
-// ENUMS
-//////////////////////
-
-enum RolNombre {
-  Administrador
-  Instructor
-  Servicio
-  Alumno
-}
-
-enum TipoAccion {
-  Positiva
-  Negativa
-}
-
-//////////////////////
-// MODELOS
-//////////////////////
-
 model Usuario {
-  id                        Int       @id @default(autoincrement())
-  cedula                    String    @unique
-  gradoU                    String
-  nombreU                   String    @unique
-  correoU                     String    @unique
-  passwordU                 String
-  activo                    Boolean   @default(true)
-  cambioPassword  Boolean   @default(true)
-  tokenSession                     String?
-  tokenVerificacion         String?
-  tokenRecuperacion         String?    
-  tokenRecuperacionExpira   DateTime?   
-
-  confirmarCorreo           Boolean @default(false)
-
-  rol RolNombre
-
-  // Relación 1 a 1 opcional con Cadete (solo si rol = Alumno)
-  cadeteId Int?    @unique
-  cadete   Cadete? @relation(fields: [cadeteId], references: [id], onDelete: SetNull)
-
-  accionesRegistradas Accion[] @relation("AccionesRegistradas")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                      Int       @id @default(autoincrement())
+  cedula                  String    @unique
+  gradoU                  String
+  nombreU                 String    @unique
+  correoU                 String    @unique
+  passwordU               String
+  activo                  Boolean   @default(true)
+  cambioPassword          Boolean   @default(true)
+  tokenSession            String?
+  tokenVerificacion       String?
+  tokenRecuperacion       String?
+  tokenRecuperacionExpira DateTime?
+  confirmarCorreo         Boolean   @default(false)
+  rol                     RolNombre
+  cadeteId                Int?      @unique
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  accionesRegistradas     Accion[]  @relation("AccionesRegistradas")
+  cadete                  Cadete?   @relation(fields: [cadeteId], references: [id])
 
   @@index([rol])
   @@index([cedula])
@@ -63,7 +37,6 @@ model Cadete {
   promocion         String
   cia               String
   nombre            String
-  edad              Int
   cedula            String   @unique
   seccion           String
   genero            String?
@@ -78,16 +51,12 @@ model Cadete {
   parentesco        String?
   lugar_nacimiento  String?
   lugar_residencia  String?
-
   estado            Boolean  @default(true)
-
-  puntajeTotal      Decimal  @db.Decimal(7,2)
-
-  usuario Usuario?   // Relación inversa 1–1
-  acciones Accion[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  puntajeTotal      Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  acciones          Accion[]
+  usuario           Usuario?
 
   @@index([cedula])
   @@index([promocion])
@@ -95,21 +64,18 @@ model Cadete {
 }
 
 model Accion {
-  id               Int         @id @default(autoincrement())
-
+  id               Int            @id @default(autoincrement())
   cadeteId         Int
-  cadete           Cadete      @relation(fields: [cadeteId], references: [id], onDelete: Cascade)
-
   accionDefinidaId Int
-  accionDefinida   AccionDefinida @relation(fields: [accionDefinidaId], references: [id])
-
   registradoPorId  Int
-  registradoPor    Usuario     @relation("AccionesRegistradas", fields: [registradoPorId], references: [id], onDelete: Restrict)
-
   observacion      String?
-  puntajeAplicado  Decimal  @db.Decimal(5,2)   // cuánto sumó o restó
-  puntajeAcumulado Decimal  @db.Decimal(7,2)  
-  fecha            String?   
+  ruta_imagen     String?
+  puntajeAplicado  Decimal        @db.Decimal(5, 2)
+  puntajeAcumulado Decimal        @db.Decimal(7, 2)
+  fecha            DateTime       @default(now())
+  accionDefinida   AccionDefinida @relation(fields: [accionDefinidaId], references: [id])
+  cadete           Cadete         @relation(fields: [cadeteId], references: [id], onDelete: Cascade)
+  registradoPor    Usuario        @relation("AccionesRegistradas", fields: [registradoPorId], references: [id])
 
   @@index([cadeteId])
   @@index([accionDefinidaId])
@@ -118,19 +84,29 @@ model Accion {
 }
 
 model AccionDefinida {
-  id          Int         @id @default(autoincrement())
-  codigo      String      @unique
-  titulo      String
-  descripcion String
-  tipo        TipoAccion
-  puntaje     Float         // puede ser positivo o negativo
-
-  activa      Boolean     @default(true)
-
+  id                Int        @id @default(autoincrement())
+  codigo            String     @unique
+  titulo            String
+  descripcion       String
+  tipo              TipoAccion
+  puntaje           Float
+  activa            Boolean    @default(true)
+  createdAt         DateTime   @default(now())
   accionesAplicadas Accion[]
-
-  createdAt   DateTime @default(now())
 
   @@index([tipo])
   @@index([activa])
 }
+
+enum RolNombre {
+  Administrador
+  Instructor
+  Servicio
+  Alumno
+}
+
+enum TipoAccion {
+  Positiva
+  Negativa
+}
+

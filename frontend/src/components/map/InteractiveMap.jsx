@@ -2,6 +2,9 @@ import { useState, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Home } from 'lucide-react';
 
+// Importar imagen 
+import espMapImage from '../../assets/images/mapImages/esp.png';
+
 // Importar componentes hijos
 import MapCuadrantesOverlay from './MapCuadrantesOverlay';
 import MapVistaCuadrante from './MapVistaCuadrante';
@@ -73,13 +76,26 @@ const InteractiveMap = () => {
                 {/* Leyenda */}
                 <div className="hidden lg:flex items-center gap-4">
                     <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse" />
-                        <span className="text-gray-400 text-sm">Ubicación</span>
-                    </div>
-                    <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-amber-500 rounded-full" />
                         <span className="text-gray-400 text-sm">Héroes Policiales</span>
                     </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" />
+                        <span className="text-gray-400 text-sm">Cuadrante 1</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                        <span className="text-gray-400 text-sm">Cuadrante 2</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse" />
+                        <span className="text-gray-400 text-sm">Cuadrante 3</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse" />
+                        <span className="text-gray-400 text-sm">Cuadrante 4</span>
+                    </div>
+                    
                 </div>
             </div>
 
@@ -113,7 +129,7 @@ const InteractiveMap = () => {
                             {/* Imagen de fondo principal */}
                             <div className="absolute inset-0">
                                 <img 
-                                    src="/images/mapImages/esp.png" 
+                                    src={espMapImage} 
                                     alt="Escuela Superior de Policía"
                                     className="w-full h-full object-contain"
                                     loading="lazy"
@@ -121,7 +137,7 @@ const InteractiveMap = () => {
                                         e.target.style.display = 'none';
                                     }}
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-slate-900/50 to-slate-900/30" />
+                                <div className="absolute inset-0 bg-linear-to-t from-slate-900/30 via-slate-900/50 to-slate-900/30" />
                             </div>
                             
                             {/* Overlay de cuadrantes */}

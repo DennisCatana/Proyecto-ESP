@@ -222,7 +222,14 @@ export const login = async (req, res) => {
             return res.json({
                 msg: "Debe cambiar su contraseña",
                 cambioPassword: true,
-                token
+                token,
+                usuario: {
+                    id: usuario.id,
+                    nombreU: usuario.nombreU,
+                    correoU: usuario.correoU,
+                    rol: usuario.rol,
+                    cambioPassword: true
+                }
             });
         }
 

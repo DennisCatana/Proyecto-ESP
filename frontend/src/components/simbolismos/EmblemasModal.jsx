@@ -1,4 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+
+// Importar imágenes desde src/assets
+import image1 from '../../assets/images/image1.jpeg';
+import image2 from '../../assets/images/image2.jpeg';
+import image3 from '../../assets/images/image3.jpeg';
+import image4 from '../../assets/images/image4.jpg';
+import image5 from '../../assets/images/image5.jpeg';
+import image6 from '../../assets/images/image6.jpeg';
+import image7 from '../../assets/images/image7.jpeg';
+import image8 from '../../assets/images/image8.jpeg';
+import image9 from '../../assets/images/image9.jpeg';
+import image10 from '../../assets/images/image10.jpeg';
 
 // Colores institucionales - más claros
 const COLORS = {
@@ -10,6 +22,9 @@ const COLORS = {
   verde: '#22C55E',
   verdeOscuro: '#15803D',
 };
+
+// Array de imágenes importadas para el carrusel
+const carouselImages = [image1, image2, image3, image4, image5, image6, image7, image8, image9, image10];
 
 // Data for emblemas
 const emblemasData = {
@@ -63,46 +78,22 @@ const emblemasData = {
 const ImageCarousel = ({ emblemaId }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   
-  // Generate different placeholder images based on emblem type
-  const getImages = () => {
-    const baseImages = [
-      `/images/photos/image1.jpeg`,
-      `/images/photos/image2.jpeg`,
-      `/images/photos/image3.jpeg`,
-    ];
-    
+  // Optimización: usar useMemo para evitar recrear el array en cada render
+  const images = useMemo(() => {
     // Different images for different emblems
     switch(emblemaId) {
       case 'tree':
-        return [
-          '/images/photos/image4.jpg',
-          '/images/photos/image5.jpeg',
-          '/images/photos/image6.jpeg',
-        ];
+        return [image4, image5, image6];
       case 'polifemo':
-        return [
-          '/images/photos/image7.jpeg',
-          '/images/photos/image8.jpeg',
-          '/images/photos/image9.jpeg',
-        ];
+        return [image7, image8, image9];
       case 'banderin':
-        return [
-          '/images/photos/image10.jpeg',
-          '/images/image1.jpeg',
-          '/images/image2.jpeg',
-        ];
+        return [image10, image1, image2];
       case 'mausoleo':
-        return [
-          '/images/image3.jpeg',
-          '/images/image4.jpg',
-          '/images/image5.jpeg',
-        ];
+        return [image3, image4, image5];
       default:
-        return baseImages;
+        return [image1, image2, image3];
     }
-  };
-  
-  const images = getImages();
+  }, [emblemaId]);
   
   const nextImage = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -118,6 +109,7 @@ const ImageCarousel = ({ emblemaId }) => {
         src={images[currentIndex]} 
         alt={`${emblemaId} - Imagen ${currentIndex + 1}`}
         className="w-full h-full object-cover"
+        loading="lazy"
         onError={(e) => {
           e.target.style.display = 'none';
           const bg = emblemaId === 'tree' 

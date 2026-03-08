@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
-const IMAGE_BASE_URL = '/src/assets/heraldry/';
+const IMAGE_BASE_URL = '/src/assets/images/heraldry/';
 
-// Colores institucionales - más claros
+// Colores institucionales
 const COLORS = {
   azulElectrico: '#3B82F6',
   azulOscuro: '#1E40AF',
@@ -37,15 +37,18 @@ const heraldryOptions = {
 Nuestra vida es servicio ferviente,
  a la Patria en entrega total;
  a su voz respondemos:
- “Presente, Policía valiente y leal”
+ "Presente, Policía valiente y leal"
+
 Somos fieles guardianes del orden,
  defendemos la paz, la justicia;
  de la ley somos fuerte milicia
  que asegura al país libertad.
+
 Inflamados de amor a la Patria,
  tremolando sin marcha su emblema,
  viviremos con fe nuestro lema:
- “Disciplina, valor, lealtad”
+ "Disciplina, valor, lealtad"
+
 Meditemos en nuestro estandarte,
  fiel compendio de nuestro civismo,
  para ser, con honor y heroísmo,
@@ -54,6 +57,7 @@ Meditemos en nuestro estandarte,
  con su signo de Ley justiciera,
  a empuñar nuestra espada guerrera
  contra todas las fuerzas del mal.
+
 Custodiando las vidas humanas,
  en constante y dura vigía
  patrullamos de noche y de día
@@ -62,6 +66,7 @@ Custodiando las vidas humanas,
  de la costa, el oriente y la sierra
  siempre estamos alerta y en guerra
  contra común malhechor.
+
 Al impulso del fuego sagrado,
  que forjara un pasado de gloria,
  seguiremos la gran trayectoria
@@ -97,14 +102,17 @@ Desbordante de júbilo el pecho,
  la bandera de las manos arietes,
  entonemos un himno cadetes
  a la escuela vigía del bien.
+
 Y a la sombra del lábaro santo
  que derrama colores el viento
  sea un grito el viril juramento
  por el pueblo, la patria y la ley.
+
 Vigilantes nos haya la aurora
  sosteniendo una mágica tea
  y en el libro, derecho y la idea
  perseguimos un mismo ideal.
+ 
 En el campo de marte o en el aula
  ante dios o mitad de la calle,
  en el risco, en el mar y en el valle
@@ -112,43 +120,42 @@ En el campo de marte o en el aula
   },
 };
 
-// Partes específicas del ESCUDO DE LA POLICÍA NACIONAL
+// Partes específicas del ESCUDO DE LA POLICÍA NACIONAL (con coordenadas x, y en %)
 const escudoPoliciaParts = [
-  { id: '1', name: 'Frase superior', description: 'Denominación atribuida a la Institución de orden y seguridad de la República.' },
-  { id: '2', name: 'Espada', description: 'Representa justicia y poder.' },
-  { id: '3', name: 'Guerrero', description: 'Representa la fuerza de la Policía Nacional en constante lucha.' },
-  { id: '4', name: 'Hilera de Hitos', description: 'Representa los límites territoriales del Estado ecuatoriano, significa que los servicio policiales son puntuales de seguridad sociales.' },
-  { id: '5', name: 'Escudete Plateado', description: 'Instrumento defensivo, siendo la LEY' },
-  { id: '6', name: 'Cinta Tricolor', description: 'Inscrita la leyenda: “ORDEN Y SEGURIDAD SOCIAL”; Lema, principio y fin de la existencia de esta institución al servicio de la sociedad y del Estado.' },
-  { id: '7', name: 'El Condor', description: 'Simboliza la libertad e independencia.' },
-  { id: '8', name: 'Plomo-Plata', description: 'Inteligencia, obediencia, firmeza, vigilancia y vencimiento.' },
-  { id: '9', name: 'Azul', description: 'Justicia, cielo, verdad y lealta.' },
-  { id: '10', name: 'Sangre de los Héroes', description: 'Que sacrificaron sus vidas en defensa de la Constitución.' },
-  { id: '11', name: 'Palmas de Laurel', description: 'Indica el prestigio y buena fama que como institución del Estado acreditan a la Policía Nacional las virtudes cívicas del patriotismo y lealtad.' },
+  { id: '1', name: 'Frase superior', description: 'Denominación atribuida a la Institución de orden y seguridad de la República.', x: 50, y: 20},
+  { id: '2', name: 'Espada', description: 'Representa justicia y poder.', x: 53.6, y: 72 },
+  { id: '3', name: 'Guerrero', description: 'Representa la fuerza de la Policía Nacional en constante lucha.', x: 52, y: 77 },
+  { id: '4', name: 'Hilera de Hitos', description: 'Representa los límites territoriales del Estado ecuatoriano, significa que los servicio policiales son puntuales de seguridad sociales.', x: 42, y: 81.6 },
+  { id: '5', name: 'Escudete Plateado', description: 'Instrumento defensivo, siendo la LEY', x: 54.5, y: 82 },
+  { id: '6', name: 'Cinta Tricolor', description: 'Inscrita la leyenda: "ORDEN Y SEGURIDAD SOCIAL"; Lema, principio y fin de la existencia de esta institución al servicio de la sociedad y del Estado.', x: 50, y: 81, rotation: '180deg' },
+  { id: '7', name: 'El Condor', description: 'Simboliza la libertad e independencia.', x: 50, y: 60 },
+  { id: '8', name: 'Plomo-Plata', description: 'Inteligencia, obediencia, firmeza, vigilancia y vencimiento.', x: 45, y: 75 },
+  { id: '9', name: 'Azul', description: 'Justicia, cielo, verdad y lealta.', x: 58, y: 85},
+  { id: '10', name: 'Sangre de los Héroes', description: 'Que sacrificaron sus vidas en defensa de la Constitución.', x: 63.6, y: 56, rotation: '180deg' },
+  { id: '11', name: 'Palmas de Laurel', description: 'Indica el prestigio y buena fama que como institución del Estado acreditan a la Policía Nacional las virtudes cívicas del patriotismo y lealtad.', x: 36, y: 84 },
 ];
 
-// Partes específicas del ESCUDO DE LA ESCUELA SUPERIOR DE POLICÍA
+// Partes específicas del ESCUDO DE LA ESCUELA SUPERIOR DE POLICÍA (con coordenadas)
 const escudoEscuelaParts = [
-  { id: '1.1', name: 'Antorcha', description: 'Con su tea encendida, que es la luz y la cultura que emanan del Primer Plantel Educacional Policial de la República.' },
-  { id: '2.1', name: 'Pirámide', description: 'Signo de perpetuidad hacia el futuro.' },
-  { id: '3.1', name: 'Libro Abierto', description: 'Con la inicial de LEX, que son las leyes que rigen al país y que la Policía la custodia con su lealtad.' },
-  { id: '4.1', name: 'Columnas', description: 'Estilo dórico, truncas, sinónimo de belleza y armonía.' },
-  
-];
-// Partes específicas de la BANDERA DE LA POLICÍA NACIONAL
-const banderaPoliciaParts = [
-  { id: '1.2', name: 'Franja superior (plomo-plata)', description: 'Representa la imparcialidad en el ejercicio de la función policial.' },
-  { id: '2.2', name: 'Franja inferior (azul)', description: 'Simboliza la lealtad y la legalidad en el cumplimiento del deber.' },
-  { id: '3.2', name: 'Escudo de Armas', description: 'Identifica formalmente a la institución y reafirma su carácter oficial dentro del Estado.' },
-  
+  { id: '1.1', name: 'Antorcha', description: 'Con su tea encendida, que es la luz y la cultura que emanan del Primer Plantel Educacional Policial de la República.', x: 50, y: 40 },
+  { id: '2.1', name: 'Pirámide', description: 'Signo de perpetuidad hacia el futuro.', x: 44, y: 71 },
+  { id: '3.1', name: 'Libro Abierto', description: 'Con la inicial de LEX, que son las leyes que rigen al país y que la Policía la custodia con su lealtad.', x: 50, y: 58 },
+  { id: '4.1', name: 'Columnas', description: 'Estilo dórico, truncas, sinónimo de belleza y armonía.', x: 54, y: 71 },
 ];
 
-// Partes específicas de la BANDERA DE LA ESCUELA SUPERIOR DE POLICÍA
+// Partes específicas de la BANDERA DE LA POLICÍA NACIONAL (con coordenadas)
+const banderaPoliciaParts = [
+  { id: '1.2', name: 'Franja superior (plomo-plata)', description: 'Representa la imparcialidad en el ejercicio de la función policial.', x: 50, y: 27 },
+  { id: '2.2', name: 'Franja inferior (azul)', description: 'Simboliza la lealtad y la legalidad en el cumplimiento del deber.', x: 50, y: 73, rotation:'180deg' },
+  { id: '3.2', name: 'Escudo de Armas', description: 'Identifica formalmente a la institución y reafirma su carácter oficial dentro del Estado.', x: 50, y: 68 },
+];
+
+// Partes específicas de la BANDERA DE LA ESCUELA SUPERIOR DE POLICÍA (con coordenadas)
 const banderaEscuelaParts = [
-  { id: '1.3', name: 'Campo blanco', description: 'Base principal del diseño que representa la pureza.' },
-  { id: '2.3', name: 'Franjas longitudinales', description: 'Colores plomo-plata y azul esmaltado que representan la bandera de la Policia Nacional del Ecuador.' },
-  { id: '3.3', name: 'Escudo', description: 'Identifica a la Escuela Superior de Policía.' },
-  { id: '4.3', name: 'Dimensiones', description: '1,35 m de largo por 1,10 m de ancho.' },
+  { id: '1.3', name: 'Campo blanco', description: 'Base principal del diseño que representa la pureza.', x: 25, y: 30 },
+  { id: '2.3', name: 'Franjas longitudinales', description: 'Colores plomo-plata y azul esmaltado que representan la bandera de la Policia Nacional del Ecuador.', x: 15, y: 65 },
+  { id: '3.3', name: 'Escudo', description: 'Identifica a la Escuela Superior de Policía.', x: 50, y: 65 },
+  { id: '4.3', name: 'Dimensiones', description: '1,35 m de largo por 1,10 m de ancho.', x: 50, y: 88, rotation:'180deg' },
 ];
 
 // Función para obtener las partes según la opción seleccionada
@@ -181,6 +188,58 @@ const getTypeName = (type) => {
   }
 };
 
+// Componente de flecha posicionable
+const PositionedArrow = ({ x, y, label, color, rotation = '0deg' }) => {
+  const deg = parseInt(rotation) || 0;
+  
+  // Determinar la orientación según la rotación
+  const isVertical = (d) => d === 0 || d === 180;
+  const flexDirection = isVertical(deg) ? 'flex-col' : 'flex-row';
+  
+  // Determinar el orden: la etiqueta debe estar en el lado opuesto a la flecha
+  // Si flecha apunta arriba (0deg) o izquierda (90deg), etiqueta va DESPUÉS (debajo/derecha)
+  // Si flecha apunta abajo (180deg) o derecha (-90deg), etiqueta va ANTES (arriba/izquierda)
+  const labelOrder = (deg === 0 || deg === 90) ? 2 : 1;
+  const arrowOrder = (deg === 0 || deg === 90) ? 1 : 2;
+
+  return (
+    <div
+      className={`absolute transform -translate-x-1/2 -translate-y-1/2 flex ${flexDirection} items-center animate-bounce z-20`}
+      style={{
+        left: `${x}%`,
+        top: `${y}%`,
+      }}
+    >
+      {/* Etiqueta - orden dinámico */}
+      <span 
+        className="text-xs font-bold px-2 py-1 rounded shadow whitespace-nowrap"
+        style={{ 
+          backgroundColor: 'white', 
+          color: color,
+          border: `2px solid ${color}`,
+          order: labelOrder
+        }}
+      >
+        {label}
+      </span>
+      {/* Flecha - orden dinámico */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-10 w-10 drop-shadow-lg flex-shrink-0"
+        fill={color}
+        viewBox="0 0 24 24"
+        style={{ 
+          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+          transform: `rotate(${rotation})`,
+          order: arrowOrder
+        }}
+      >
+        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
+      </svg>
+    </div>
+  );
+};
+
 const HeraldryModal = ({ onClose }) => {
   const [selectedOption, setSelectedOption] = useState('escudo_policia');
   const [selectedPart, setSelectedPart] = useState(null);
@@ -191,6 +250,10 @@ const HeraldryModal = ({ onClose }) => {
   const isFlag = currentOption.type === 'flag';
   const hasParts = isShield || isFlag;
   const currentParts = getParts(selectedOption);
+  const arrowColor = currentOption.institution === 'policia' ? COLORS.azulElectrico : COLORS.doradoMetalico;
+  
+  // Obtener las coordenadas de la parte seleccionada
+  const selectedPartData = currentParts.find(p => p.id === selectedPart);
   
   return (
     <div className="fixed text-justify inset-0 z-50 flex items-start justify-center p-4 ">
@@ -312,7 +375,7 @@ const HeraldryModal = ({ onClose }) => {
                 {currentOption.name}
               </h3>
               
-              {/* Image for shields and flags - with arrow indicator */}
+              {/* Image */}
               {hasParts && (
                 <div 
                   className="w-full h-64 md:h-80 rounded-xl overflow-hidden relative"
@@ -330,24 +393,15 @@ const HeraldryModal = ({ onClose }) => {
                       e.target.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center text-slate-400">Imagen: ${selectedOption}.png</div>`;
                     }}
                   />
-                  {/* Arrow indicator for selected part */}
-                  {selectedPart && (
-                    <div 
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center animate-bounce"
-                      style={{ color: currentOption.institution === 'policia' ? COLORS.azulElectrico : COLORS.doradoMetalico }}
-                    >
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="h-12 w-12 drop-shadow-lg"
-                        fill="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
-                      </svg>
-                      <span className="text-xs font-bold bg-white px-2 py-1 rounded shadow mt-1">
-                        {currentParts.find(p => p.id === selectedPart)?.name}
-                      </span>
-                    </div>
+                  {/* Flecha posicionable para la parte seleccionada */}
+                  {selectedPart && selectedPartData && (
+                    <PositionedArrow 
+                      x={selectedPartData.x} 
+                      y={selectedPartData.y} 
+                      label={selectedPartData.name}
+                      color={arrowColor}
+                      rotation={selectedPartData.rotation} // <--- Pasa la rotación desde los datos
+                    />
                   )}
                 </div>
               )}

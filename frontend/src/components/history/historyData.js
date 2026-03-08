@@ -19,31 +19,31 @@ export const COLORS = {
 // Historical Data - Genesis of National Police
 export const genesisEras = [
   {
-    period: 'Epoca Pre-Incasica',
+    period: 'Época Pre-Incásica',
     description: 'Antes del Imperio Incaico, los pueblos ancestrales del actual Ecuador organizaban sistemas de defensa y orden social mediante autoridades locales y guerreros seleccionados.',
     context: 'Las Tribus y Confederaciones establecieron las primeras formas de justicia comunitaria.',
     year: 'Antes de 1400 d.C.'
   },
   {
-    period: 'Epoca Incasica',
+    period: 'Época Incásica',
     description: 'El Imperio Incaico establecio un sistema organizado de proteccion y control territorial con los "Aguaciles" y "Topa Apu" como autoridades de orden.',
     context: 'Sistema de mitmaqkuna para control de territorios conquistados.',
     year: '1400 - 1532 d.C.'
   },
   {
-    period: 'Epoca Colonial',
+    period: 'Época Colonial',
     description: 'Durante la colonia española, se establecieron los primeros cuerpos de seguridad formales como la "Santa Hermandad" y posteriormente los "Alguaciles Reales".',
     context: 'Creacion de los Cabildos y primeras estructuras policiales formales.',
     year: '1532 - 1822 d.C.'
   },
   {
-    period: 'Epoca Grancolombiana',
+    period: 'Época Grancolombiana',
     description: 'Simon Bolivar y los libertadores establecieron cuerpos armados para mantener el orden en la nueva republica.',
     context: 'Creacion de la Guardia Nacional y cuerpos de seguridad departamentales.',
     year: '1822 - 1830 d.C.'
   },
   {
-    period: 'Epoca Republicana',
+    period: 'Época Republicana',
     description: 'Se consolido definitivamente la Policia Nacional del Ecuador con su estructura moderna y jerarquizacion institucional.',
     context: 'Profesionalizacion y modernizacion de las fuerzas del orden.',
     year: '1830 - Actualidad'
@@ -60,19 +60,19 @@ export const milestones = [
   },
   {
     year: '1896',
-    title: 'La Policia Rural del Ecuador',
+    title: 'La Policía Rural del Ecuador',
     description: 'Se establece la Policia Rural para cubrir las zonas alejadas de las ciudades principales.',
     icon: '*'
   },
   {
     year: '1923',
-    title: 'Policia Nacional',
+    title: 'Policía Nacional',
     description: 'Se unifican todos los cuerpos policiales bajo el nombre oficial de "Policia Nacional".',
     icon: '*'
   },
   {
     year: '1938',
-    title: 'El Ano que Todo Cambio',
+    title: 'El Año que Todo Cambio',
     description: 'Se crea la Escuela de Carabineros, marcando el inicio de la formacion profesional policial.',
     icon: '*'
   }
@@ -153,75 +153,95 @@ export const schoolsEvolution = [
 // Police Heroes
 export const policeHeroes = [
   {
-    name: 'Tte. Hector Guillermo Cordovez Olmedo',
+    name: 'Tnte. Hector Guillermo Cordovez Olmedo',
     rank: 'Teniente',
-    achievement: 'Heroe Policial',
-    description: '战斗中表现英勇，为国捐躯。',
-    year: '1980s'
+    description: '"Policía ecuatoriano tu tumba es anónima pero tu hazaña es inmortal" Héctor Guillermo Cordovez Olmedo nació en la ciudad de Quito, el 26 de diciembre de 1920. Fue uno de los pioneros de la cinematografía en el Ecuador, trajo las primeras películas y fue inicialmente empresario. Falleció en combate el 9 de agosto de 1941 en la frontera sur de Ecuador, defendiendo el territorio nacional durante el conflicto.',
+    year: '1980s',
+    images: [
+      '/images/history/Bustos/TNTE. HÉCTOR CORDOVEZ/Captura de pantalla 2026-02-28 110741.png',
+      '/images/history/Bustos/TNTE. HÉCTOR CORDOVEZ/Captura de pantalla 2026-02-28 110759.png',
+      '/images/history/Bustos/TNTE. HÉCTOR CORDOVEZ/WhatsApp Image 2026-02-28 at 12.10.13 (1).jpeg'
+    ]
   },
   {
     name: 'Gral. Washington Gerardo Martinez Torres',
     rank: 'General',
-    achievement: 'Comandante General',
-    description: '警察部队现代化和制度化的先驱。',
-    year: '1990s'
+    description: 'Información',
+    year: '1990s',
+    images: [
+      '/images/history/Bustos/GRAL. WASHINGTON MARTÍNEZ/Captura de pantalla 2026-02-28 111117.png',
+      '/images/history/Bustos/GRAL. WASHINGTON MARTÍNEZ/GRAL. WASHINGTON GERARDO MARTÍNEZ.png',
+      '/images/history/Bustos/GRAL. WASHINGTON MARTÍNEZ/IMG_0656.JPG'
+    ]
   },
   {
-    name: 'Mayr. Eduardo Zea Lopez',
+    name: 'Myr. Eduardo Zea Lopez',
     rank: 'Mayor',
-    achievement: 'Heroe Institucional',
-    description: '因其正直和奉献精神而著称。',
-    year: '1980s'
+    description: 'Información',
+    year: '1980s',
+    images: [
+      '/images/history/Bustos/MAYR. EDUARDO ZEA LÓPEZ/Captura de pantalla 2026-02-28 111244.png',
+      '/images/history/Bustos/MAYR. EDUARDO ZEA LÓPEZ/Captura de pantalla 2026-02-28 111308.png',
+      '/images/history/Bustos/MAYR. EDUARDO ZEA LÓPEZ/WhatsApp Image 2026-02-28 at 12.10.13 (2).jpeg'
+    ]
   },
   {
     name: 'Myr. Galo Mino Jarrin',
-    rank: 'Miembro',
-    achievement: 'Heroe Policial',
-    description: '在任务中表现英勇。',
-    year: '1990s'
+    rank: 'Mayor',
+    description: 'Información',
+    year: '1990s',
+    images: [
+      '/images/history/Bustos/MYR. GALO MIÑO JARRÍN/Captura de pantalla 2026-02-28 111908.png',
+      '/images/history/Bustos/MYR. GALO MIÑO JARRÍN/Captura de pantalla 2026-02-28 111929.png'
+    ]
   },
   {
     name: 'Cptn. Tuesman Garces',
-    rank: 'Capitan',
-    achievement: 'Heroes del Putumayo',
-    description: 'Putumayo地区的英雄。',
-    year: '1990s'
+    rank: 'Capitán',
+    achievement: 'Héroes de Putumayo',
+    description: 'Información',
+    year: '1990s',
+    images: [
+      '/images/history/Bustos/CPTN. TUESMAN GARCES, "HEROES DEL PUTUMAYO"/Captura de pantalla 2026-03-01 085042.png',
+      '/images/history/Bustos/CPTN. TUESMAN GARCES, "HEROES DEL PUTUMAYO"/WhatsApp Image 2026-02-28 at 12.10.13 (3).jpeg'
+    ]
   },
   {
     name: 'Crnl. Hernan Sergio Barriga Guzman',
     rank: 'Coronel',
-    achievement: 'Comandante Institucional',
-    description: '杰出的指挥官和领袖。',
-    year: '2000s'
+    description: 'Información',
+    year: '2000s',
+    images: []
   },
   {
     name: 'Cmdte. Galo Rene Flor Pinto',
-    rank: 'Comandante',
-    achievement: 'Lider Institucional',
-    description: '因其战略眼光而著称。',
-    year: '2010s'
+    rank: 'General',
+    description: 'Información',
+    year: '2010s',
+    images: [
+      '/images/history/Bustos/COMANDANTE GENERAL GALO RENE FLOR PINTO/Captura de pantalla 2026-03-01 090314.png'
+    ]
   },
   {
     name: 'Tcrnl. Ludgardo Proano Guerrero',
     rank: 'Teniente Coronel',
-    achievement: 'Heroe Institucional',
-    description: '因勇气和牺牲精神而著称。',
-    year: '1980s'
+    description: 'Información',
+    year: '1980s',
+    images: [
+      '/images/history/Bustos/TCRNL. DE CARABINEROS LUDGARDO PROAÑO  GUERRERO/Captura de pantalla 2026-03-01 090546.png'
+    ]
   },
   {
-    name: 'Cbop. Victor Jimenez',
+    name: 'Cbop. Victor Jimenez y Cbop. Luis Ruales',
     rank: 'Cabo',
-    achievement: 'Heroe Policial',
-    description: '在行动中表现英勇。',
-    year: '1990s'
+    description: 'Información',
+    year: '1990s',
+    images: [
+      '/images/history/Bustos/TEA 9. EN HOMENAJE A LOS SEÑORES, CBOP. VICTOR JIMENEZ, CBOP. LUIS RÙALES/Captura de pantalla 2026-03-01 085242.png',
+      '/images/history/Bustos/TEA 9. EN HOMENAJE A LOS SEÑORES, CBOP. VICTOR JIMENEZ, CBOP. LUIS RÙALES/Captura de pantalla 2026-03-01 085643.png',
+      '/images/history/Bustos/TEA 9. EN HOMENAJE A LOS SEÑORES, CBOP. VICTOR JIMENEZ, CBOP. LUIS RÙALES/Captura de pantalla 2026-03-01 085909.png'
+    ]
   },
-  {
-    name: 'Cbop. Luis Ruales',
-    rank: 'Cabo',
-    achievement: 'Heroe del Deber',
-    description: '为职责英勇牺牲。',
-    year: '2000s'
-  }
 ];
 
 // Uniforms Data

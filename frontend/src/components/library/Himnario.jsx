@@ -14,36 +14,37 @@ const Himnario = () => {
       id: 1,
       title: 'Himno a la Bandera',
       author: 'Himno patrio',
-      description: 'Audio institucional',
       audioUrl: '/src/assets/audios/Himno-Bandera.mpeg'
     },
     {
       id: 2,
       title: 'Himno al Ecuador',
       author: 'Himno nacional',
-      description: 'Audio institucional',
       audioUrl: '/src/assets/audios/Himno-Ecuador.mpeg'
     },
     {
       id: 3,
       title: 'Himno a la Patria',
       author: 'Himno patrio',
-      description: 'Audio institucional',
       audioUrl: '/src/assets/audios/Himno-Patria.mpeg'
     },
     {
       id: 4,
       title: 'Himno a la Policial',
       author: 'Himno institucional',
-      description: 'Audio institucional',
       audioUrl: '/src/assets/audios/Himno-Policia.mpeg'
     },
     {
       id: 5,
       title: 'Himno a los Héroes',
       author: 'Himno commemorativo',
-      description: 'Audio institucional',
       audioUrl: '/src/assets/audios/Himno-Heroes.mpeg'
+    },
+    {
+      id: 6,
+      title: 'Himno a la Inhepol',
+      author: 'Himno commemorativo',
+      audioUrl: '/src/assets/audios/Himno-Inhepol.mpeg'
     },
   ];
 

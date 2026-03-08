@@ -13,22 +13,24 @@ export const obtenerEstadisticasCadete = async (cadeteId) => {
 
 //Registrar acción para un cadete
 export const registrarAccion = async (req, res) => {
-
-    console.log("========== REGISTRAR ACCION ==========");
-    console.log("DATABASE_URL:", process.env.DATABASE_URL);
-
-    const cadeteId = parseInt(req.body.cadeteId);
-    const { codigo, observacion } = req.body;
-
-    if (isNaN(cadeteId)) {
-        return res.status(400).json({ error: "Cadete ID inválido" });
-    }
+    const { cadeteId, codigo, observacion, ruta_imagen, fecha, hora } = req.body;
+    const usuarioId = req.usuario.id;
 
     try {
-
-        console.log("📌 Datos recibidos:", { cadeteId, codigo, observacion });
-        console.log("📌 Usuario que registra:", req.usuario?.id);
-
+        // Determinar la fecha de la acción
+        let fechaAccion;
+        if (fecha && hora) {
+            // Combinar fecha y hora proporcionadas
+            fechaAccion = new Date(`${fecha}T${hora}`);
+        } else if (fecha) {
+            // Solo fecha proporcionada, usar hora actual
+            fechaAccion = new Date(`${fecha}T${new Date().toTimeString().slice(0, 8)}`);
+        } else {
+            // Usar fecha y hora actual
+            fechaAccion = new Date();
+        }
+        
+        // Transacción para asegurar consistencia de puntajes
         const accionCreada = await prisma.$transaction(async (tx) => {
 
             console.log("🔹 Iniciando transacción...");
@@ -82,7 +84,9 @@ export const registrarAccion = async (req, res) => {
                     },
                     observacion,
                     puntajeAplicado: puntosAplicados,
-                    puntajeAcumulado: nuevoTotal
+                    puntajeAcumulado: nuevoTotal,
+                    ruta_imagen: ruta_imagen || null,
+                    fecha: fechaAccion
                 }
             });
 
@@ -129,6 +133,94 @@ export const listarAcciones = async (req, res) => {
     }
 };
 
+//Listar todas las acciones disciplinarias (registros)
+export const listarAccionesDisciplinarias = async (req, res) => {
+    try {
+        // Obtener filtros de query params
+        const { cadeteId, tipo, fechaInicio, fechaFin } = req.query;
+        
+        const where = {};
+        
+        // Filtrar por cadete si se especifica
+        if (cadeteId) {
+            where.cadeteId = parseInt(cadeteId);
+        }
+        
+        // Filtrar por tipo de acción
+        if (tipo) {
+            where.accionDefinida = { tipo };
+        }
+        
+        // Filtrar por rango de fechas
+        if (fechaInicio || fechaFin) {
+            where.fecha = {};
+            if (fechaInicio) {
+                where.fecha.gte = new Date(fechaInicio);
+            }
+            if (fechaFin) {
+                where.fecha.lte = new Date(fechaFin);
+            }
+        }
+
+        const acciones = await prisma.accion.findMany({
+            where,
+            include: {
+                cadete: true,
+                accionDefinida: true,
+                registradoPor: {
+                    select: {
+                        id: true,
+                        gradoU: true,
+                        nombreU: true
+                    }
+                }
+            },
+            orderBy: {
+                fecha: 'desc'
+            }
+        });
+        res.json(acciones);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+//Obtener acciones de un cadete específico
+export const obtenerAccionesPorCadete = async (req, res) => {
+    try {
+        const { cadeteId } = req.params;
+        
+        const acciones = await prisma.accion.findMany({
+            where: { cadeteId: parseInt(cadeteId) },
+            include: {
+                cadete: true,
+                accionDefinida: true,
+                registradoPor: {
+                    select: {
+                        id: true,
+                        gradoU: true,
+                        nombreU: true
+                    }
+                }
+            },
+            orderBy: {
+                fecha: 'desc'
+            }
+        });
+        
+        // Obtener estadísticas del cadete
+        const estadisticas = await obtenerEstadisticasCadete(parseInt(cadeteId));
+        
+        res.json({
+            acciones,
+            estadisticas
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Obtener resumen de un cadete
 export const obtenerResumenCadete = async (req, res) => {
 
     console.log("========== RESUMEN CADETE ==========");
@@ -191,3 +283,4 @@ export const obtenerResumenCadete = async (req, res) => {
         res.status(500).json({ error: "Error interno del servidor" });
     }
 };
+

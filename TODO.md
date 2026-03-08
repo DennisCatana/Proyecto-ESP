@@ -1,21 +1,25 @@
-# Project Optimization TODO List - COMPLETED
+# TODO - Sistema Disciplinario con Evidencias Fotográficas
 
-## Backend Optimizations:
-- [x] 1. Fix Prisma Client Singleton Pattern - Prevents multiple PrismaClient instances
-- [x] 2. Add compression middleware - Compress HTTP responses
-- [x] 3. Add caching headers - Cache control for static assets
-- [x] 4. Add helmet security headers - Security improvements
+## ✅ Completado
+- [x] Backend - Middleware de uploads (multer)
+- [x] Backend - Rutas de upload
+- [x] Backend - Controlador de upload
+- [x] Backend - Servidor estático para /uploads
+- [x] Backend - Schema.prisma - agregar campo ruta_imagen a modelo Accion
+- [x] Backend - Controlador de acciones acepta ruta_imagen
+- [x] Backend - Rutas protegidas con roles
+- [x] Frontend - Control de acceso por roles en Disciplina.jsx
+- [x] Frontend - FormularioRegistro.jsx con input de archivo y upload
+- [x] Frontend - ExpedienteCadete.jsx con visualización de miniaturas y modal
+- [x] Frontend - Disciplina.jsx actualizado para enviar ruta_imagen
 
-## Frontend Optimizations:
-- [x] 5. Update Vite config with production optimizations - Code splitting, chunk optimization
-- [x] 6. Add React Lazy Loading for routes - Reduces initial bundle size
-- [x] 7. Optimize API service - Auth interceptors, error handling, caching support
-- [x] 8. Optimize CSS font loading - Preconnect and preload fonts
-- [x] 9. Add memoization for heavy components - InteractiveMap and MapHotspot
-- [x] 10. Add Error Boundary - Catches runtime errors gracefully
-- [x] 11. Fix CSS Tailwind v4 syntax issues - Fixed custom variant syntax
+## 🔄 En Progreso
 
-## Summary
-All optimizations have been implemented. The project now has:
-- **Backend**: Better database connection handling, compressed responses, security headers, and caching
-- **Frontend**: Smaller initial bundle, lazy-loaded routes, optimized API calls, memoized heavy components, and error handling
+## 📋 Pendiente
+
+### 1. Base de Datos
+- [ ] Ejecutar migración de Prisma (npx prisma migrate dev)
+
+### 2. Frontend - Configuración
+- [ ] Verificar que VITE_API_URL esté configurado en .env
+
