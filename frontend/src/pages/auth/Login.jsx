@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiMail, FiLock } from "react-icons/fi";
-import { api } from "../services/api"; // ajusta la ruta si es necesario
+import { api } from "../../services/api"; // ajusta la ruta si es necesario
+import BackgroundCarousel from "../../components/layout/Carusel"
+import ModalMensaje from "../../components/ui/Modalalerta";
 
 const LoginPage = () => {
     const [correoU, setCorreoU] = useState("");
     const [passwordU, setPasswordU] = useState("");
     const navigate = useNavigate(); // 👈 Hook de navegación
+
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalTipo, setModalTipo] = useState("info");
+    const [modalMensaje, setModalMensaje] = useState("");
 
     // Las imágenes en public/ se acceden con ruta string (sin import)
     const images = [
@@ -17,68 +23,53 @@ const LoginPage = () => {
     ];
 
     const handleSubmit = async (e) => {
-        e.preventDefault(); // evita recarga
-        const data = await api.post("/login", {
-            correoU,
-            passwordU
-        });
+        e.preventDefault();
 
-        if (data.token) {
+        try {
 
-            localStorage.setItem("token", data.token);
+            const data = await api.post("/login", {
+                correoU,
+                passwordU
+            });
 
-            if (data.usuario) {
-                localStorage.setItem("usuario", JSON.stringify(data.usuario));
+            if (data.token) {
+
+                localStorage.setItem("token", data.token);
+
+                if (data.usuario) {
+                    localStorage.setItem("usuario", JSON.stringify(data.usuario));
+                }
+
+                setModalTipo("success");
+                setModalMensaje("Inicio de sesión correcto");
+                setModalOpen(true);
+
+                setTimeout(() => {
+
+                    if (data.cambioPassword) {
+                        navigate("/cambiar-password");
+                    } else {
+                        navigate("/home");
+                    }
+
+                }, 1200);
+
             }
 
-            if (data.cambioPassword) {
-                navigate("/cambiar-password");
-            } else {
-                navigate("/home");
-            }
+        } catch (error) {
 
-        } else {
-            alert(data.msg);
+            setModalTipo("error");
+            setModalMensaje(error.message);
+            setModalOpen(true);
+
         }
-
-
-        //navigate("/home"); // redirige a Home
     };
 
 
     return (
         <div className="min-h-screen flex justify-center items-center overflow-hidden relative bg-gray-100">
 
-            {/* Estilos para la animación personalizada */}
-            <style>{`
-                @keyframes fadeSlide {
-                    0% { opacity: 0; }
-                    10% { opacity: 1; }
-                    40% { opacity: 1; }
-                    50% { opacity: 0; }
-                    100% { opacity: 0; }
-                }
-                .animate-fade-slide {
-                    animation: fadeSlide 10s infinite;
-                }
-            `}</style>
-
-            {/* === FONDO (Background) === */}
-            <div className="fixed inset-0 z-0">
-                {images.map((img, index) => (
-                    <div
-                        key={index}
-                        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-0 animate-fade-slide"
-                        style={{
-                            backgroundImage: `url(${img})`,
-                            animationDelay: `${index * 2}s`
-                        }}
-                    />
-                ))}
-            </div>
-
-            {/* === OVERLAY OSCURO === */}
-            <div className="fixed inset-0 bg-black/40 z-10"></div>
+            <BackgroundCarousel images={images} />
 
             {/* === CONTENEDOR PRINCIPAL === */}
             <div className="relative z-20 w-full max-w-md px-4">
@@ -139,13 +130,23 @@ const LoginPage = () => {
                         </button>
 
                         <div className="mt-5 text-center">
-                            <a href="#" className="text-sm text-[#153557] hover:underline">
+                            <button
+                                type="button"
+                                onClick={() => navigate("/recuperarpassword")}
+                                className="text-sm text-[#153557] hover:underline"
+                            >
                                 ¿Olvidaste tu contraseña?
-                            </a>
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
+            <ModalMensaje
+                open={modalOpen}
+                tipo={modalTipo}
+                mensaje={modalMensaje}
+                onClose={() => setModalOpen(false)}
+            />
         </div>
     );
 };

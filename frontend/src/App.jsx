@@ -39,7 +39,9 @@ class ErrorBoundary extends Component {
 }
 
 // Lazy load pages for better performance
-const Login = lazy(() => import('./pages/Login'))
+const Login = lazy(() => import('./pages/auth/Login'))
+const RecuperarPassword = lazy(() => import('./pages/auth/forgotpassword'))
+const ResetPassword = lazy(() => import('./pages/auth/Newpassword'))
 const Home = lazy(() => import('./pages/Home'))
 const Rap = lazy(() => import('./pages/Rap'))
 const Gallery = lazy(() => import('./pages/Gallery'))
@@ -55,6 +57,7 @@ const Historia = lazy(() => import('./pages/identity/Historia'))
 const Biblioteca = lazy(() => import('./pages/Biblioteca'))
 const Politicos = lazy(() => import('./pages/organic/Politic'))
 const Cupula = lazy(() => import('./pages/organic/Cupula'))
+
 
 
 
@@ -75,6 +78,8 @@ function App() {
             {/* Páginas principales */}
             
             <Route path='/' element={<Login />} />
+            <Route path="/recuperarpassword" element={<RecuperarPassword />} />
+            <Route path="/cambiarpassword" element={<ResetPassword />} />
             <Route path='/home' element={<Home />} />
             <Route path='rap' element={<Rap />} />
             <Route path='values' element={<Ethic />} />

@@ -152,7 +152,8 @@ export const sendMailToRegister = (userMail, token) => {
 
 export const sendMailToRecoveryPassword = (userMail, token) => {
 
-    const link = `${process.env.URL_BACKEND}recuperarpassword/${token}`
+    const link = `${process.env.URL_FRONTEND.replace(/\/$/, "")}/cambiarpassword?token=${token}`
+    //const link = `${process.env.URL_BACKEND}recuperarpassword/${token}`
 
     return sendMail(
         userMail,
