@@ -1,20 +1,26 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiMail, FiLock } from "react-icons/fi";
-import { api } from "../../services/api"; // ajusta la ruta si es necesario
-import BackgroundCarousel from "../../components/layout/Carusel"
+import { FiMail, FiLock, FiAlertCircle, FiCheck, FiArrowLeft } from "react-icons/fi";
+import { api } from "../../services/api";
+import BackgroundCarousel from "../../components/layout/Carusel";
 import ModalMensaje from "../../components/ui/Modalalerta";
 
 const LoginPage = () => {
-    const [correoU, setCorreoU] = useState("");
-    const [passwordU, setPasswordU] = useState("");
-    const navigate = useNavigate(); // 👈 Hook de navegación
+
+    const navigate = useNavigate();
+
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    const [isRecoveryMode, setIsRecoveryMode] = useState(false);
+    const [isChangePasswordMode, setIsChangePasswordMode] = useState(false);
+    const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
 
     const [modalOpen, setModalOpen] = useState(false);
     const [modalTipo, setModalTipo] = useState("info");
     const [modalMensaje, setModalMensaje] = useState("");
 
-    // Las imágenes en public/ se acceden con ruta string (sin import)
     const images = [
         "/images/image9.jpeg",
         "/images/image7.jpeg",
@@ -22,35 +28,32 @@ const LoginPage = () => {
         "/images/image10.jpeg",
     ];
 
+    // LOGIN
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        setLoading(true);
+        setError("");
+
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+
         try {
 
-            const data = await api.post("/login", {
-                correoU,
-                passwordU
+            const response = await api.post("/login", {
+                correoU: email,
+                passwordU: password
             });
 
-            if (data.token) {
-                localStorage.setItem("token", data.token);
+            if (response.token) {
+                localStorage.setItem("token", response.token);
+                localStorage.setItem("usuario", JSON.stringify(response.usuario));
             }
 
-            if (data.usuario) {
-                localStorage.setItem("usuario", JSON.stringify(data.usuario));
-            }
-
-            // ⚠️ PRIMER LOGIN
-            if (data.cambiarPassword) {
-
-                setModalTipo("warning");
-                setModalMensaje(data.msg || "Debe cambiar su contraseña");
-                setModalOpen(true);
-
-                setTimeout(() => {
-                    navigate("/cambiar-password");
-                }, 1500);
-
+            // Primer login -> cambiar contraseña
+            if (response.cambioPassword) {
+                setIsChangePasswordMode(true);
+                setLoading(false);
                 return;
             }
 
@@ -62,95 +65,296 @@ const LoginPage = () => {
                 navigate("/home");
             }, 1200);
 
-        } catch (error) {
+        } catch (err) {
+
+            console.error(err);
 
             setModalTipo("error");
-            setModalMensaje(error.message);
+            setModalMensaje(err.response?.data?.msg || "Credenciales incorrectas");
             setModalOpen(true);
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // CAMBIAR PASSWORD
+    const handleChangePassword = async (e) => {
+
+        e.preventDefault();
+
+        setLoading(true);
+        setError("");
+        setSuccess("");
+
+        const passwordU = e.target.passwordU.value;
+        const confirmarpassword = e.target.confirmarpassword.value;
+
+        if (passwordU !== confirmarpassword) {
+            setError("Las contraseñas no coinciden");
+            setLoading(false);
+            return;
+        }
+
+        try {
+
+            const response = await api.put("/cambiarpassword", {
+                passwordU,
+                confirmarpassword
+            });
+
+            if (response.msg) {
+
+                setChangePasswordSuccess(true);
+                setSuccess("Contraseña actualizada correctamente");
+
+                const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+                usuario.cambioPassword = false;
+                localStorage.setItem("usuario", JSON.stringify(usuario));
+
+                setTimeout(() => {
+                    navigate("/home");
+                }, 2000);
+            }
+
+        } catch (err) {
+
+            setError(err.response?.data?.msg || "Error al cambiar la contraseña");
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // RECUPERAR PASSWORD
+    const handleRecovery = async (e) => {
+
+        e.preventDefault();
+
+        setLoading(true);
+        setError("");
+        setSuccess("");
+
+        const email = e.target.email.value;
+
+        try {
+
+            await api.post("/recuperarpassword", {
+                correoU: email
+            });
+
+            setSuccess("Se ha enviado un correo de recuperación.");
+
+        } catch (err) {
+
+            setError(err.response?.data?.msg || "Error al recuperar contraseña");
+
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
+
         <div className="min-h-screen flex justify-center items-center overflow-hidden relative bg-gray-100">
 
             <BackgroundCarousel images={images} />
 
-            {/* === CONTENEDOR PRINCIPAL === */}
             <div className="relative z-20 w-full max-w-md px-4">
+
                 <h1 className="text-2xl font-bold text-center mb-6 text-[#1a4572]">
-                    AETERNUS<br />
-                    LXXXIX
+                    AETERNUS <br /> LXXXIX
                 </h1>
 
                 <div className="bg-white p-8 rounded-xl shadow-2xl">
-                    <h2 className="text-2xl font-bold text-center mb-6 text-[#153557]">
-                        Iniciar Sesión
-                    </h2>
 
-                    <form onSubmit={handleSubmit}>
+                    {isChangePasswordMode ? (
 
-                        <div className="mb-5">
-                            <label className="block mb-2 text-sm font-medium text-gray-900">
-                                Correo electrónico
-                            </label>
+                        <>
+                            <h2 className="text-2xl font-bold text-center mb-2 text-[#153557]">
+                                Cambiar Contraseña
+                            </h2>
 
-                            <div className="relative">
-                                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                            <p className="text-center text-gray-600 text-sm mb-6">
+                                Esta es tu primera sesión. Ingresa una nueva contraseña.
+                            </p>
 
-                                <input
-                                    type="email"
-                                    value={correoU}
-                                    onChange={(e) => setCorreoU(e.target.value)}
-                                    className="w-full pl-10 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
-                                    placeholder="denniscataña@gmail.com"
-                                    required
-                                />
-                            </div>
-                        </div>
+                            <form onSubmit={handleChangePassword}>
 
-                        <div className="mb-6">
-                            <label className="block mb-2 text-sm font-medium text-gray-900">
-                                Contraseña
-                            </label>
-                            <div className="relative">
-                                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                                <div className="mb-5">
 
-                                <input
-                                    type="password"
-                                    value={passwordU}
-                                    onChange={(e) => setPasswordU(e.target.value)}
-                                    className="w-full pl-10 p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#153557] bg-gray-50"
-                                    placeholder="**************"
-                                    required
-                                />
-                            </div>
-                        </div>
+                                    <label className="block mb-2 text-sm font-medium text-gray-900">
+                                        Nueva Contraseña
+                                    </label>
 
-                        <button
-                            type="submit"
-                            className="w-full text-white bg-[#153557] hover:bg-[#0f2540] font-bold rounded-lg text-base px-5 py-3 transition-colors duration-200"
-                        >
-                            Ingresar
-                        </button>
+                                    <div className="relative">
 
-                        <div className="mt-5 text-center">
-                            <button
-                                type="button"
-                                onClick={() => navigate("/recuperarpassword")}
-                                className="text-sm text-[#153557] hover:underline"
-                            >
-                                ¿Olvidaste tu contraseña?
-                            </button>
-                        </div>
-                    </form>
+                                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+
+                                        <input
+                                            type="password"
+                                            name="passwordU"
+                                            required
+                                            minLength={6}
+                                            className="w-full pl-10 p-3 border rounded-lg"
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                                <div className="mb-6">
+
+                                    <label className="block mb-2 text-sm font-medium text-gray-900">
+                                        Confirmar Contraseña
+                                    </label>
+
+                                    <div className="relative">
+
+                                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+
+                                        <input
+                                            type="password"
+                                            name="confirmarpassword"
+                                            required
+                                            minLength={6}
+                                            className="w-full pl-10 p-3 border rounded-lg"
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                                {error && (
+                                    <div className="text-red-600 text-sm mb-3 flex items-center gap-2">
+                                        <FiAlertCircle /> {error}
+                                    </div>
+                                )}
+
+                                {success && (
+                                    <div className="text-green-600 text-sm mb-3 flex items-center gap-2">
+                                        <FiCheck /> {success}
+                                    </div>
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-[#153557] text-white py-3 rounded-lg"
+                                >
+                                    {loading ? "Cambiando..." : "Cambiar contraseña"}
+                                </button>
+
+                            </form>
+
+                        </>
+
+                    ) : (
+
+                        <>
+                            <h2 className="text-2xl font-bold text-center mb-6 text-[#153557]">
+                                {isRecoveryMode ? "Recuperar contraseña" : "Iniciar sesión"}
+                            </h2>
+
+                            <form onSubmit={isRecoveryMode ? handleRecovery : handleSubmit}>
+
+                                <div className="mb-5">
+
+                                    <label className="block mb-2 text-sm font-medium">
+                                        Correo electrónico
+                                    </label>
+
+                                    <div className="relative">
+
+                                        <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            required
+                                            className="w-full pl-10 p-3 border rounded-lg"
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                                {!isRecoveryMode && (
+
+                                    <div className="mb-6">
+
+                                        <label className="block mb-2 text-sm font-medium">
+                                            Contraseña
+                                        </label>
+
+                                        <div className="relative">
+
+                                            <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+
+                                            <input
+                                                type="password"
+                                                name="password"
+                                                required
+                                                className="w-full pl-10 p-3 border rounded-lg"
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+                                )}
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-[#153557] text-white py-3 rounded-lg"
+                                >
+                                    {loading ? "Procesando..." : isRecoveryMode ? "Enviar correo" : "Ingresar"}
+                                </button>
+
+                                <div className="mt-5 text-center">
+
+                                    {isRecoveryMode ? (
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsRecoveryMode(false)}
+                                            className="text-sm text-[#153557] hover:underline"
+                                        >
+                                            <FiArrowLeft className="inline mr-1" />
+                                            Volver al login
+                                        </button>
+
+                                    ) : (
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsRecoveryMode(true)}
+                                            className="text-sm text-[#153557] hover:underline"
+                                        >
+                                            ¿Olvidaste tu contraseña?
+                                        </button>
+
+                                    )}
+
+                                </div>
+
+                            </form>
+
+                        </>
+                    )}
+
                 </div>
+
             </div>
+
             <ModalMensaje
                 open={modalOpen}
                 tipo={modalTipo}
                 mensaje={modalMensaje}
                 onClose={() => setModalOpen(false)}
             />
+
         </div>
     );
 };

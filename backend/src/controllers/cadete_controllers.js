@@ -32,7 +32,7 @@ export const listarCadetes = async (req, res) => {
     }
 };
 
-//Obtener info de un cadete
+//Obtener info de un cadete (sin protección - público)
 export const obtenerCadete = async (req, res) => {
     const { id } = req.params;
 
@@ -40,23 +40,17 @@ export const obtenerCadete = async (req, res) => {
 
         const cadete = await prisma.cadete.findUnique({
             where: { id: Number(id) },
-            select: {
-                id: true,
-                nombre: true, // si quieres mostrar el nombre del cadete
-                puntajeTotal: true,
+            include: {
                 acciones: {
                     orderBy: { fecha: "desc" },
-                    select: {
-                        id: true,
-                        observacion: true,
-                        puntajeAplicado: true,
-                        puntajeAcumulado: true,
-                        fecha: true,
+                    include: {
                         accionDefinida: {
                             select: {
                                 codigo: true,
                                 titulo: true,
                                 descripcion: true,
+                                tipo: true,
+                                puntaje: true
                             }
                         },
                         registradoPor: {
@@ -66,9 +60,6 @@ export const obtenerCadete = async (req, res) => {
                                 nombreU: true
                             }
                         }
-                    },
-                    orderBy: {
-                        fecha: "desc"
                     }
                 }
             }
@@ -78,11 +69,17 @@ export const obtenerCadete = async (req, res) => {
             return res.status(404).json({ msg: "Cadete no encontrado" });
         }
 
-        const estadisticas = await obtenerEstadisticasCadete(cadete.id);
+        // Calcular estadísticas
+        const positivas = cadete.acciones.filter(a => a.accionDefinida.tipo === "Positiva").length;
+        const negativas = cadete.acciones.filter(a => a.accionDefinida.tipo === "Negativa").length;
         
         res.json({
             ...cadete,
-            estadisticas
+            estadisticas: {
+                positivas,
+                negativas,
+                total: cadete.acciones.length
+            }
         });
 
     } catch (error) {
@@ -90,12 +87,42 @@ export const obtenerCadete = async (req, res) => {
     }
 };
 
+// Obtener estadísticas globales
+export const obtenerEstadisticasGlobales = async (req, res) => {
+    try {
+        const [totalCadetes, totalPositivas, totalNegativas, cadetesConAcciones] = await Promise.all([
+            prisma.cadete.count({ where: { estado: true } }),
+            prisma.accion.count({
+                where: { accionDefinida: { tipo: "Positiva" } }
+            }),
+            prisma.accion.count({
+                where: { accionDefinida: { tipo: "Negativa" } }
+            }),
+            prisma.cadete.findMany({
+                where: {
+                    acciones: { some: {} }
+                },
+                select: {
+                    id: true,
+                    nombre: true,
+                    cia: true,
+                    seccion: true,
+                    puntajeTotal: true
+                }
+            })
+        ]);
 
-
-
-
-
-
+        res.json({
+            totalCadetes,
+            totalPositivas,
+            totalNegativas,
+            totalAcciones: totalPositivas + totalNegativas,
+            cadetesConAcciones
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
 // Eliminar todos los cadetes
 export const eliminarTodosLosCadetes = async (req, res) => {

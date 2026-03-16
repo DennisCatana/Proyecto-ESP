@@ -223,8 +223,15 @@ export const login = async (req, res) => {
         if (usuario.cambiarPassword) {
             return res.json({
                 msg: "Debe cambiar su contraseña",
-                cambiarPassword: true,
-                uid: usuario.id
+                cambioPassword: true,
+                token,
+                usuario: {
+                    id: usuario.id,
+                    nombreU: usuario.nombreU,
+                    correoU: usuario.correoU,
+                    rol: usuario.rol,
+                    cambioPassword: true
+                }
             });
         }
 

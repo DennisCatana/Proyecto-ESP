@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import image1 from '../../assets/images/image1.jpeg';
 
 // Colores por cuadrante
 const getColorByCuadrante = (cuadranteId, esHeroe = false) => {
@@ -20,7 +21,13 @@ const MapInfoPanel = ({ ubicacion, onClose, cuadranteId }) => {
     
     if (!ubicacion) return null;
     
-    const imagenes = ubicacion.imagenes || ["/images/image1.jpeg"];
+    // Optimización: usar useMemo para evitar recrear el array en cada render
+    const imagenes = useMemo(() => {
+        return ubicacion.imagenes && ubicacion.imagenes.length > 0 
+            ? ubicacion.imagenes 
+            : [image1];
+    }, [ubicacion.imagenes]);
+    
     // Verificar si es un héroe (tiene la propiedad 'grado')
     const esHeroe = !!ubicacion.grado;
     const tituloColor = getColorByCuadrante(cuadranteId, esHeroe);
@@ -46,16 +53,17 @@ const MapInfoPanel = ({ ubicacion, onClose, cuadranteId }) => {
                     initial={{ scale: 0.9, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.9, y: 20 }}
-                    className="relative bg-slate-800 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl max-h-[95vh] overflow-hidden"
+                    className="relative bg-slate-800 rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md md:max-w-2xl lg:max-w-4xl max-h-[95vh] overflow-hidden"
                 >
                     {/* Carrusel de imágenes */}
-                    <div className="relative h-48 sm:h-56 md:h-64 bg-gray-800">
+                    <div className="relative h-64 sm:h-80 md:h-96 bg-gray-800">
                         <img 
                             src={imagenes[imagenActual]} 
                             alt={ubicacion.nombre}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
+                            loading="lazy"
                             onError={(e) => {
-                                e.target.src = "/images/image1.jpeg";
+                                e.target.src = image1;
                             }}
                         />
                         
@@ -65,12 +73,14 @@ const MapInfoPanel = ({ ubicacion, onClose, cuadranteId }) => {
                                 <button 
                                     onClick={imagenAnterior}
                                     className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                                    aria-label="Imagen anterior"
                                 >
                                     <ChevronLeft size={18} className="text-white" />
                                 </button>
                                 <button 
                                     onClick={siguienteImagen}
                                     className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                                    aria-label="Siguiente imagen"
                                 >
                                     <ChevronRight size={18} className="text-white" />
                                 </button>
@@ -84,6 +94,7 @@ const MapInfoPanel = ({ ubicacion, onClose, cuadranteId }) => {
                                             className={`w-1.5 h-1.5 rounded-full transition-colors ${
                                                 idx === imagenActual ? 'bg-white' : 'bg-white/50'
                                             }`}
+                                            aria-label={`Ver imagen ${idx + 1}`}
                                         />
                                     ))}
                                 </div>
@@ -93,17 +104,17 @@ const MapInfoPanel = ({ ubicacion, onClose, cuadranteId }) => {
                         <button 
                             onClick={onClose} 
                             className="absolute top-2 right-2 p-1.5 sm:p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                            aria-label="Cerrar"
                         >
                             <X size={16} className="text-white" />
                         </button>
                     </div>
 
                     {/* Contenido */}
-                    <div className="p-4 sm:p-6">
+                    <div className=" p-4 sm:p-6">
                         <h2 className={`text-xl sm:text-2xl font-bold mb-3 ${tituloColor}`}>
                             {ubicacion.nombre}
                         </h2>
-                        
                         <p className="text-gray-300 text-justify text-sm sm:text-base leading-relaxed">
                             {ubicacion.descripcion}
                         </p>
@@ -117,7 +128,7 @@ const MapInfoPanel = ({ ubicacion, onClose, cuadranteId }) => {
                         >
                             Cerrar
                         </button>
-                    </div>
+                </div>
                 </motion.div>
             </motion.div>
         </AnimatePresence>

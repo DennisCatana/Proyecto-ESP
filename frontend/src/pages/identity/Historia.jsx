@@ -6,26 +6,53 @@ import MilestonesSection from '../../components/history/MilestonesSection';
 import ESPHistorySection from '../../components/history/ESPHistorySection';
 import HeroesSection from '../../components/history/HeroesSection';
 import UniformsSection from '../../components/history/UniformsSection';
-import FinalQuote from '../../components/history/FinalQuote';
 import { COLORS } from '../../components/history/historyData';
-import { useTypewriter, useParallax } from '../../components/history/ScrollAnimation';
+import { useTypewriter} from '../../components/history/ScrollAnimation';
 
-// Floating Particle Component
-const FloatingParticle = ({ delay, size, initialX, duration }) => {
+// Import history images
+import history1938 from '../../assets/history/1938.jpg';
+import history1938_1 from '../../assets/history/1938(1).jpg';
+import history1938_2 from '../../assets/history/1938(2).jpg';
+import history1944 from '../../assets/history/1944.jpg';
+import history1944_1 from '../../assets/history/1944(1).jpg';
+import history1944_2 from '../../assets/history/1944(2).jpg';
+import historyESP from '../../assets/history/ESP.jpg';
+import historyESP_1 from '../../assets/history/ESP(1).jpg';
+import historyESP_2 from '../../assets/history/ESP(2).jpg';
+import historyRANCHO from '../../assets/history/RANCHO.jpg';
+import historyRANCHO_1 from '../../assets/history/RANCHO(1).jpg';
+import historyRANCHO_2 from '../../assets/history/RANCHO(2).jpg';
+import historySantoDomingo from '../../assets/history/santo domingo.jpg';
+import historySantoDomingo_1 from '../../assets/history/santo domingo(1).jpg';
+import historySantoDomingo_2 from '../../assets/history/santo domingo(2).jpg';
+
+// Image particle component - displays images instead of colored dots
+// Updated to move across the entire Hero section
+const ImageParticle = ({ delay, size, initialX, duration, image, zIndex, initialY }) => {
   return (
     <div
-      className="absolute rounded-full opacity-30"
+      className="absolute rounded-lg overflow-hidden opacity-40"
       style={{
         width: size,
         height: size,
-        background: COLORS.doradoMetalico,
         left: `${initialX}%`,
-        bottom: '-50px',
-        animation: `floatUp ${duration}s linear infinite`,
+        top: `${initialY}%`,
+        animation: `floatAround ${duration}s ease-in-out infinite`,
         animationDelay: `${delay}s`,
-        filter: `blur(${size / 4}px)`,
+        zIndex: zIndex,
       }}
-    />
+    >
+      <img 
+        src={image} 
+        alt="History" 
+        className="w-full h-full object-cover"
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          objectFit: 'cover' 
+        }}
+      />
+    </div>
   );
 };
 
@@ -95,7 +122,6 @@ const Historia = () => {
   }, []);
 
   const [titleText] = useTypewriter('Historia Institucional', 80);
-  const [ref, offset] = useParallax(0.9);
 
   return (
     <div className="min-h-screen flex flex-col font-segoe">
@@ -104,11 +130,9 @@ const Historia = () => {
       <main className="grow" style={{ background: '#f8fafc' }}>
         {/* Hero Section */}
         <section 
-          ref={ref}
           className="py-60 px-4 text-center relative overflow-hidden"
           style={{ 
             background: `linear-gradient(135deg, #0a1628 0%, #1e3a5f 50%, #0077B6 100%)`,
-            transform: `translateY(${offset * 0.3}px)`,
           }}
         >
           {/* Decorative elements */}
@@ -123,18 +147,45 @@ const Historia = () => {
             />
           </div>
           
-          {/* Floating Particles */}
+          {/* Floating Image Particles */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(15)].map((_, i) => (
-              <FloatingParticle
+            {[
+              history1938, history1938_1, history1938_2,
+              history1944, history1944_1, history1944_2,
+              historyESP, historyESP_1, historyESP_2,
+              historyRANCHO, historyRANCHO_1, historyRANCHO_2,
+              historySantoDomingo, historySantoDomingo_1, historySantoDomingo_2
+            ].map((image, i) => (
+              <ImageParticle
                 key={i}
-                delay={i * 0.5}
-                size={Math.random() * 20 + 10}
+                image={image}
+                delay={i * 0.8}
+                size={Math.random() * 80 + 60}
                 initialX={Math.random() * 100}
-                duration={Math.random() * 10 + 10}
+                initialY={Math.random() * 80 + 10}
+                duration={Math.random() * 15 + 12}
+                zIndex={i % 3}
               />
             ))}
           </div>
+          
+          {/* CSS Animation for floating particles */}
+          <style>{`
+            @keyframes floatAround {
+              0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+              }
+              25% {
+                transform: translate(30px, -30px) rotate(5deg);
+              }
+              50% {
+                transform: translate(-20px, -50px) rotate(-5deg);
+              }
+              75% {
+                transform: translate(20px, -20px) rotate(3deg);
+              }
+            }
+          `}</style>
 
           {/* Shield Icons */}
           <ShieldIcon delay={0} left={5} size={60} />
@@ -155,7 +206,7 @@ const Historia = () => {
               <span className="animate-pulse">|</span>
             </h1>
             <p className="text-xl text-white/90 max-w-2xl mx-auto opacity-0 animate-fade-in" style={{ animationDelay: '1s', animationFillMode: 'forwards' }}>
-              Mas de 80 anos de tradicion, honor y servicio a la patria
+              Más de 80 años de tradición, honor y servicio a la patria
             </p>
           </div>
 
@@ -164,7 +215,6 @@ const Historia = () => {
         </section>
 
         {/* Sections */}
-        <FinalQuote />
         <GenesisSection />
         <MilestonesSection />
         <ESPHistorySection />

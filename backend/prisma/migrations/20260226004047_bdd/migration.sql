@@ -33,7 +33,6 @@ CREATE TABLE "Cadete" (
     "promocion" TEXT NOT NULL,
     "cia" TEXT NOT NULL,
     "nombre" TEXT NOT NULL,
-    "edad" INTEGER NOT NULL,
     "cedula" TEXT NOT NULL,
     "seccion" TEXT NOT NULL,
     "genero" TEXT,
@@ -42,7 +41,7 @@ CREATE TABLE "Cadete" (
     "antiguedad" INTEGER,
     "correo" TEXT,
     "telefono" TEXT,
-    "fecha_nacimiento" TIMESTAMP(3) NOT NULL,
+    "fecha_nacimiento" DATETIME(3) NOT NULL,
     "seguro_medico" TEXT,
     "numero_emergencia" TEXT,
     "parentesco" TEXT,
@@ -51,7 +50,7 @@ CREATE TABLE "Cadete" (
     "estado" BOOLEAN NOT NULL DEFAULT true,
     "puntajeTotal" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Cadete_pkey" PRIMARY KEY ("id")
 );
@@ -63,14 +62,15 @@ CREATE TABLE "Accion" (
     "accionDefinidaId" INTEGER NOT NULL,
     "registradoPorId" INTEGER NOT NULL,
     "observacion" TEXT,
+    "ruta_imagen" TEXT,
     "puntajeAplicado" DECIMAL(5,2) NOT NULL,
     "puntajeAcumulado" DECIMAL(7,2) NOT NULL,
     "fecha" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Accion_pkey" PRIMARY KEY ("id")
-);
+    CONSTRAINT "Accion_pkey" PRIMARY);
 
--- CreateTable
+-- CreateTable KEY ("id")
+
 CREATE TABLE "AccionDefinida" (
     "id" SERIAL NOT NULL,
     "codigo" TEXT NOT NULL,

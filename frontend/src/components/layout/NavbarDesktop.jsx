@@ -14,6 +14,7 @@ const NavbarDesktop = () => {
         { name: 'Inicio', path: '/home' },
         { name: 'APP', path: '/rap' },
         { name: 'Biblioteca', path: '/library/regulations' },
+        { name: 'Control Disciplinario', path: '/disciplina' },
         { name: 'Servicios', path: '/contacts' },
         { name: 'Galería', path: '/gallery' },
     ];
@@ -35,19 +36,9 @@ const NavbarDesktop = () => {
         { name: 'Más datos', path: '/identity/hymn' },
     ];
 
-    const libraryItems = [
-        { name: 'Reglamentos', path: '/library/regulations' },
-        { name: 'Horarios', path: '/library/disciplinary' },
-        { name: 'Formatos', path: '/library/internal' },
-        { name: 'Más documentos', path: '/library/procedures' },
-    ];
-
-
     return (
         <nav className="flex justify-between items-center w-full">
-
             <ul className="flex items-center gap-5 list-none m-0 p-0 px-10">
-
                 {/* Links simples */}
                 {simpleLinks.map((link) => (
                     <li key={link.name}>
@@ -125,7 +116,6 @@ const NavbarDesktop = () => {
                         </div>
                     )}
                 </li>
-
             </ul>
 
             {/* Botón Cerrar Sesión */}
@@ -136,9 +126,9 @@ const NavbarDesktop = () => {
             >
                 <FiLogOut size={18} />
             </button>
-
         </nav>
     );
 };
 
 export default NavbarDesktop;
+

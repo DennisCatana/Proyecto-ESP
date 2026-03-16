@@ -1,13 +1,16 @@
 import { Router } from "express";
-import { listarCadetes, eliminarTodosLosCadetes, obtenerCadete } from "../controllers/cadete_controllers.js";
+import { listarCadetes, eliminarTodosLosCadetes, obtenerCadete, obtenerEstadisticasGlobales } from "../controllers/cadete_controllers.js";
 import { protegerRuta } from "../middlewares/auth_middleware.js";
 
 const router = Router();
 
-// Listar cadetes
+// Rutas públicas
 router.get("/cadetes", listarCadetes);
-router.delete("/elimiarcadetes", eliminarTodosLosCadetes);
-router.get("/cadetes/:id", protegerRuta, obtenerCadete);
+router.get("/cadetes/:id", obtenerCadete);
+router.get("/estadisticas", obtenerEstadisticasGlobales);
+
+// Rutas protegidas
+router.delete("/elimiarcadetes", protegerRuta, eliminarTodosLosCadetes);
 
 
 

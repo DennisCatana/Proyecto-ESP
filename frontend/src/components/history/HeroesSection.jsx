@@ -2,15 +2,110 @@ import React, { useState, useRef } from 'react';
 import { useScrollAnimation, useTilt } from './ScrollAnimation';
 import { policeHeroes, COLORS } from './historyData';
 
+// Image Carousel Component
+const ImageCarousel = ({ images }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const goToPrevious = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const goToNext = (e) => {
+    e.stopPropagation();
+    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  if (!images || images.length === 0) {
+    return (
+      <div 
+        className="w-full h-64 rounded-lg flex items-center justify-center mb-4"
+        style={{ 
+          background: `linear-gradient(135deg, ${COLORS.azulElectrico}, ${COLORS.azulOscuro})`,
+        }}
+      >
+        <svg viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 text-white opacity-50">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full mb-4">
+      <div className="w-full h-64 rounded-lg overflow-hidden" style={{ background: '#f3f4f6' }}>
+        <img 
+          src={images[currentIndex]} 
+          alt={`Imagen ${currentIndex + 1}`}
+          className="w-full h-full object-contain"
+        />
+      </div>
+      
+      {/* Navigation Arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={goToPrevious}
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+            style={{ 
+              background: `linear-gradient(135deg, ${COLORS.azulElectrico}, ${COLORS.azulOscuro})`,
+              boxShadow: '0 4px 15px rgba(0,123,255,0.4)'
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+            </svg>
+          </button>
+          
+          <button
+            onClick={goToNext}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
+            style={{ 
+              background: `linear-gradient(135deg, ${COLORS.azulElectrico}, ${COLORS.azulOscuro})`,
+              boxShadow: '0 4px 15px rgba(0,123,255,0.4)'
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5">
+              <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+            </svg>
+          </button>
+        </>
+      )}
+
+      {/* Dots Indicator */}
+      {images.length > 1 && (
+        <div className="flex justify-center mt-3 gap-2">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentIndex(index);
+              }}
+              className={`w-2.5 h-2.5 rounded-full transition-all ${
+                index === currentIndex ? 'scale-125' : 'opacity-50'
+              }`}
+              style={{ 
+                background: index === currentIndex ? COLORS.doradoMetalico : '#9ca3af'
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Hero Card Component with 3D Tilt
-const HeroCard = ({ hero, index, onClick }) => {
-  const [ref, visible] = useScrollAnimation(0.2);
+const HeroCard = ({ hero, index, onClick, isSectionVisible }) => {
   const { ref: tiltRef, rotation, handleMouseMove, handleMouseLeave } = useTilt();
   const [isHovered, setIsHovered] = useState(false);
 
+  // Calculate visibility based on section visibility and index delay
+  const isVisible = isSectionVisible;
+
   return (
     <div 
-      ref={ref}
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => {
@@ -27,13 +122,13 @@ const HeroCard = ({ hero, index, onClick }) => {
         ref={tiltRef}
         className={`
           bg-white rounded-xl p-6 transition-all duration-500
-          ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
+          ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}
         `}
         style={{ 
-          transform: visible 
+          transform: isVisible 
             ? `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)` 
             : 'translateY(20px)',
-          transitionDelay: `${index * 100}ms`,
+          transitionDelay: `${index * 0.1}ms`,
           border: `1px solid ${COLORS.plateado}`,
           boxShadow: isHovered 
             ? `0 20px 40px rgba(0,0,0,0.15), 0 0 30px ${COLORS.doradoMetalico}30` 
@@ -77,7 +172,7 @@ const HeroCard = ({ hero, index, onClick }) => {
 
 // Heroes Section
 const HeroesSection = () => {
-  const [ref, isVisible] = useScrollAnimation(0.1);
+  const [ref, isSectionVisible] = useScrollAnimation(0.1);
   const [selectedHero, setSelectedHero] = useState(null);
 
   return (
@@ -91,7 +186,7 @@ const HeroesSection = () => {
       <div className="absolute top-0 left-0 w-96 h-96 opacity-10" style={{ filter: 'blur(100px)', background: COLORS.doradoMetalico }} />
       <div className="absolute bottom-0 right-0 w-96 h-96 opacity-10" style={{ filter: 'blur(100px)', background: COLORS.azulElectrico }} />
       
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-white mb-4" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
             Heroes Policiales
@@ -105,21 +200,22 @@ const HeroesSection = () => {
               key={index} 
               hero={hero} 
               index={index}
+              isSectionVisible={isSectionVisible}
               onClick={() => setSelectedHero(hero)}
             />
           ))}
         </div>
       </div>
 
-      {/* Hero Modal with Enhanced Animation */}
+      {/* Hero Modal with Enhanced Animation and Carousel */}
       {selectedHero && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-40"
           style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)' }}
           onClick={() => setSelectedHero(null)}
         >
           <div 
-            className="bg-white rounded-2xl p-8 max-w-lg w-full transform transition-all"
+            className="bg-white rounded-2xl p-6 md:p-8 max-w-lg w-full transform transition-all max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
             style={{
               border: `3px solid ${COLORS.doradoMetalico}`,
@@ -127,18 +223,10 @@ const HeroesSection = () => {
               animation: 'modalSlideIn 0.3s ease-out',
             }}
           >
+            {/* Image Carousel */}
+            <ImageCarousel images={selectedHero.images} />
+            
             <div className="text-center">
-              <div 
-                className="w-28 h-28 mx-auto rounded-full mb-4 flex items-center justify-center text-5xl"
-                style={{ 
-                  background: `linear-gradient(135deg, ${COLORS.azulElectrico}, ${COLORS.azulOscuro})`,
-                  boxShadow: `0 0 30px ${COLORS.azulElectrico}60`,
-                }}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-14 h-14 text-white">
-                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-              </div>
               <h3 className="text-2xl font-bold mb-2" style={{ color: COLORS.azulOscuro }}>
                 {selectedHero.name}
               </h3>
