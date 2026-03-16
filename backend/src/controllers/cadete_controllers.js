@@ -20,6 +20,7 @@ export const listarCadetes = async (req, res) => {
             include: {
                 usuario: true,
                 acciones: true
+
             },
             orderBy: {
                 antiguedad: "asc"

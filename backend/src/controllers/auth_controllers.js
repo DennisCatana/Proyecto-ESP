@@ -83,6 +83,7 @@ export const confirmarCorreo = async (req, res) => {
 
 //Recuperacion de contraseña 
 export const recuperarPassword = async (req, res) => {
+    console.log("BODY RECIBIDO:", req.body);
     try {
         const { correoU } = req.body;
 
@@ -129,12 +130,12 @@ export const comprobarTokenRecuperacion = async (req, res) => {
 export const nuevaPassword = async (req, res) => {
     try {
         const { token } = req.params;
-        const { passwordU, confirmarpassword } = req.body;
+        const { passwordU, confirmarPassword } = req.body;
 
-        if (!passwordU || !confirmarpassword)
+        if (!passwordU || !confirmarPassword)
             return res.status(400).json({ msg: "Todos los campos son obligatorios" });
 
-        if (passwordU !== confirmarpassword)
+        if (passwordU !== confirmarPassword)
             return res.status(400).json({ msg: "Las contraseñas no coinciden" });
 
         let usuario;
@@ -211,7 +212,7 @@ export const login = async (req, res) => {
         if (!valido)
             return res.status(400).json({ msg: "Contraseña incorrecta" });
 
-        const token = generarJWT(usuario.id);
+        const token = generarJWT(usuario);
 
         // Guardar token de sesión
         await prisma.usuario.update({
@@ -220,7 +221,7 @@ export const login = async (req, res) => {
         });
 
         // ⚠️ verificar si debe cambiar contraseña
-        if (usuario.cambiarPassword) {
+        if (usuario.cambioPassword) {
             return res.json({
                 msg: "Debe cambiar su contraseña",
                 cambioPassword: true,

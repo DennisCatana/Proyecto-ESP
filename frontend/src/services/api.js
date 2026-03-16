@@ -3,11 +3,11 @@ const API_URL = "/api";
 
 // Agregar automáticamente el prefijo /api si no está presente
 const getFullUrl = (endpoint) => {
-  // Si el endpoint ya empieza con /api, no duplicar
-  if (endpoint.startsWith('/api')) {
-    return `${API_URL.replace('/api', '')}${endpoint}`;
-  }
-  return `${API_URL}${endpoint}`;
+    // Si el endpoint ya empieza con /api, no duplicar
+    if (endpoint.startsWith('/api')) {
+        return `${API_URL.replace('/api', '')}${endpoint}`;
+    }
+    return `${API_URL}${endpoint}`;
 };
 
 const getToken = () => localStorage.getItem("token");
@@ -43,42 +43,26 @@ export const api = {
     },
 
     post: async (endpoint, body) => {
-        const data = JSON.stringify(body);
+
         const headers = {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${getToken()}`
+            "Content-Type": "application/json"
         };
 
-        try {
-            const fullUrl = `${API_URL}${endpoint}`;
-            console.log('POST Request to:', fullUrl);
-            console.log('Request data:', data);
+        const token = getToken();
 
-            const response = await fetch(fullUrl, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(data)
-            });
-
-            if (!response.ok) {
-                const error = await response.json().catch(() => ({ msg: 'Network error', status: response.status }));
-                console.error('POST Error response:', error);
-                throw new Error(error.msg || `Error ${response.status}`);
-            }
-
-            const result = await response.json();
-            console.log('POST Response:', result);
-            return result;
-        } catch (error) {
-            console.error('API POST Error:', error);
-            // Proporcionar mensaje más claro
-            if (error.message === 'Failed to fetch') {
-                throw new Error('No se puede conectar al servidor. Verifica que el backend esté corriendo y el frontend se esté ejecutando correctamente');
-            }
-            throw error;
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
         }
-    },
 
+        const response = await fetch(`${API_URL}${endpoint}`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify(body)
+        });
+
+        return handleResponse(response);
+    },
+    
     put: async (endpoint, body) => {
         const response = await fetch(`${API_URL}${endpoint}`, {
             method: "PUT",
@@ -125,12 +109,12 @@ export const api = {
     upload: async (endpoint, file, fieldName = 'evidencia') => {
         try {
             const token = getToken();
-            
+
             const formData = new FormData();
             formData.append(fieldName, file);
 
             const headers = {};
-            
+
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
             }

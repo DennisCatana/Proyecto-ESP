@@ -29,7 +29,7 @@ export const registrarAccion = async (req, res) => {
             // Usar fecha y hora actual
             fechaAccion = new Date();
         }
-        
+
         // Transacción para asegurar consistencia de puntajes
         const accionCreada = await prisma.$transaction(async (tx) => {
 
@@ -138,19 +138,19 @@ export const listarAccionesDisciplinarias = async (req, res) => {
     try {
         // Obtener filtros de query params
         const { cadeteId, tipo, fechaInicio, fechaFin } = req.query;
-        
+
         const where = {};
-        
+
         // Filtrar por cadete si se especifica
         if (cadeteId) {
             where.cadeteId = parseInt(cadeteId);
         }
-        
+
         // Filtrar por tipo de acción
         if (tipo) {
             where.accionDefinida = { tipo };
         }
-        
+
         // Filtrar por rango de fechas
         if (fechaInicio || fechaFin) {
             where.fecha = {};
@@ -189,7 +189,7 @@ export const listarAccionesDisciplinarias = async (req, res) => {
 export const obtenerAccionesPorCadete = async (req, res) => {
     try {
         const { cadeteId } = req.params;
-        
+
         const acciones = await prisma.accion.findMany({
             where: { cadeteId: parseInt(cadeteId) },
             include: {
@@ -207,10 +207,10 @@ export const obtenerAccionesPorCadete = async (req, res) => {
                 fecha: 'desc'
             }
         });
-        
+
         // Obtener estadísticas del cadete
         const estadisticas = await obtenerEstadisticasCadete(parseInt(cadeteId));
-        
+
         res.json({
             acciones,
             estadisticas
@@ -226,7 +226,7 @@ export const obtenerResumenCadete = async (req, res) => {
     console.log("========== RESUMEN CADETE ==========");
     console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
-    
+
     try {
         const cadeteId = parseInt(req.params.id);
 
@@ -283,4 +283,3 @@ export const obtenerResumenCadete = async (req, res) => {
         res.status(500).json({ error: "Error interno del servidor" });
     }
 };
-
