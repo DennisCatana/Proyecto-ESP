@@ -33,38 +33,42 @@ const LoginPage = () => {
             });
 
             if (data.token) {
-
                 localStorage.setItem("token", data.token);
+            }
 
-                if (data.usuario) {
-                    localStorage.setItem("usuario", JSON.stringify(data.usuario));
-                }
+            if (data.usuario) {
+                localStorage.setItem("usuario", JSON.stringify(data.usuario));
+            }
 
-                setModalTipo("success");
-                setModalMensaje("Inicio de sesión correcto");
+            // ⚠️ PRIMER LOGIN
+            if (data.cambiarPassword) {
+
+                setModalTipo("warning");
+                setModalMensaje(data.msg || "Debe cambiar su contraseña");
                 setModalOpen(true);
 
                 setTimeout(() => {
+                    navigate("/cambiar-password");
+                }, 1500);
 
-                    if (data.cambioPassword) {
-                        navigate("/cambiar-password");
-                    } else {
-                        navigate("/home");
-                    }
-
-                }, 1200);
-
+                return;
             }
+
+            setModalTipo("success");
+            setModalMensaje("Inicio de sesión correcto");
+            setModalOpen(true);
+
+            setTimeout(() => {
+                navigate("/home");
+            }, 1200);
 
         } catch (error) {
 
             setModalTipo("error");
             setModalMensaje(error.message);
             setModalOpen(true);
-
         }
     };
-
 
     return (
         <div className="min-h-screen flex justify-center items-center overflow-hidden relative bg-gray-100">

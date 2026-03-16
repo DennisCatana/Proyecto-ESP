@@ -211,18 +211,20 @@ export const login = async (req, res) => {
         if (!valido)
             return res.status(400).json({ msg: "Contraseña incorrecta" });
 
-        const token = generarJWT(usuario);
+        const token = generarJWT(usuario.id);
 
+        // Guardar token de sesión
         await prisma.usuario.update({
             where: { id: usuario.id },
             data: { tokenSession: token }
         });
 
-        if (usuario.cambioPassword) {
+        // ⚠️ verificar si debe cambiar contraseña
+        if (usuario.cambiarPassword) {
             return res.json({
                 msg: "Debe cambiar su contraseña",
-                cambioPassword: true,
-                token
+                cambiarPassword: true,
+                uid: usuario.id
             });
         }
 
