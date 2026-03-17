@@ -11,12 +11,12 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  
+
   // Fecha y hora
   const [fecha, setFecha] = useState('');
   const [hora, setHora] = useState('');
   const [usarFechaActual, setUsarFechaActual] = useState(true);
-  
+
   // Estado para colapsar secciones
   const [seccionesExpandidas, setSeccionesExpandidas] = useState({
     cadete: true,
@@ -75,7 +75,7 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
 
     setError(null);
     setEvidencia(file);
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       setEvidenciaPreview(e.target.result);
@@ -154,16 +154,17 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
       setFecha('');
       setHora('');
       setUsarFechaActual(true);
-      
+
     } catch (err) {
       setError(err.message || 'Error al registrar la acción');
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h3 className="text-lg font-bold text-slate-800 mb-4">Registro de Acción Disciplinaria</h3>
+    <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl mx-auto mt-6">
       
+      <h3 className="text-lg font-bold text-slate-800 mb-4">Registro de Acción Disciplinaria</h3>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Error general */}
         {error && (
@@ -194,7 +195,7 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
             </div>
             {seccionesExpandidas.cadete ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
-          
+
           {seccionesExpandidas.cadete && (
             <div className="p-4 bg-white">
               <div className="grid grid-cols-2 gap-4">
@@ -220,22 +221,20 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
             <button
               type="button"
               onClick={() => handleSelectTipo('Positiva')}
-              className={`p-4 rounded-lg border-2 text-center transition font-medium ${
-                selectedTipo === 'Positiva' 
-                  ? 'border-green-500 bg-green-50 text-green-700' 
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
+              className={`p-4 rounded-lg border-2 text-center transition font-medium ${selectedTipo === 'Positiva'
+                ? 'border-green-500 bg-green-50 text-green-700'
+                : 'border-slate-200 hover:border-slate-300'
+                }`}
             >
               ✓ Positiva
             </button>
             <button
               type="button"
               onClick={() => handleSelectTipo('Negativa')}
-              className={`p-4 rounded-lg border-2 text-center transition font-medium ${
-                selectedTipo === 'Negativa' 
-                  ? 'border-red-500 bg-red-50 text-red-700' 
-                  : 'border-slate-200 hover:border-slate-300'
-              }`}
+              className={`p-4 rounded-lg border-2 text-center transition font-medium ${selectedTipo === 'Negativa'
+                ? 'border-red-500 bg-red-50 text-red-700'
+                : 'border-slate-200 hover:border-slate-300'
+                }`}
             >
               ✗ Negativa
             </button>
@@ -259,20 +258,18 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
                     key={accion.id}
                     type="button"
                     onClick={() => setSelectedAccion(accion.codigo)}
-                    className={`p-3 rounded-lg border-2 text-left transition ${
-                      selectedAccion === accion.codigo
-                        ? selectedTipo === 'Positiva' 
-                          ? 'border-green-500 bg-green-50' 
-                          : 'border-red-500 bg-red-50'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
+                    className={`p-3 rounded-lg border-2 text-left transition ${selectedAccion === accion.codigo
+                      ? selectedTipo === 'Positiva'
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-red-500 bg-red-50'
+                      : 'border-slate-200 hover:border-slate-300'
+                      }`}
                   >
                     <div className="flex justify-between items-start">
                       <div>
                         <span className="font-bold">{accion.codigo}</span>
-                        <span className={`ml-2 text-sm font-medium ${
-                          accion.tipo === 'Positiva' ? 'text-green-600' : 'text-red-600'
-                        }`}>
+                        <span className={`ml-2 text-sm font-medium ${accion.tipo === 'Positiva' ? 'text-green-600' : 'text-red-600'
+                          }`}>
                           ({accion.tipo === 'Positiva' ? '+' : '-'}{accion.puntaje})
                         </span>
                       </div>
@@ -287,19 +284,17 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
 
         {/* Acción seleccionada - mostrar detalles */}
         {accionSeleccionada && (
-          <div className={`p-4 rounded-lg border-2 ${
-            accionSeleccionada.tipo === 'Positiva' 
-              ? 'bg-green-50 border-green-300' 
-              : 'bg-red-50 border-red-300'
-          }`}>
+          <div className={`p-4 rounded-lg border-2 ${accionSeleccionada.tipo === 'Positiva'
+            ? 'bg-green-50 border-green-300'
+            : 'bg-red-50 border-red-300'
+            }`}>
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-bold text-slate-800">{accionSeleccionada.titulo}</p>
                 <p className="text-sm text-slate-600 mt-1">{accionSeleccionada.descripcion}</p>
               </div>
-              <p className={`text-2xl font-bold ${
-                accionSeleccionada.tipo === 'Positiva' ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <p className={`text-2xl font-bold ${accionSeleccionada.tipo === 'Positiva' ? 'text-green-600' : 'text-red-600'
+                }`}>
                 {accionSeleccionada.tipo === 'Positiva' ? '+' : '-'}{accionSeleccionada.puntaje}
               </p>
             </div>
@@ -319,7 +314,7 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
             </div>
             {seccionesExpandidas.detalles ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
-          
+
           {seccionesExpandidas.detalles && (
             <div className="p-4 bg-white space-y-4">
               {/* Checkbox para usar fecha actual */}
@@ -402,11 +397,11 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
             </div>
             {seccionesExpandidas.evidencia ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
           </button>
-          
+
           {seccionesExpandidas.evidencia && (
             <div className="p-4 bg-white">
               {!evidenciaPreview ? (
-                <div 
+                <div
                   onClick={() => fileInputRef.current?.click()}
                   className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition"
                 >
@@ -420,9 +415,9 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
                 </div>
               ) : (
                 <div className="relative inline-block w-full">
-                  <img 
-                    src={evidenciaPreview} 
-                    alt="Evidencia" 
+                  <img
+                    src={evidenciaPreview}
+                    alt="Evidencia"
                     className="max-h-48 rounded-lg border border-slate-300 mx-auto"
                   />
                   <button
@@ -434,7 +429,7 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
                   </button>
                 </div>
               )}
-              
+
               <input
                 ref={fileInputRef}
                 type="file"

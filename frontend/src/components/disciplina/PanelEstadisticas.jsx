@@ -3,14 +3,13 @@ import { Users, Award, AlertTriangle, Activity, TrendingUp, TrendingDown, Calend
 
 const PanelEstadisticas = ({ cadetes, acciones }) => {
 
-  // ✅ ESTADO DEL FILTRO (FUERA DEL useMemo)
   const [filtroTipo, setFiltroTipo] = useState('todas'); // todas | positivas | negativas
 
   const chartData = useMemo(() => {
     const positivas = acciones.filter(a => a.accionDefinida?.tipo === 'Positiva' || a.tipo === 'Positiva');
     const negativas = acciones.filter(a => a.accionDefinida?.tipo === 'Negativa' || a.tipo === 'Negativa');
 
-    // 🔥 FILTRO SEGÚN BOTÓN
+    // FILTRO SEGÚN BOTÓN
     let accionesFiltradas = acciones;
     if (filtroTipo === 'positivas') accionesFiltradas = positivas;
     if (filtroTipo === 'negativas') accionesFiltradas = negativas;
@@ -51,7 +50,7 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
     .sort((a, b) => (b.positivas + b.negativas) - (a.positivas + a.negativas))
     .slice(0, 10);
 
-    // 🔥 ACCIONES POR DÍA (CON FILTRO)
+    // ACCIONES POR DÍA (CON FILTRO)
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
     const accionesPorDia = dias.map((dia, idx) => ({

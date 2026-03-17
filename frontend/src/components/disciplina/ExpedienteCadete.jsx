@@ -146,7 +146,6 @@ const ExpedienteCadete = ({ cadete, acciones, onClose }) => {
                         {tieneEvidencia ? (
                           <button
                             onClick={() => {
-                              console.log(imageUrl);
                               setImagenAmpliada(imageUrl);
                             }}
                             className="inline-flex items-center justify-center p-1 bg-blue-100 hover:bg-blue-200 rounded-lg transition"
