@@ -1,17 +1,28 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Users, Award, AlertTriangle, Activity, TrendingUp, TrendingDown, Calendar, MapPin } from 'lucide-react';
 
 const PanelEstadisticas = ({ cadetes, acciones }) => {
+
+  // ✅ ESTADO DEL FILTRO (FUERA DEL useMemo)
+  const [filtroTipo, setFiltroTipo] = useState('todas'); // todas | positivas | negativas
+
   const chartData = useMemo(() => {
     const positivas = acciones.filter(a => a.accionDefinida?.tipo === 'Positiva' || a.tipo === 'Positiva');
     const negativas = acciones.filter(a => a.accionDefinida?.tipo === 'Negativa' || a.tipo === 'Negativa');
 
+    // 🔥 FILTRO SEGÚN BOTÓN
+    let accionesFiltradas = acciones;
+    if (filtroTipo === 'positivas') accionesFiltradas = positivas;
+    if (filtroTipo === 'negativas') accionesFiltradas = negativas;
+
     // Por sección
     const secciones = [...new Set(cadetes.map(c => c.seccion))].sort();
+
     const positivasPorSeccion = secciones.map(sec => ({
       seccion: sec,
       count: positivas.filter(a => a.cadete?.seccion === sec).length
     }));
+
     const negativasPorSeccion = secciones.map(sec => ({
       seccion: sec,
       count: negativas.filter(a => a.cadete?.seccion === sec).length
@@ -20,28 +31,36 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
     // Por género
     const porGenero = {
       masculino: {
-        positivas: positivas.filter(a => a.cadete?.genero === 'M').length,
-        negativas: negativas.filter(a => a.cadete?.genero === 'M').length
+        positivas: positivas.filter(a => a.cadete?.genero === 'Masculino').length,
+        negativas: negativas.filter(a => a.cadete?.genero === 'Masculino').length
       },
       femenino: {
-        positivas: positivas.filter(a => a.cadete?.genero === 'F').length,
-        negativas: negativas.filter(a => a.cadete?.genero === 'F').length
+        positivas: positivas.filter(a => a.cadete?.genero === 'Femenino').length,
+        negativas: negativas.filter(a => a.cadete?.genero === 'Femenino').length
       }
     };
 
     // Por provincia
     const provincias = [...new Set(cadetes.map(c => c.lugar_nacimiento).filter(Boolean))];
+
     const porProvincia = provincias.map(prov => ({
       provincia: prov,
       positivas: positivas.filter(a => a.cadete?.lugar_nacimiento === prov).length,
       negativas: negativas.filter(a => a.cadete?.lugar_nacimiento === prov).length
-    })).sort((a, b) => (b.positivas + b.negativas) - (a.positivas + a.negativas)).slice(0, 10);
+    }))
+    .sort((a, b) => (b.positivas + b.negativas) - (a.positivas + a.negativas))
+    .slice(0, 10);
 
-    // Por día de la semana
+    // 🔥 ACCIONES POR DÍA (CON FILTRO)
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
     const accionesPorDia = dias.map((dia, idx) => ({
       dia,
-      count: acciones.filter(a => new Date(a.fecha).getDay() === idx).length
+      count: accionesFiltradas.filter(a => {
+        if (!a.fecha) return false;
+        const fecha = new Date(a.fecha);
+        return fecha.getUTCDay() === idx;
+      }).length
     }));
 
     return {
@@ -51,13 +70,15 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
       porProvincia,
       accionesPorDia
     };
-  }, [cadetes, acciones]);
+
+  }, [cadetes, acciones, filtroTipo]); // 🔥 IMPORTANTE
 
   const maxPositivas = Math.max(...chartData.positivasPorSeccion.map(s => s.count), 1);
   const maxNegativas = Math.max(...chartData.negativasPorSeccion.map(s => s.count), 1);
 
   const totalPositivas = acciones.filter(a => a.accionDefinida?.tipo === 'Positiva' || a.tipo === 'Positiva').length;
   const totalNegativas = acciones.filter(a => a.accionDefinida?.tipo === 'Negativa' || a.tipo === 'Negativa').length;
+
 
   return (
     <div className="space-y-6">
@@ -94,9 +115,8 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-slate-500">Balance General</p>
-              <p className={`text-3xl font-bold ${
-                totalPositivas >= totalNegativas ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <p className={`text-3xl font-bold ${totalPositivas >= totalNegativas ? 'text-green-600' : 'text-red-600'
+                }`}>
                 {totalNegativas > 0 ? ((totalPositivas / totalNegativas) * 100).toFixed(0) : 100}%
               </p>
             </div>
@@ -118,7 +138,7 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
               <div key={item.seccion} className="flex items-center gap-3">
                 <span className="w-16 text-sm text-slate-600">{item.seccion}</span>
                 <div className="flex-1 bg-slate-100 rounded-full h-4 overflow-hidden">
-                  <div 
+                  <div
                     className="bg-green-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${(item.count / maxPositivas) * 100}%` }}
                   />
@@ -140,7 +160,7 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
               <div key={item.seccion} className="flex items-center gap-3">
                 <span className="w-16 text-sm text-slate-600">{item.seccion}</span>
                 <div className="flex-1 bg-slate-100 rounded-full h-4 overflow-hidden">
-                  <div 
+                  <div
                     className="bg-red-500 h-full rounded-full transition-all duration-500"
                     style={{ width: `${(item.count / maxNegativas) * 100}%` }}
                   />
@@ -193,21 +213,39 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
             <Calendar className="w-5 h-5 text-purple-600" />
             Acciones por Día de la Semana
           </h4>
-          <div className="flex items-end justify-between h-32 gap-1">
-            {chartData.accionesPorDia.map((item) => {
+
+          <div className="flex items-end justify-between h-40 gap-2">
+            {(() => {
               const max = Math.max(...chartData.accionesPorDia.map(d => d.count), 1);
-              return (
-                <div key={item.dia} className="flex-1 flex flex-col items-center">
-                  <div 
-                    className="w-full bg-purple-500 rounded-t transition-all duration-300"
-                    style={{ height: `${(item.count / max) * 100}%` }}
-                  />
-                  <span className="text-xs text-slate-500 mt-1 truncate w-full text-center">
-                    {item.dia.slice(0, 3)}
-                  </span>
-                </div>
-              );
-            })}
+
+              return chartData.accionesPorDia.map((item) => {
+                // 🔥 Escala suavizada
+                const altura = item.count > 0
+                  ? Math.max((Math.sqrt(item.count) / Math.sqrt(max)) * 100, 5)
+                  : 0;
+
+                return (
+                  <div key={item.dia} className="flex-1 flex flex-col items-center justify-end">
+
+                    {/* 🔢 Número */}
+                    <span className="text-xs font-bold text-purple-700 mb-1">
+                      {item.count}
+                    </span>
+
+                    {/* 📊 Barra */}
+                    <div
+                      className="w-full bg-purple-500 rounded-t transition-all duration-500 hover:bg-purple-600"
+                      style={{ height: `${altura}%` }}
+                    />
+
+                    {/* 📅 Día */}
+                    <span className="text-xs text-slate-500 mt-1 text-center">
+                      {item.dia.slice(0, 3)}
+                    </span>
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       </div>

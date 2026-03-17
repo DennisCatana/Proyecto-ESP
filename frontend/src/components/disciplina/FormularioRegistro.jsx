@@ -168,7 +168,7 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
         {/* Error general */}
         {error && (
           <div className="p-3 rounded-lg bg-red-100 text-red-700 border border-red-300 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -176,7 +176,7 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
         {/* Success message */}
         {success && (
           <div className="p-3 rounded-lg bg-green-100 text-green-700 border border-green-300 flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 flex-shrink-0" />
+            <CheckCircle className="w-5 h-5 shrink-0" />
             <span>{success}</span>
           </div>
         )}

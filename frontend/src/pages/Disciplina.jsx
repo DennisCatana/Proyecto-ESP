@@ -35,13 +35,13 @@ const Disciplina = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         // Obtener usuario actual del localStorage
         const usuarioData = localStorage.getItem('usuario');
         if (usuarioData) {
           const usuario = JSON.parse(usuarioData);
           setOficialActual(usuario);
-          
+
           // Verificar si el usuario tiene acceso al módulo disciplinario
           if (!ROLES_PERMITIDOS.includes(usuario.rol)) {
             setAccesoRestringido(true);
@@ -111,11 +111,11 @@ const Disciplina = () => {
   // Manejar selección de cadete - cargar datos completos
   const handleSelectCadete = async (cadete) => {
     setCadeteSeleccionado(cadete);
-    
+
     // Si el cadete tiene acciones en el estado local, usarlas
     // De lo contrario, intentar obtener del backend
     const accionesCadete = acciones.filter(a => a.cadeteId === cadete.id);
-    
+
     if (accionesCadete.length === 0) {
       const datosCompletos = await obtenerDatosCadete(cadete.id);
       if (datosCompletos) {
@@ -132,6 +132,11 @@ const Disciplina = () => {
   const handleRegistrarAccion = async (data) => {
     setLoadingRegistro(true);
     try {
+      const fechaObj = new Date(data.fecha);
+
+      const diaSemana = fechaObj.toLocaleDateString('es-EC', {
+        weekday: 'long'
+      });
       // Registrar en el backend con todos los datos (incluyendo fecha, hora y ruta_imagen)
       const response = await api.post('/registroaccion', {
         cadeteId: data.cadeteId,
@@ -139,7 +144,9 @@ const Disciplina = () => {
         observacion: data.observacion,
         ruta_imagen: data.ruta_imagen || null,
         fecha: data.fecha || null,
-        hora: data.hora || null
+        hora: data.hora || null,
+        dia: diaSemana // 👈 aquí lo envías
+
       });
 
       // Recargar acciones desde el backend
@@ -147,7 +154,7 @@ const Disciplina = () => {
       if (accionesActualizadas && Array.isArray(accionesActualizadas)) {
         setAcciones(accionesActualizadas);
       }
-      
+
       // Recargar cadetes para obtener el puntaje actualizado
       const cadetesActualizados = await api.get('/cadetes');
       if (cadetesActualizados && Array.isArray(cadetesActualizados)) {
@@ -155,7 +162,7 @@ const Disciplina = () => {
       }
 
       setMensaje({ type: 'success', text: 'Acción registrada correctamente' });
-      
+
       // Actualizar el cadete seleccionado con los nuevos datos
       const cadeteActualizado = cadetesActualizados.find(c => c.id === data.cadeteId);
       if (cadeteActualizado) {
@@ -204,7 +211,7 @@ const Disciplina = () => {
           </div>
           <h2 className="text-2xl font-bold text-slate-800 mb-2">Acceso Restringido</h2>
           <p className="text-slate-600 mb-6">
-            No tienes permisos para acceder al módulo de Control Disciplinario. 
+            No tienes permisos para acceder al módulo de Control Disciplinario.
             Esta sección está reservada para Instructores y Administradores.
           </p>
           <button
@@ -221,7 +228,7 @@ const Disciplina = () => {
   return (
     <div className="min-h-screen flex bg-slate-100">
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-slate-200 p-4">
@@ -251,9 +258,8 @@ const Disciplina = () => {
 
         {/* Mensaje */}
         {mensaje && (
-          <div className={`mx-4 mt-4 p-4 rounded-lg ${
-            mensaje.type === 'success' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300'
-          }`}>
+          <div className={`mx-4 mt-4 p-4 rounded-lg ${mensaje.type === 'success' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300'
+            }`}>
             {mensaje.text}
           </div>
         )}
@@ -275,29 +281,29 @@ const Disciplina = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard 
-                  title="Total Cadetes" 
-                  value={cadetes.length} 
-                  icon={Users} 
-                  color="#007BFF" 
+                <StatCard
+                  title="Total Cadetes"
+                  value={cadetes.length}
+                  icon={Users}
+                  color="#007BFF"
                 />
-                <StatCard 
-                  title="Acciones Positivas" 
-                  value={estadisticasGlobales.positivas} 
-                  icon={Award} 
-                  color="#22c55e" 
+                <StatCard
+                  title="Acciones Positivas"
+                  value={estadisticasGlobales.positivas}
+                  icon={Award}
+                  color="#22c55e"
                 />
-                <StatCard 
-                  title="Acciones Negativas" 
-                  value={estadisticasGlobales.negativas} 
-                  icon={AlertTriangle} 
-                  color="#ef4444" 
+                <StatCard
+                  title="Acciones Negativas"
+                  value={estadisticasGlobales.negativas}
+                  icon={AlertTriangle}
+                  color="#ef4444"
                 />
-                <StatCard 
-                  title="Balance General" 
-                  value={`${estadisticasGlobales.negativas > 0 ? ((estadisticasGlobales.positivas / estadisticasGlobales.negativas) * 100).toFixed(0) : 100}%`} 
-                  icon={Activity} 
-                  color="#8b5cf6" 
+                <StatCard
+                  title="Balance General"
+                  value={`${estadisticasGlobales.negativas > 0 ? ((estadisticasGlobales.positivas / estadisticasGlobales.negativas) * 100).toFixed(0) : 100}%`}
+                  icon={Activity}
+                  color="#8b5cf6"
                 />
               </div>
 
@@ -315,9 +321,9 @@ const Disciplina = () => {
                       const accionesCadete = obtenerAccionesCadete(cadete.id);
                       const positivas = accionesCadete.filter(a => a.accionDefinida?.tipo === 'Positiva').length;
                       const negativas = accionesCadete.filter(a => a.accionDefinida?.tipo === 'Negativa').length;
-                      
+
                       return (
-                        <div 
+                        <div
                           key={cadete.id}
                           onClick={() => {
                             handleSelectCadete(cadete);
@@ -351,14 +357,14 @@ const Disciplina = () => {
           {activeSection === 'cadetes' && (
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800">Consulta de Cadetes</h2>
-              
-              <BuscadorCadetes 
-                onSelect={(cadete) => handleSelectCadete(cadete)} 
+
+              <BuscadorCadetes
+                onSelect={(cadete) => handleSelectCadete(cadete)}
                 cadetes={cadetes}
               />
 
               {cadeteSeleccionado ? (
-                <ExpedienteCadete 
+                <ExpedienteCadete
                   cadete={cadeteSeleccionado}
                   acciones={obtenerAccionesCadete(cadeteSeleccionado.id)}
                   onClose={() => setCadeteSeleccionado(null)}
@@ -376,28 +382,28 @@ const Disciplina = () => {
           {activeSection === 'registrar' && (
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800">Registrar Acción Disciplinaria</h2>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
                   <h3 className="font-medium text-slate-700 mb-3">Buscar Cadete</h3>
-                  <BuscadorCadetes 
-                    onSelect={(cadete) => handleSelectCadete(cadete)} 
+                  <BuscadorCadetes
+                    onSelect={(cadete) => handleSelectCadete(cadete)}
                     cadetes={cadetes}
                   />
-                  
+
                   {cadeteSeleccionado && (
                     <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                       <h4 className="font-semibold text-blue-800 mb-2">Cadete Seleccionado</h4>
                       <p className="text-slate-800 font-medium">{cadeteSeleccionado.nombre}</p>
                       <p className="text-sm text-slate-600">
-                        {cadeteSeleccionado.cia} • {cadeteSeleccionado.seccion} • 
+                        {cadeteSeleccionado.cia} • {cadeteSeleccionado.seccion} •
                         Hab: {cadeteSeleccionado.habitacion} • GG: {cadeteSeleccionado.grupo_guardia}
                       </p>
                     </div>
                   )}
                 </div>
 
-                <FormularioRegistro 
+                <FormularioRegistro
                   cadete={cadeteSeleccionado}
                   accionesDefinidas={accionesDefinidas}
                   onSubmit={handleRegistrarAccion}
@@ -421,10 +427,10 @@ const Disciplina = () => {
                   <p className="text-slate-500 text-lg">No hay acciones disciplinarias registradas</p>
                 </div>
               ) : (
-                <ExpedienteCadete 
+                <ExpedienteCadete
                   cadete={{ nombre: 'Todos los Cadetes', cia: '-', seccion: '-', edad: '-', genero: '-' }}
                   acciones={acciones}
-                  onClose={() => {}}
+                  onClose={() => { }}
                 />
               )}
             </div>
@@ -434,7 +440,7 @@ const Disciplina = () => {
           {activeSection === 'estadisticas' && (
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800">Estadísticas Generales</h2>
-              <PanelEstadisticas 
+              <PanelEstadisticas
                 cadetes={cadetes}
                 acciones={acciones}
               />

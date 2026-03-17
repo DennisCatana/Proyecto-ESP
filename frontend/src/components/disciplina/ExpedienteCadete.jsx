@@ -4,7 +4,16 @@ import { X, Building2, Users, User, Calendar, History, FileText, Image as ImageI
 const ExpedienteCadete = ({ cadete, acciones, onClose }) => {
   const [imagenAmpliada, setImagenAmpliada] = useState(null);
   const accionesOrdenadas = [...acciones].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-  
+  const [paginaActual, setPaginaActual] = useState(1);
+  const accionesPorPagina = 10;
+
+  const indiceUltima = paginaActual * accionesPorPagina;
+  const indicePrimera = indiceUltima - accionesPorPagina;
+
+  const accionesPaginadas = accionesOrdenadas.slice(indicePrimera, indiceUltima);
+
+  const totalPaginas = Math.ceil(accionesOrdenadas.length / accionesPorPagina);
+
   const estadisticas = useMemo(() => {
     return acciones.reduce((acc, accion) => {
       if (accion.accionDefinida?.tipo === 'Positiva' || accion.tipo === 'Positiva') {
@@ -23,17 +32,14 @@ const ExpedienteCadete = ({ cadete, acciones, onClose }) => {
   // Función para obtener la URL completa de la imagen
   const getImageUrl = (ruta) => {
     if (!ruta) return null;
-    // Si ya es una URL completa, retornarla
-    if (ruta.startsWith('http')) return ruta;
-    // Si es una ruta relativa, usarla directamente (el proxy del vite la resolvera)
-    // El backend sirve archivos estáticos en /uploads
+    return `http://localhost:3000${ruta}`; //Estar atento a esto en produccion 
     return ruta;
   };
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
       {/* Header del expediente */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
+      <div className="bg-linear-to-r from-blue-600 to-blue-800 text-white p-6">
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-2xl font-bold">{cadete.nombre}</h3>
@@ -109,12 +115,11 @@ const ExpedienteCadete = ({ cadete, acciones, onClose }) => {
                 </tr>
               </thead>
               <tbody>
-                {accionesOrdenadas.map((accion, idx) => {
+                {accionesPaginadas.map((accion, idx) => {
                   const esPositiva = accion.accionDefinida?.tipo === 'Positiva' || accion.tipo === 'Positiva';
                   const puntaje = parseFloat(accion.puntajeAplicado || accion.puntaje || 0);
                   const tieneEvidencia = accion.ruta_imagen;
                   const imageUrl = getImageUrl(accion.ruta_imagen);
-                  
                   return (
                     <tr key={idx} className={`border-b border-slate-100 ${esPositiva ? 'bg-green-50' : 'bg-red-50'}`}>
                       <td className="px-4 py-3 text-sm">
@@ -124,11 +129,10 @@ const ExpedienteCadete = ({ cadete, acciones, onClose }) => {
                         {new Date(accion.fecha).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          esPositiva 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-red-100 text-red-700'
-                        }`}>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${esPositiva
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-red-100 text-red-700'
+                          }`}>
                           {esPositiva ? 'Positiva' : 'Negativa'}
                         </span>
                       </td>
@@ -141,7 +145,10 @@ const ExpedienteCadete = ({ cadete, acciones, onClose }) => {
                       <td className="px-4 py-3 text-center">
                         {tieneEvidencia ? (
                           <button
-                            onClick={() => setImagenAmpliada(imageUrl)}
+                            onClick={() => {
+                              console.log(imageUrl);
+                              setImagenAmpliada(imageUrl);
+                            }}
                             className="inline-flex items-center justify-center p-1 bg-blue-100 hover:bg-blue-200 rounded-lg transition"
                             title="Ver evidencia"
                           >
@@ -154,9 +161,8 @@ const ExpedienteCadete = ({ cadete, acciones, onClose }) => {
                       <td className="px-4 py-3 text-sm">
                         {accion.registradoPor?.gradoU || accion.gradoU || '-'} {accion.registradoPor?.nombreU || accion.nombreU || '-'}
                       </td>
-                      <td className={`px-4 py-3 text-sm text-right font-bold ${
-                        esPositiva ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <td className={`px-4 py-3 text-sm text-right font-bold ${esPositiva ? 'text-green-600' : 'text-red-600'
+                        }`}>
                         {esPositiva ? '+' : ''}{puntaje.toFixed(2)}
                       </td>
                     </tr>
@@ -164,30 +170,53 @@ const ExpedienteCadete = ({ cadete, acciones, onClose }) => {
                 })}
               </tbody>
             </table>
+
+
+            <div className="flex justify-center items-center gap-4 mt-4">
+
+              {/* Botón anterior */}
+              <button
+                onClick={() => setPaginaActual(paginaActual - 1)}
+                disabled={paginaActual === 1}
+                className="px-4 py-3 text-left text-sm font-semibold text-slate-700 
+                    bg-slate-200 rounded-lg hover:bg-slate-300 active:bg-slate-400 transition disabled:opacity-50"
+
+              >
+                ← Anterior
+              </button>
+
+              <span className="text-sm">
+                Página {paginaActual} de {totalPaginas}
+              </span>
+
+              {/* Botón siguiente */}
+              <button
+                onClick={() => setPaginaActual(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas}
+                className="px-4 py-3 text-left text-sm font-semibold text-slate-700
+                     bg-slate-200 rounded-lg hover:bg-slate-300 active:bg-slate-400 transition disabled:opacity-50"
+
+              >
+                Siguiente →
+              </button>
+
+            </div>
           </div>
         )}
       </div>
 
       {/* Modal para ampliar imagen */}
       {imagenAmpliada && (
-        <div 
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+        <div
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
           onClick={() => setImagenAmpliada(null)}
         >
-          <div className="relative max-w-4xl w-full">
-            <button
-              onClick={() => setImagenAmpliada(null)}
-              className="absolute -top-10 right-0 text-white hover:text-gray-300"
-            >
-              <X className="w-8 h-8" />
-            </button>
-            <img 
-              src={imagenAmpliada} 
-              alt="Evidencia ampliada" 
-              className="w-full max-h-[80vh] object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
+          <img
+            src={imagenAmpliada}
+            alt="Evidencia"
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-[90%] max-h-[90%] rounded-lg shadow-lg"
+          />
         </div>
       )}
     </div>
