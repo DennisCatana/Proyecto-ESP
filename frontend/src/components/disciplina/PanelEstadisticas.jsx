@@ -4,6 +4,7 @@ import { Users, Award, AlertTriangle, Activity, TrendingUp, TrendingDown, Calend
 const PanelEstadisticas = ({ cadetes, acciones }) => {
 
   const [filtroTipo, setFiltroTipo] = useState('todas'); // todas | positivas | negativas
+  const [modo, setModo] = useState("total");
 
   const chartData = useMemo(() => {
     const positivas = acciones.filter(a => a.accionDefinida?.tipo === 'Positiva' || a.tipo === 'Positiva');
@@ -47,20 +48,26 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
       positivas: positivas.filter(a => a.cadete?.lugar_nacimiento === prov).length,
       negativas: negativas.filter(a => a.cadete?.lugar_nacimiento === prov).length
     }))
-    .sort((a, b) => (b.positivas + b.negativas) - (a.positivas + a.negativas))
-    .slice(0, 10);
+      .sort((a, b) => (b.positivas + b.negativas) - (a.positivas + a.negativas))
+      .slice(0, 10);
 
     // ACCIONES POR DÍA (CON FILTRO)
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-    const accionesPorDia = dias.map((dia, idx) => ({
-      dia,
-      count: accionesFiltradas.filter(a => {
+    const accionesPorDia = dias.map((dia, idx) => {
+      const accionesDia = acciones.filter(a => {
         if (!a.fecha) return false;
-        const fecha = new Date(a.fecha);
-        return fecha.getUTCDay() === idx;
-      }).length
-    }));
+        return new Date(a.fecha).getDay() === idx;
+      });
+
+      return {
+        dia,
+        total: accionesDia.length,
+        positivas: accionesDia.filter(a => a.accionDefinida?.tipo === 'Positiva').length,
+        negativas: accionesDia.filter(a => a.accionDefinida?.tipo === 'Negativa').length
+      };
+    });
+
 
     return {
       positivasPorSeccion,
@@ -70,7 +77,7 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
       accionesPorDia
     };
 
-  }, [cadetes, acciones, filtroTipo]); // 🔥 IMPORTANTE
+  }, [cadetes, acciones, filtroTipo]);
 
   const maxPositivas = Math.max(...chartData.positivasPorSeccion.map(s => s.count), 1);
   const maxNegativas = Math.max(...chartData.negativasPorSeccion.map(s => s.count), 1);
@@ -78,6 +85,13 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
   const totalPositivas = acciones.filter(a => a.accionDefinida?.tipo === 'Positiva' || a.tipo === 'Positiva').length;
   const totalNegativas = acciones.filter(a => a.accionDefinida?.tipo === 'Negativa' || a.tipo === 'Negativa').length;
 
+  console.log(chartData.accionesPorDia);
+
+  const dataFiltrada = chartData.accionesPorDia.map(d => {
+    if (modo === "positivas") return { ...d, count: d.positivas };
+    if (modo === "negativas") return { ...d, count: d.negativas };
+    return { ...d, count: d.total };
+  });
 
   return (
     <div className="space-y-6">
@@ -207,44 +221,95 @@ const PanelEstadisticas = ({ cadetes, acciones }) => {
         </div>
 
         {/* Análisis temporal - Día */}
-        <div className="bg-white p-5 rounded-xl shadow-md">
-          <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-purple-600" />
-            Acciones por Día de la Semana
-          </h4>
+        <div className="space-y-6">
 
-          <div className="flex items-end justify-between h-40 gap-2">
-            {(() => {
-              const max = Math.max(...chartData.accionesPorDia.map(d => d.count), 1);
+          {/* GRÁFICO POR DÍA */}
+          <div className="bg-white p-5 rounded-xl shadow-md">
 
-              return chartData.accionesPorDia.map((item) => {
-                // 🔥 Escala suavizada
-                const altura = item.count > 0
-                  ? Math.max((Math.sqrt(item.count) / Math.sqrt(max)) * 100, 5)
-                  : 0;
+            {/* HEADER + BOTONES */}
+            <div className="flex justify-between items-center mb-3">
 
-                return (
-                  <div key={item.dia} className="flex-1 flex flex-col items-center justify-end">
+              <h4 className="font-bold text-slate-800 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-purple-600" />
+                Acciones por Día de la Semana
+              </h4>
 
-                    {/* 🔢 Número */}
-                    <span className="text-xs font-bold text-purple-700 mb-1">
-                      {item.count}
-                    </span>
+              <div className="flex bg-slate-100 rounded-lg p-1 text-xs font-semibold">
+                <button
+                  onClick={() => setModo("positivas")}
+                  className={`px-2 py-1 rounded ${modo === "positivas" ? "bg-green-500 text-white" : ""}`}
+                >
+                  +
+                </button>
 
-                    {/* 📊 Barra */}
-                    <div
-                      className="w-full bg-purple-500 rounded-t transition-all duration-500 hover:bg-purple-600"
-                      style={{ height: `${altura}%` }}
-                    />
+                <button
+                  onClick={() => setModo("total")}
+                  className={`px-2 py-1 rounded ${modo === "total" ? "bg-purple-500 text-white" : ""}`}
+                >
+                  Total
+                </button>
 
-                    {/* 📅 Día */}
-                    <span className="text-xs text-slate-500 mt-1 text-center">
-                      {item.dia.slice(0, 3)}
-                    </span>
-                  </div>
-                );
-              });
-            })()}
+                <button
+                  onClick={() => setModo("negativas")}
+                  className={`px-2 py-1 rounded ${modo === "negativas" ? "bg-red-500 text-white" : ""}`}
+                >
+                  -
+                </button>
+              </div>
+
+            </div>
+
+            {/* BARRAS */}
+            <div className="flex items-end justify-between h-40 gap-2">
+
+              {(() => {
+                const max = Math.max(...dataFiltrada.map(d => d.count), 1);
+
+                return dataFiltrada.map((item) => {
+
+                  const ALTURA_MAX = 120;
+
+                  const altura = item.count > 0
+                    ? Math.max((Math.sqrt(item.count) / Math.sqrt(max)) * ALTURA_MAX, 5)
+                    : 0;
+
+                  // 🎨 COLOR DINÁMICO
+                  const color =
+                    modo === "positivas"
+                      ? "bg-green-500 hover:bg-green-600"
+                      : modo === "negativas"
+                        ? "bg-red-500 hover:bg-red-600"
+                        : "bg-purple-500 hover:bg-purple-600";
+
+                  return (
+                    <div key={item.dia} className="flex-1 flex flex-col items-center justify-end">
+
+                      <span
+                        className={`text-xs font-bold mb-1 ${modo === "positivas"
+                            ? "text-green-600"
+                            : modo === "negativas"
+                              ? "text-red-600"
+                              : "text-black-600"
+                          }`}
+                      >
+                        {item.count}
+                      </span>
+
+                      <div
+                        className={`w-full rounded-t transition-all duration-500 ${color}`}
+                        style={{ height: `${altura}px` }}
+                      />
+
+                      <span className="text-xs text-slate-500 mt-1 text-center">
+                        {item.dia.slice(0, 3)}
+                      </span>
+
+                    </div>
+                  );
+                });
+              })()}
+
+            </div>
           </div>
         </div>
       </div>

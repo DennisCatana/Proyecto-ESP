@@ -218,10 +218,6 @@ export const obtenerAccionesPorCadete = async (req, res) => {
 // Obtener resumen de un cadete
 export const obtenerResumenCadete = async (req, res) => {
 
-    console.log("========== RESUMEN CADETE ==========");
-    console.log("DATABASE_URL:", process.env.DATABASE_URL);
-
-
     try {
         const cadeteId = parseInt(req.params.id);
 
@@ -265,12 +261,29 @@ export const obtenerResumenCadete = async (req, res) => {
             })
         ]);
 
+         // 4️⃣ 🔥 Acciones por día de la semana (NUEVO)
+        const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+        const accionesPorDia = dias.map((dia, idx) => {
+            const accionesDia = acciones.filter(
+                a => new Date(a.fecha).getDay() === idx
+            );
+
+            return {
+                dia,
+                count: accionesDia.length,
+                positivas: accionesDia.filter(a => a.accionDefinida.tipo === "Positiva").length,
+                negativas: accionesDia.filter(a => a.accionDefinida.tipo === "Negativa").length
+            };
+        });
+
         return res.json({
             puntajeTotal: cadete.puntajeTotal,
             totalAcciones,
             accionesPositivas,
             accionesNegativas,
-            acciones
+            acciones,
+            accionesPorDia 
         });
 
     } catch (error) {
