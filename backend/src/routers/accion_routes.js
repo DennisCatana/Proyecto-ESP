@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { listarAcciones, registrarAccion, listarAccionesDisciplinarias, obtenerAccionesPorCadete } from "../controllers/accion_controllers.js";
+import { listarAcciones, registrarAccion, listarAccionesDisciplinarias, obtenerAccionesPorCadete, crearAccionDefinida, actualizarAccionDefinida, eliminarAccionDefinida } from "../controllers/accion_controllers.js";
+
 import { protegerRuta } from "../middlewares/auth_middleware.js";
 import { autorizarRoles } from "../middlewares/role_middleware.js";
 
@@ -16,6 +17,12 @@ router.get("/acciones/:cadeteId", protegerRuta, autorizarRoles("Administrador", 
 
 // Registrar una acción aplicada a un cadete - solo Instructor y Administrador
 router.post("/registroaccion", protegerRuta, autorizarRoles("Administrador", "Instructor"), registrarAccion);
+
+// Admin CRUD AccionDefinida
+router.post("/accionesdefinidas", protegerRuta, autorizarRoles("Administrador"), crearAccionDefinida);
+router.put("/accionesdefinidas/:id", protegerRuta, autorizarRoles("Administrador"), actualizarAccionDefinida);
+router.delete("/accionesdefinidas/:id", protegerRuta, autorizarRoles("Administrador"), eliminarAccionDefinida);
+
 
 export default router;
 

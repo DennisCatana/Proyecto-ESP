@@ -218,6 +218,14 @@ export const obtenerAccionesPorCadete = async (req, res) => {
 // Obtener resumen de un cadete
 export const obtenerResumenCadete = async (req, res) => {
 
+<<<<<<< Updated upstream
+=======
+    console.log("========== RESUMEN CADETE ==========");
+    console.log("DATABASE_URL:", process.env.DATABASE_URL);
+
+
+
+>>>>>>> Stashed changes
     try {
         const cadeteId = parseInt(req.params.id);
 
@@ -291,3 +299,48 @@ export const obtenerResumenCadete = async (req, res) => {
         res.status(500).json({ error: "Error interno del servidor" });
     }
 };
+
+export const crearAccionDefinida = async (req, res) => {
+  try {
+    const { codigo, titulo, descripcion, tipo, puntaje } = req.body;
+    if (!codigo || !titulo || !tipo || puntaje == null) {
+      return res.status(400).json({ error: "Todos los campos son requeridos" });
+    }
+    const accion = await prisma.accionDefinida.create({
+      data: { codigo, titulo, descripcion, tipo, puntaje }
+    });
+    res.status(201).json(accion);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: "Código ya existe" });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const actualizarAccionDefinida = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    const accion = await prisma.accionDefinida.update({
+      where: { id: parseInt(id) },
+      data
+    });
+    res.json(accion);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const eliminarAccionDefinida = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.accionDefinida.delete({
+      where: { id: parseInt(id) }
+    });
+    res.json({ msg: "Acción eliminada" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+

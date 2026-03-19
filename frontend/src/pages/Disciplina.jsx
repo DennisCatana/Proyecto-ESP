@@ -1,17 +1,18 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Shield, ClipboardPlus, Users, Award, AlertTriangle, Activity, User, Lock } from 'lucide-react';
+import { Shield, User, Lock } from 'lucide-react';
 import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
 // Componentes
 import Sidebar from '../components/disciplina/Sidebar';
-import StatCard from '../components/disciplina/StatCard';
-import BuscadorCadetes from '../components/disciplina/BuscadorCadetes';
-import FormularioRegistro from '../components/disciplina/FormularioRegistro';
-import ExpedienteCadete from '../components/disciplina/ExpedienteCadete';
-import PanelEstadisticas from '../components/disciplina/PanelEstadisticas';
+import DashboardSection from '../components/disciplina/DashboardSection';
+import CadetesSection from '../components/disciplina/CadetesSection';
+import RegistrarSection from '../components/disciplina/RegistrarSection';
+import HistorialSection from '../components/disciplina/HistorialSection';
+import EstadisticasSection from '../components/disciplina/EstadisticasSection';
+import ConfigSection from '../components/disciplina/ConfigSection';
 
-// Componente principal
+
 const Disciplina = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -30,7 +31,7 @@ const Disciplina = () => {
   const ROLES_PERMITIDOS = ['Administrador', 'Instructor'];
 
   // Cargar datos del backend
-  useEffect(() => {
+useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -49,7 +50,6 @@ const Disciplina = () => {
             return;
           }
         } else {
-          // No hay usuario logueado, redirigir al login
           navigate('/');
           return;
         }
@@ -59,8 +59,6 @@ const Disciplina = () => {
           const accionesData = await api.get('/acciones');
           if (accionesData && Array.isArray(accionesData) && accionesData.length > 0) {
             setAccionesDefinidas(accionesData);
-          } else {
-            console.warn('No se encontraron acciones definidas en la base de datos');
           }
         } catch (e) {
           console.error('Error fetching acciones:', e);
@@ -97,6 +95,73 @@ const Disciplina = () => {
     fetchData();
   }, [navigate]);
 
+  useEffect(() => {
+    const refreshData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Obtener usuario actual del localStorage
+        const usuarioData = localStorage.getItem('usuario');
+        if (usuarioData) {
+          const usuario = JSON.parse(usuarioData);
+          setOficialActual(usuario);
+          
+          // Verificar si el usuario tiene acceso al módulo disciplinario
+          if (!ROLES_PERMITIDOS.includes(usuario.rol)) {
+            setAccesoRestringido(true);
+            setLoading(false);
+            return;
+          }
+        } else {
+          navigate('/');
+          return;
+        }
+
+        // Obtener acciones definidas del backend
+        try {
+          const accionesData = await api.get('/acciones');
+          if (accionesData && Array.isArray(accionesData) && accionesData.length > 0) {
+            setAccionesDefinidas(accionesData);
+          }
+        } catch (e) {
+          console.error('Error fetching acciones:', e);
+        }
+
+        // Obtener cadetes del backend
+        try {
+          const cadetesData = await api.get('/cadetes');
+          if (cadetesData && Array.isArray(cadetesData)) {
+            setCadetes(cadetesData);
+          }
+        } catch (e) {
+          console.error('Error fetching cadetes:', e);
+        }
+
+        // Obtener acciones disciplinarias del backend
+        try {
+          const accionesDisciplinarias = await api.get('/accionesdisciplinarias');
+          if (accionesDisciplinarias && Array.isArray(accionesDisciplinarias)) {
+            setAcciones(accionesDisciplinarias);
+          }
+        } catch (e) {
+          console.error('Error fetching acciones disciplinarias:', e);
+        }
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError('Error al cargar los datos. Por favor verifique la conexión con el servidor.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const refreshHandler = () => refreshData();
+    window.addEventListener('refreshData', refreshHandler);
+    return () => window.removeEventListener('refreshData', refreshHandler);
+  }, [navigate]);
+
+
   // Obtener datos de un cadete específico desde el backend
   const obtenerDatosCadete = async (cadeteId) => {
     try {
@@ -111,9 +176,13 @@ const Disciplina = () => {
   // Manejar selección de cadete - cargar datos completos
   const handleSelectCadete = async (cadete) => {
     setCadeteSeleccionado(cadete);
+<<<<<<< Updated upstream
 
     // Si el cadete tiene acciones en el estado local, usarlas
     // De lo contrario, intentar obtener del backend
+=======
+    
+>>>>>>> Stashed changes
     const accionesCadete = acciones.filter(a => a.cadeteId === cadete.id);
 
     if (accionesCadete.length === 0) {
@@ -132,12 +201,15 @@ const Disciplina = () => {
   const handleRegistrarAccion = async (data) => {
     setLoadingRegistro(true);
     try {
+<<<<<<< Updated upstream
       const fechaObj = new Date(data.fecha);
 
       const diaSemana = fechaObj.toLocaleDateString('es-EC', {
         weekday: 'long'
       });
       // Registrar en el backend con todos los datos (incluyendo fecha, hora y ruta_imagen)
+=======
+>>>>>>> Stashed changes
       const response = await api.post('/registroaccion', {
         cadeteId: data.cadeteId,
         codigo: data.codigo,
@@ -149,6 +221,7 @@ const Disciplina = () => {
 
       });
 
+<<<<<<< Updated upstream
       // Recargar acciones desde el backend
       const accionesActualizadas = await api.get('/accionesdisciplinarias');
       if (accionesActualizadas && Array.isArray(accionesActualizadas)) {
@@ -164,6 +237,19 @@ const Disciplina = () => {
       setMensaje({ type: 'success', text: 'Acción registrada correctamente' });
 
       // Actualizar el cadete seleccionado con los nuevos datos
+=======
+      // Recargar datos
+      const [accionesActualizadas, cadetesActualizados] = await Promise.all([
+        api.get('/accionesdisciplinarias'),
+        api.get('/cadetes')
+      ]);
+      
+      setAcciones(accionesActualizadas);
+      setCadetes(cadetesActualizados);
+
+      setMensaje({ type: 'success', text: 'Acción registrada correctamente' });
+      
+>>>>>>> Stashed changes
       const cadeteActualizado = cadetesActualizados.find(c => c.id === data.cadeteId);
       if (cadeteActualizado) {
         setCadeteSeleccionado(cadeteActualizado);
@@ -171,7 +257,6 @@ const Disciplina = () => {
 
       setTimeout(() => setMensaje(null), 3000);
     } catch (apiError) {
-      console.error('Error al registrar acción:', apiError);
       setMensaje({ type: 'error', text: apiError.message || 'Error al registrar la acción' });
     } finally {
       setLoadingRegistro(false);
@@ -201,7 +286,6 @@ const Disciplina = () => {
     );
   }
 
-  // Acceso restringido para usuarios sin permiso
   if (accesoRestringido) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-100">
@@ -227,8 +311,14 @@ const Disciplina = () => {
 
   return (
     <div className="min-h-screen flex bg-slate-100">
+<<<<<<< Updated upstream
       <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
 
+=======
+<Sidebar activeSection={activeSection} setActiveSection={setActiveSection} rol={oficialActual?.rol} />
+
+      
+>>>>>>> Stashed changes
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-slate-200 p-4">
@@ -249,25 +339,31 @@ const Disciplina = () => {
           </div>
         </header>
 
-        {/* Error message */}
+        {/* Messages */}
         {error && (
           <div className="mx-4 mt-4 p-4 rounded-lg bg-red-100 text-red-700 border border-red-300">
             {error}
           </div>
         )}
-
-        {/* Mensaje */}
         {mensaje && (
+<<<<<<< Updated upstream
           <div className={`mx-4 mt-4 p-4 rounded-lg ${mensaje.type === 'success' ? 'bg-green-100 text-green-700 border border-green-300' : 'bg-red-100 text-red-700 border border-red-300'
             }`}>
+=======
+          <div className={`mx-4 mt-4 p-4 rounded-lg ${
+            mensaje.type === 'success' 
+              ? 'bg-green-100 text-green-700 border border-green-300' 
+              : 'bg-red-100 text-red-700 border border-red-300'
+          }`}>
+>>>>>>> Stashed changes
             {mensaje.text}
           </div>
         )}
 
-        {/* Contenido principal */}
+        {/* Main content */}
         <main className="flex-1 overflow-auto p-6">
-          {/* Dashboard */}
           {activeSection === 'dashboard' && (
+<<<<<<< Updated upstream
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-800">Panel de Control</h2>
@@ -351,10 +447,19 @@ const Disciplina = () => {
                 )}
               </div>
             </div>
+=======
+            <DashboardSection
+              cadetes={cadetes}
+              acciones={acciones}
+              estadisticasGlobales={estadisticasGlobales}
+              onNewAction={() => setActiveSection('registrar')}
+              setActiveSection={setActiveSection}
+            />
+>>>>>>> Stashed changes
           )}
 
-          {/* Sección de Cadetes */}
           {activeSection === 'cadetes' && (
+<<<<<<< Updated upstream
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800">Consulta de Cadetes</h2>
 
@@ -376,10 +481,20 @@ const Disciplina = () => {
                 </div>
               )}
             </div>
+=======
+            <CadetesSection
+              cadetes={cadetes}
+              acciones={acciones}
+              onSelectCadete={handleSelectCadete}
+              cadeteSeleccionado={cadeteSeleccionado}
+              onCloseExpediente={() => setCadeteSeleccionado(null)}
+              obtenerAccionesCadete={obtenerAccionesCadete}
+            />
+>>>>>>> Stashed changes
           )}
 
-          {/* Sección de Registro */}
           {activeSection === 'registrar' && (
+<<<<<<< Updated upstream
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800">Registrar Acción Disciplinaria</h2>
 
@@ -415,10 +530,22 @@ const Disciplina = () => {
                 />
               </div>
             </div>
+=======
+            <RegistrarSection 
+              cadetes={cadetes}
+              accionesDefinidas={accionesDefinidas}
+              onSelectCadete={handleSelectCadete}
+              cadeteSeleccionado={cadeteSeleccionado}
+              onCancel={() => setCadeteSeleccionado(null)}
+              loadingRegistro={loadingRegistro}
+              oficialActual={oficialActual}
+              handleRegistrarAccion={handleRegistrarAccion}
+            />
+>>>>>>> Stashed changes
           )}
 
-          {/* Sección de Historial */}
           {activeSection === 'historial' && (
+<<<<<<< Updated upstream
             <div className="space-y-6">
               <h2 className="text-xl font-bold text-slate-800">Historial General de Acciones</h2>
               {acciones.length === 0 ? (
@@ -445,6 +572,16 @@ const Disciplina = () => {
                 acciones={acciones}
               />
             </div>
+=======
+            <HistorialSection acciones={acciones} />
+          )}
+
+{activeSection === 'estadisticas' && (
+            <EstadisticasSection cadetes={cadetes} acciones={acciones} />
+          )}
+          {activeSection === 'configuracion' && (
+            <ConfigSection />
+>>>>>>> Stashed changes
           )}
         </main>
       </div>

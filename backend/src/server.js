@@ -9,6 +9,7 @@ import authRoutes from "./routers/auth_routes.js";
 import cadeteRoutes from "./routers/cadete_routes.js";
 import accionRoutes from "./routers/accion_routes.js";
 import uploadRoutes from "./routers/upload_routes.js";
+import usuarioRoutes from "./routers/usuario_routes.js";
 
 dotenv.config()
 
@@ -53,11 +54,12 @@ app.use("/api", authRoutes);
 app.use("/api", cadeteRoutes);
 app.use("/api", accionRoutes);
 app.use("/api", uploadRoutes);
+app.use("/api", usuarioRoutes);
 
 
 
 app.use((req,res) =>
-  res.status(404).send("Endpoint no encontrado - 404")
+  res.status(404).json({ error: "Endpoint no encontrado" })
 )
 
 

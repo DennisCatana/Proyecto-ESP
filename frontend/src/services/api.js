@@ -1,5 +1,5 @@
 // URL del backend - usa proxy de Vite en desarrollo
-const API_URL = "/api";
+const API_URL = "http://localhost:3000/api";
 
 // Agregar automáticamente el prefijo /api si no está presente
 const getFullUrl = (endpoint) => {

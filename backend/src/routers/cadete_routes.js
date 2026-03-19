@@ -1,6 +1,10 @@
 import { Router } from "express";
-import { listarCadetes, eliminarTodosLosCadetes, obtenerCadete, obtenerEstadisticasGlobales } from "../controllers/cadete_controllers.js";
+import { listarCadetes, crearCadete, actualizarCadete, eliminarCadete, eliminarTodosLosCadetes, obtenerCadete, obtenerEstadisticasGlobales, bulkUploadCadetes } from "../controllers/cadete_controllers.js";
+
+import upload, { handleUploadError } from "../middlewares/upload_middleware.js";
 import { protegerRuta } from "../middlewares/auth_middleware.js";
+import { autorizarRoles } from "../middlewares/role_middleware.js";
+
 
 const router = Router();
 
@@ -9,8 +13,16 @@ router.get("/cadetes", listarCadetes);
 router.get("/cadetes/:id", obtenerCadete);
 router.get("/estadisticas", obtenerEstadisticasGlobales);
 
-// Rutas protegidas
-router.delete("/elimiarcadetes", protegerRuta, eliminarTodosLosCadetes);
+// Rutas protegidas CRUD
+router.post("/cadetes", protegerRuta, autorizarRoles("Administrador"), crearCadete);
+router.put("/cadetes/:id", protegerRuta, autorizarRoles("Administrador"), actualizarCadete);
+router.delete("/cadetes/:id", protegerRuta, autorizarRoles("Administrador"), eliminarCadete);
+router.delete("/elimiarcadetes", protegerRuta, autorizarRoles("Administrador"), eliminarTodosLosCadetes);
+
+// Bulk upload
+router.post("/cadetes/bulk-upload", protegerRuta, autorizarRoles("Administrador"), upload.array('files', 1), handleUploadError, bulkUploadCadetes);
+
+
 
 
 
