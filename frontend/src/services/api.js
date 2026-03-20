@@ -20,7 +20,7 @@ const handleResponse = async (response) => {
         // Si es sesión inválida
         if (response.status === 401) {
             localStorage.clear();
-            window.location.href = "/login";
+            window.location.href = "/"; //observar aqui despues 
         }
 
         throw new Error(data.msg || "Error en la petición");
