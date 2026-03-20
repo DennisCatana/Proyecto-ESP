@@ -1,21 +1,36 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+<<<<<<< Updated upstream
 import {
   LayoutDashboard, Users, ClipboardPlus, History, BarChart3,
   Shield, Home, ChevronLeft, ChevronRight
+=======
+import { 
+  LayoutDashboard, Users, ClipboardPlus, History, BarChart3, Settings,
+  Shield, Home
+>>>>>>> Stashed changes
 } from 'lucide-react';
 
-const Sidebar = ({ activeSection, setActiveSection }) => {
+
+const Sidebar = ({ activeSection, setActiveSection, rol }) => {
+
   const navigate = useNavigate();
+<<<<<<< Updated upstream
   const [collapsed, setCollapsed] = useState(false);
 
   const menuItems = [
+=======
+  
+const menuItems = [
+>>>>>>> Stashed changes
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'cadetes', label: 'Cadetes', icon: Users },
     { id: 'registrar', label: 'Registrar Acción', icon: ClipboardPlus },
     { id: 'historial', label: 'Historial', icon: History },
     { id: 'estadisticas', label: 'Estadísticas', icon: BarChart3 },
+    { id: 'configuracion', label: 'Configuración', icon: Settings, adminOnly: true },
   ];
+
 
   return (
     <aside
@@ -46,9 +61,15 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
       {/* MENU */}
       <nav className="flex-1 p-3">
         <ul className="space-y-1">
+<<<<<<< Updated upstream
           {menuItems.map((item) => (
             <li key={item.id} className="relative group">
+=======
+{menuItems.filter(item => !item.adminOnly || rol === 'Administrador').map((item) => (
+            <li key={item.id}>
+>>>>>>> Stashed changes
               <button
+
                 onClick={() => setActiveSection(item.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${activeSection === item.id
                     ? 'bg-blue-600 text-white shadow-lg'

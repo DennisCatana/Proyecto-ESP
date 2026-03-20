@@ -33,11 +33,11 @@ model Usuario {
 }
 
 model Cadete {
-  id                Int      @id @default(autoincrement())
+  id                Int       @id @default(autoincrement())
   promocion         String
   cia               String
   nombre            String
-  cedula            String   @unique
+  cedula            String    @unique
   seccion           String
   genero            String?
   habitacion        String?
@@ -45,16 +45,16 @@ model Cadete {
   antiguedad        Int?
   correo            String?
   telefono          String?
-  fecha_nacimiento  DateTime
+  fecha_nacimiento  DateTime?
   seguro_medico     String?
   numero_emergencia String?
   parentesco        String?
   lugar_nacimiento  String?
   lugar_residencia  String?
-  estado            Boolean  @default(true)
-  puntajeTotal      Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  estado            Boolean   @default(true)
+  puntajeTotal      Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
   acciones          Accion[]
   usuario           Usuario?
 
@@ -69,9 +69,9 @@ model Accion {
   accionDefinidaId Int
   registradoPorId  Int
   observacion      String?
-  ruta_imagen     String?
   puntajeAplicado  Decimal        @db.Decimal(5, 2)
   puntajeAcumulado Decimal        @db.Decimal(7, 2)
+  ruta_imagen      String?
   fecha            DateTime       @default(now())
   dia              Int?        
   accionDefinida   AccionDefinida @relation(fields: [accionDefinidaId], references: [id])
@@ -110,4 +110,3 @@ enum TipoAccion {
   Positiva
   Negativa
 }
-
