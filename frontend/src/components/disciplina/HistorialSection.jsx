@@ -1,3 +1,4 @@
+import { Activity } from 'lucide-react';
 import ExpedienteCadete from './ExpedienteCadete';
 
 const HistorialSection = ({ acciones }) => {

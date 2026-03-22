@@ -11,7 +11,7 @@ export const obtenerEstadisticasCadete = async (cadeteId) => {
     return { positivas, negativas, total };
 };
 
-//Registrar acción para un cadete
+// Registrar acción para un cadete
 export const registrarAccion = async (req, res) => {
     const { cadeteId, codigo, observacion, ruta_imagen, fecha, hora } = req.body;
     const usuarioId = req.usuario.id;
@@ -20,24 +20,19 @@ export const registrarAccion = async (req, res) => {
         // Determinar la fecha de la acción
         let fechaAccion;
         if (fecha && hora) {
-            // Combinar fecha y hora proporcionadas
             fechaAccion = new Date(`${fecha}T${hora}`);
         } else if (fecha) {
-            // Solo fecha proporcionada, usar hora actual
             fechaAccion = new Date(`${fecha}T${new Date().toTimeString().slice(0, 8)}`);
         } else {
-            // Usar fecha y hora actual
             fechaAccion = new Date();
         }
 
-
-        // 2. Calcular el día automáticamente
+        // Calcular el día automáticamente
         const dia = fechaAccion.getDay();
 
         // Transacción para asegurar consistencia de puntajes
         const accionCreada = await prisma.$transaction(async (tx) => {
-
-            // 1️⃣ Buscar acción definida
+            // Buscar acción definida
             const accionDef = await tx.accionDefinida.findUnique({
                 where: { codigo }
             });
@@ -45,15 +40,13 @@ export const registrarAccion = async (req, res) => {
             if (!accionDef) throw new Error("La acción no existe");
             if (!accionDef.activa) throw new Error("La acción está inactiva");
 
-            // 2️⃣ Calcular puntos aplicados
+            // Calcular puntos aplicados
             let puntosAplicados = new Prisma.Decimal(accionDef.puntaje);
-
             if (accionDef.tipo === "Negativa") {
                 puntosAplicados = puntosAplicados.negated();
             }
 
-
-            // 3️⃣ Obtener suma actual
+            // Obtener suma actual
             const sumaActual = await tx.accion.aggregate({
                 where: { cadeteId },
                 _sum: { puntajeAplicado: true }
@@ -63,22 +56,14 @@ export const registrarAccion = async (req, res) => {
                 ? new Prisma.Decimal(sumaActual._sum.puntajeAplicado)
                 : new Prisma.Decimal(0);
 
-
             const nuevoTotal = totalActual.plus(puntosAplicados);
 
-
-            // 4️⃣ Crear acción
+            // Crear acción
             const accion = await tx.accion.create({
                 data: {
-                    cadete: {
-                        connect: { id: cadeteId }
-                    },
-                    accionDefinida: {
-                        connect: { id: accionDef.id }
-                    },
-                    registradoPor: {
-                        connect: { id: req.usuario.id }
-                    },
+                    cadete: { connect: { id: cadeteId } },
+                    accionDefinida: { connect: { id: accionDef.id } },
+                    registradoPor: { connect: { id: req.usuario.id } },
                     observacion,
                     puntajeAplicado: puntosAplicados,
                     puntajeAcumulado: nuevoTotal,
@@ -88,17 +73,13 @@ export const registrarAccion = async (req, res) => {
                 }
             });
 
-
-            // 5️⃣ Actualizar puntaje del cadete
+            // Actualizar puntaje del cadete
             await tx.cadete.update({
                 where: { id: cadeteId },
-                data: {
-                    puntajeTotal: nuevoTotal
-                }
+                data: { puntajeTotal: nuevoTotal }
             });
 
             console.log("🔹 Cadete actualizado correctamente");
-
             return accion;
         });
 
@@ -116,7 +97,7 @@ export const registrarAccion = async (req, res) => {
     }
 };
 
-//Listar todos las acciones definidas
+// Listar todas las acciones definidas
 export const listarAcciones = async (req, res) => {
     try {
         const acciones = await prisma.accionDefinida.findMany({
@@ -124,37 +105,31 @@ export const listarAcciones = async (req, res) => {
         });
         res.json(acciones);
     } catch (error) {
+        console.error('🚨 listarAcciones ERROR:', {
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            meta: error.meta
+        });
         res.status(500).json({ error: error.message });
     }
 };
 
-//Listar todas las acciones disciplinarias (registros)
+
+
+// Listar todas las acciones disciplinarias (registros)
 export const listarAccionesDisciplinarias = async (req, res) => {
     try {
-        // Obtener filtros de query params
         const { cadeteId, tipo, fechaInicio, fechaFin } = req.query;
-
         const where = {};
 
-        // Filtrar por cadete si se especifica
-        if (cadeteId) {
-            where.cadeteId = parseInt(cadeteId);
-        }
+        if (cadeteId) where.cadeteId = parseInt(cadeteId);
+        if (tipo) where.accionDefinida = { tipo };
 
-        // Filtrar por tipo de acción
-        if (tipo) {
-            where.accionDefinida = { tipo };
-        }
-
-        // Filtrar por rango de fechas
         if (fechaInicio || fechaFin) {
             where.fecha = {};
-            if (fechaInicio) {
-                where.fecha.gte = new Date(fechaInicio);
-            }
-            if (fechaFin) {
-                where.fecha.lte = new Date(fechaFin);
-            }
+            if (fechaInicio) where.fecha.gte = new Date(fechaInicio);
+            if (fechaFin) where.fecha.lte = new Date(fechaFin);
         }
 
         const acciones = await prisma.accion.findMany({
@@ -163,69 +138,56 @@ export const listarAccionesDisciplinarias = async (req, res) => {
                 cadete: true,
                 accionDefinida: true,
                 registradoPor: {
-                    select: {
-                        id: true,
-                        gradoU: true,
-                        nombreU: true
-                    }
+                    select: { id: true, gradoU: true, nombreU: true }
                 }
             },
-            orderBy: {
-                fecha: 'desc'
-            }
+            orderBy: { fecha: 'desc' }
         });
         res.json(acciones);
     } catch (error) {
+        console.error('🚨 listarAccionesDisciplinarias ERROR:', {
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            meta: error.meta
+        });
         res.status(500).json({ error: error.message });
     }
 };
 
-//Obtener acciones de un cadete específico
+
+// Obtener acciones de un cadete específico
 export const obtenerAccionesPorCadete = async (req, res) => {
     try {
         const { cadeteId } = req.params;
-
         const acciones = await prisma.accion.findMany({
             where: { cadeteId: parseInt(cadeteId) },
             include: {
                 cadete: true,
                 accionDefinida: true,
                 registradoPor: {
-                    select: {
-                        id: true,
-                        gradoU: true,
-                        nombreU: true
-                    }
+                    select: { id: true, gradoU: true, nombreU: true }
                 }
             },
-            orderBy: {
-                fecha: 'desc'
-            }
+            orderBy: { fecha: 'desc' }
         });
 
-        // Obtener estadísticas del cadete
         const estadisticas = await obtenerEstadisticasCadete(parseInt(cadeteId));
-
-        res.json({
-            acciones,
-            estadisticas
-        });
+        res.json({ acciones, estadisticas });
     } catch (error) {
+        console.error('🚨 obtenerAccionesPorCadete ERROR:', {
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            meta: error.meta
+        });
         res.status(500).json({ error: error.message });
     }
 };
 
+
 // Obtener resumen de un cadete
 export const obtenerResumenCadete = async (req, res) => {
-
-<<<<<<< Updated upstream
-=======
-    console.log("========== RESUMEN CADETE ==========");
-    console.log("DATABASE_URL:", process.env.DATABASE_URL);
-
-
-
->>>>>>> Stashed changes
     try {
         const cadeteId = parseInt(req.params.id);
 
@@ -233,7 +195,7 @@ export const obtenerResumenCadete = async (req, res) => {
             return res.status(400).json({ error: "ID inválido" });
         }
 
-        // 1️⃣ Verificar que exista el cadete
+        // Verificar que exista el cadete
         const cadete = await prisma.cadete.findUnique({
             where: { id: cadeteId }
         });
@@ -242,7 +204,7 @@ export const obtenerResumenCadete = async (req, res) => {
             return res.status(404).json({ error: "Cadete no encontrado" });
         }
 
-        // 2️⃣ Obtener acciones con relaciones
+        // Obtener acciones con relaciones
         const acciones = await prisma.accion.findMany({
             where: { cadeteId },
             orderBy: { fecha: "desc" },
@@ -252,31 +214,17 @@ export const obtenerResumenCadete = async (req, res) => {
             }
         });
 
-        // 3️⃣ Estadísticas (paralelo para mejor rendimiento)
+        // Estadísticas (paralelo)
         const [totalAcciones, accionesPositivas, accionesNegativas] = await Promise.all([
             prisma.accion.count({ where: { cadeteId } }),
-            prisma.accion.count({
-                where: {
-                    cadeteId,
-                    accionDefinida: { tipo: "Positiva" }
-                }
-            }),
-            prisma.accion.count({
-                where: {
-                    cadeteId,
-                    accionDefinida: { tipo: "Negativa" }
-                }
-            })
+            prisma.accion.count({ where: { cadeteId, accionDefinida: { tipo: "Positiva" } } }),
+            prisma.accion.count({ where: { cadeteId, accionDefinida: { tipo: "Negativa" } } })
         ]);
 
-         // 4️⃣ 🔥 Acciones por día de la semana (NUEVO)
+        // Acciones por día de la semana
         const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-
         const accionesPorDia = dias.map((dia, idx) => {
-            const accionesDia = acciones.filter(
-                a => new Date(a.fecha).getDay() === idx
-            );
-
+            const accionesDia = acciones.filter(a => new Date(a.fecha).getDay() === idx);
             return {
                 dia,
                 count: accionesDia.length,
@@ -300,47 +248,48 @@ export const obtenerResumenCadete = async (req, res) => {
     }
 };
 
+// CRUD AccionDefinida
 export const crearAccionDefinida = async (req, res) => {
-  try {
-    const { codigo, titulo, descripcion, tipo, puntaje } = req.body;
-    if (!codigo || !titulo || !tipo || puntaje == null) {
-      return res.status(400).json({ error: "Todos los campos son requeridos" });
+    try {
+        const { codigo, titulo, descripcion, tipo, puntaje } = req.body;
+        if (!codigo || !titulo || !tipo || puntaje == null) {
+            return res.status(400).json({ error: "Todos los campos son requeridos" });
+        }
+        const accion = await prisma.accionDefinida.create({
+            data: { codigo, titulo, descripcion, tipo, puntaje }
+        });
+        res.status(201).json(accion);
+    } catch (error) {
+        if (error.code === 'P2002') {
+            return res.status(400).json({ error: "Código ya existe" });
+        }
+        res.status(500).json({ error: error.message });
     }
-    const accion = await prisma.accionDefinida.create({
-      data: { codigo, titulo, descripcion, tipo, puntaje }
-    });
-    res.status(201).json(accion);
-  } catch (error) {
-    if (error.code === 'P2002') {
-      return res.status(400).json({ error: "Código ya existe" });
-    }
-    res.status(500).json({ error: error.message });
-  }
 };
 
 export const actualizarAccionDefinida = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const data = req.body;
-    const accion = await prisma.accionDefinida.update({
-      where: { id: parseInt(id) },
-      data
-    });
-    res.json(accion);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    try {
+        const { id } = req.params;
+        const data = req.body;
+        const accion = await prisma.accionDefinida.update({
+            where: { id: parseInt(id) },
+            data
+        });
+        res.json(accion);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
 export const eliminarAccionDefinida = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await prisma.accionDefinida.delete({
-      where: { id: parseInt(id) }
-    });
-    res.json({ msg: "Acción eliminada" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    try {
+        const { id } = req.params;
+        await prisma.accionDefinida.delete({
+            where: { id: parseInt(id) }
+        });
+        res.json({ msg: "Acción eliminada" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
