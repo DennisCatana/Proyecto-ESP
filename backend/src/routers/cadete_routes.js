@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { listarCadetes, crearCadete, actualizarCadete, eliminarCadete, eliminarTodosLosCadetes, obtenerCadete, obtenerEstadisticasGlobales, bulkUploadCadetes } from "../controllers/cadete_controllers.js";
 
-import upload, { handleUploadError } from "../middlewares/upload_middleware.js";
+import { uploadBulk, handleUploadError } from "../middlewares/upload_middleware.js";
 import { protegerRuta } from "../middlewares/auth_middleware.js";
 import { autorizarRoles } from "../middlewares/role_middleware.js";
 
@@ -20,7 +20,8 @@ router.delete("/cadetes/:id", protegerRuta, autorizarRoles("Administrador"), eli
 router.delete("/elimiarcadetes", protegerRuta, autorizarRoles("Administrador"), eliminarTodosLosCadetes);
 
 // Bulk upload
-router.post("/cadetes/bulk-upload", protegerRuta, autorizarRoles("Administrador"), upload.array('files', 1), handleUploadError, bulkUploadCadetes);
+router.post("/cadetes/bulk-upload", protegerRuta, autorizarRoles("Administrador"), uploadBulk.array('files', 1), handleUploadError, bulkUploadCadetes);
+
 
 
 

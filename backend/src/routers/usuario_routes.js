@@ -10,7 +10,6 @@ const router = Router();
 router.post("/usuarios", protegerRuta, autorizarRoles("Administrador", "Instructor"), crearUsuario);
 router.get("/", protegerRuta, autorizarRoles("Administrador", "Instructor"), listarUsuarios);
 router.get("/usuarios", protegerRuta, autorizarRoles("Administrador", "Instructor"), listarUsuarios);
-router.get("/usuarios", protegerRuta, autorizarRoles("Administrador", "Instructor"), listarUsuarios);
 router.put("/usuarios/:id", protegerRuta, autorizarRoles("Administrador", "Instructor"), actualizarUsuario);
 router.delete("/usuarios/:id", protegerRuta, autorizarRoles("Administrador", "Instructor"), desactivarUsuario);
 

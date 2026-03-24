@@ -1,13 +1,11 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, ClipboardPlus, History, BarChart3, Settings,
   Shield, Home, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
-const Sidebar = ({ activeSection, setActiveSection, rol }) => {
+const Sidebar = ({ activeSection, setActiveSection, rol, collapsed, setCollapsed, className }) => {
   const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(false);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -20,8 +18,11 @@ const Sidebar = ({ activeSection, setActiveSection, rol }) => {
 
   return (
     <aside
-      className={`${collapsed ? 'w-20' : 'w-72'
-        } bg-slate-800 text-white min-h-screen flex flex-col shadow-xl transition-all duration-300`}
+      className={`
+        ${collapsed ? 'w-20' : 'w-72'} 
+        bg-slate-800 text-white min-h-screen flex fixed top-0 left-0 flex-col shadow-xl transition-all duration-300
+        ${className || ''}
+      `}
     >
       {/* HEADER */}
       <div className="p-4 border-b border-slate-700 flex items-center justify-between">
@@ -63,7 +64,7 @@ const Sidebar = ({ activeSection, setActiveSection, rol }) => {
                     : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                 }`}
               >
-                <item.icon className="w-5 h-5 flex-shrink-0" />
+                <item.icon className="w-5 h-5 shrink-0" />
                 {!collapsed && (
                   <span className="font-medium">{item.label}</span>
                 )}

@@ -10,7 +10,7 @@ datasource db {
 model Usuario {
   id                      Int       @id @default(autoincrement())
   cedula                  String    @unique
-  gradoU                  String
+  gradoU                  String    
   nombreU                 String    @unique
   correoU                 String    @unique
   passwordU               String
@@ -73,7 +73,6 @@ model Accion {
   puntajeAcumulado Decimal        @db.Decimal(7, 2)
   ruta_imagen      String?
   fecha            DateTime       @default(now())
-  dia              Int?        
   accionDefinida   AccionDefinida @relation(fields: [accionDefinidaId], references: [id])
   cadete           Cadete         @relation(fields: [cadeteId], references: [id], onDelete: Cascade)
   registradoPor    Usuario        @relation("AccionesRegistradas", fields: [registradoPorId], references: [id])

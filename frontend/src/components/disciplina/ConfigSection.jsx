@@ -85,22 +85,24 @@ const saveItem = async () => {
 
 
 const deleteItem = async (id) => {
-    if (!confirm('Confirmar eliminación?')) return;
-    try {
-      if (activeTab === 'usuarios') {
-        await api.delete(`/usuarios/${id}`);
-      } else if (activeTab === 'cadetes') {
-        await api.delete(`/cadetes/${id}`);
-      } else if (activeTab === 'accionesdefinidas') {
-        await api.delete(`/accionesdefinidas/${id}`);
-      }
-      loadData();
-      // Refresh parent lists
-      window.dispatchEvent(new CustomEvent('refreshData'));
-    } catch (error) {
-      console.error('Error deleting:', error);
+  console.log('deleteItem llamado con id:', id); // ← agregar esto
+  if (!confirm('Confirmar eliminación?')) return;
+  try {
+    if (activeTab === 'usuarios') {
+      await api.delete(`/usuarios/${id}`);
+    } else if (activeTab === 'cadetes') {
+      await api.delete(`/cadetes/${id}`);
+    } else if (activeTab === 'accionesdefinidas') {
+      await api.delete(`/accionesdefinidas/${id}`);
     }
-  };
+    loadData();
+    window.dispatchEvent(new CustomEvent('refreshData'));
+    alert('Eliminado correctamente');
+  } catch (error) {
+    console.error('Error deleting:', error);
+    alert('Error al eliminar: ' + (error?.message || error));
+  }
+};
 
   const editItem = (item) => {
     setEditing(item);
@@ -116,7 +118,7 @@ const deleteItem = async (id) => {
   const getFields = () => {
     if (activeTab === 'usuarios') return [
       { name: 'nombreU', label: 'Nombre', type: 'text' },
-      { name: 'gradoU', label: 'Grado', type: 'text', placeholder: 'Cadete, Sargento, etc.' },
+      { name: 'gradoU', label: 'Grado', type: 'select', options: ['ADMIN', 'ASPD', 'SBTE', 'TNTE', 'CPTN', 'MYR', 'TCNL', 'CRNL' ]},
       { name: 'correoU', label: 'Email', type: 'email' },
       { name: 'rol', label: 'Rol', type: 'select', options: ['Administrador', 'Instructor', 'Servicio', 'Alumno'] },
       { name: 'cedula', label: 'Cédula', type: 'text' }
@@ -201,82 +203,9 @@ const deleteItem = async (id) => {
         <div className="text-center py-8">Cargando...</div>
       ) : (
         <>
-          {/* Upload Section */}
-          <div className="bg-slate-50 p-4 rounded-lg border-2 border-dashed border-slate-300">
-            <input 
-              type="file" 
-              accept=".xlsx,.xls,.csv" 
-              onChange={handleFileChange}
-              className="hidden"
-              id={`upload-${activeTab}`}
-            />
-            <label htmlFor={`upload-${activeTab}`} className="cursor-pointer flex flex-col items-center justify-center p-6 text-center">
-              <UploadCloud className="w-12 h-12 text-slate-400 mb-2" />
-              <p className="text-sm font-medium text-slate-700 mb-1">Cargar XLSX/CSV ({activeTab})</p>
-              <p className="text-xs text-slate-500">Subir archivo para {activeTab}</p>
-              {uploadFile && (
-                <p className="text-xs text-green-600 mt-2">{uploadFile.name}</p>
-              )}
-            </label>
-            <button 
-              onClick={handleBulkUpload}
-              disabled={!uploadFile || uploading}
-              className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {uploading ? 'Cargando...' : 'Cargar Archivo'}
-            </button>
-          </div>
-
-          {/* Delete All */}
-          <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-            <button 
-              onClick={handleDeleteAll}
-              className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 font-medium flex items-center justify-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" />
-              Eliminar TODOS los {activeTab}
-            </button>
-          </div>
-
-          {/* Table */}
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-slate-50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Datos</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {dataList.map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{item.id}</td>
-                      <td className="px-6 py-4">
-                        {Object.entries(item).slice(0, 4).map(([key, val]) => (
-                          <div key={key} className="text-sm text-slate-900">
-                            <span className="font-medium">{key}:</span> {val?.toString().slice(0, 30)}
-                          </div>
-                        ))}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onClick={() => editItem(item)} className="text-blue-600 hover:text-blue-900 p-1 rounded">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => deleteItem(item.id)} className="text-red-600 hover:text-red-900 p-1 rounded ml-1">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Form */}
-          <div className="bg-white p-6 rounded-xl shadow-md border border-slate-200">
+        <div className='flex space-x-6'>
+        {/* Form */}
+          <div className="bg-white p-4 w-3xl rounded-xl shadow-md border border-slate-200">
             <h3 className="text-lg font-bold text-slate-800 mb-6">{editing ? 'Editar' : 'Agregar Nuevo'} {activeTab}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               {getFields().map((field) => (
@@ -336,6 +265,83 @@ const deleteItem = async (id) => {
               </button>
             </div>
           </div>
+
+          {/* Upload Section */}
+          <div className="bg-slate-50 p-2 w-sm rounded-lg border-2 border-dashed border-slate-300">
+            <input 
+              type="file" 
+              accept=".xlsx,.xls,.csv" 
+              onChange={handleFileChange}
+              className="hidden"
+              id={`upload-${activeTab}`}
+            />
+            <label htmlFor={`upload-${activeTab}`} className="cursor-pointer flex flex-col items-center justify-center p-10 text-center">
+              <UploadCloud className="w-25 h-25 text-slate-400 mb-5" />
+              <p className="text-sm font-medium text-slate-700 mb-1">Cargar XLSX/CSV ({activeTab})</p>
+              <p className="text-xs text-slate-500">Subir archivo para {activeTab}</p>
+              {uploadFile && (
+                <p className="text-xs text-green-600 mt-2">{uploadFile.name}</p>
+              )}
+            </label>
+            <button 
+              onClick={handleBulkUpload}
+              disabled={!uploadFile || uploading}
+              className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {uploading ? 'Cargando...' : 'Cargar Archivo'}
+            </button>
+          </div>
+          </div>
+
+          {/* Delete All */}
+          <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+            <button 
+              onClick={handleDeleteAll}
+              className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 font-medium flex items-center justify-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              Eliminar TODOS los {activeTab}
+            </button>
+          </div>
+
+          {/* Table */}
+          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Datos</th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {dataList.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{item.id}</td>
+                      <td className="px-6 py-4">
+                        {Object.entries(item).slice(0, 4).map(([key, val]) => (
+                          <div key={key} className="text-sm text-slate-900">
+                            <span className="font-medium">{key}:</span> {val?.toString().slice(0, 30)}
+                          </div>
+                        ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <button onClick={() => editItem(item)} className="text-blue-600 hover:text-blue-900 p-1 rounded">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => deleteItem(item.id)} className="text-red-600 hover:text-red-900 p-1 rounded ml-1">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          
         </>
       )}
     </div>

@@ -170,49 +170,53 @@ export const actualizarCadete = async (req, res) => {
 };
 
 export const eliminarCadete = async (req, res) => {
-  try {
+    try {
     const { id } = req.params;
 
     await prisma.cadete.update({
-      where: { id: parseInt(id) },
-      data: { estado: false }
+        where: { id: parseInt(id) },
+        data: { estado: false }
     });
 
     res.json({ msg: 'Cadete desactivado correctamente' });
-  } catch (error) {
+    } catch (error) {
     res.status(500).json({ error: error.message });
-  }
+    }
 };
 
 export const bulkUploadCadetes = async (req, res) => {
-  try {
+    try {
     const files = req.files;
     if (!files || files.length === 0) {
-      return res.status(400).json({ error: "No file uploaded" });
+        return res.status(400).json({ error: "No se subió ningún archivo" });
     }
-    const XLSX = await import('xlsx');
-    const workbook = XLSX.readFile(files[0].path, { type: 'buffer' });
+
+    const XLSX = (await import('xlsx')).default; 
+    const workbook = XLSX.readFile(files[0].path, { FS: ';' }); 
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const json = XLSX.utils.sheet_to_json(sheet);
-    
-    // Map fields to Cadete model
+
     const cadetesData = json.map(row => ({
-      nombre: row.nombre || row.Nombre,
-      cedula: row.cedula || row.Cédula,
-      cia: row.cia || row['Compañía'],
-      seccion: row.seccion || row.Sección,
-      // Add more mappings
-    }));
+        promocion:      String(row['Promoción']   || row['Promocion']  || ''),
+        cia:            String(row['CIA']                              || ''),
+        nombre:         String(row['Nombres']     || row['Nombre']     || ''),
+        cedula:         String(row['cédula']      || row['cedula']     || row['Cedula'] || ''),
+        seccion:        String(row['Sección']     || row['Seccion']    || ''),
+        genero:         String(row['Género']      || row['Genero']     || ''),
+        habitacion:     String(row['Habitación']  || row['Habitacion'] || ''),
+        grupo_guardia:  String(row['guardia']                         || ''),
+        antiguedad:     Number(row['Antiguedad'])  || 0,
+    })).filter(row => row.nombre && row.cedula);
 
     const result = await prisma.cadete.createMany({
-      data: cadetesData,
-      skipDuplicates: true
+        data: cadetesData,
+        skipDuplicates: true
     });
 
-    res.json({ msg: 'Cadetes uploaded', count: result.count });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+    res.json({ msg: 'Cadetes cargados correctamente', count: result.count });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
 

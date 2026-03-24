@@ -51,7 +51,7 @@ const LoginPage = () => {
             }
 
             // Primer login -> cambiar contraseña
-            if (response.cambioPassword) {
+            if (response.cambiopassword) {
                 setIsChangePasswordMode(true);
                 setLoading(false);
                 return;
@@ -88,7 +88,7 @@ const LoginPage = () => {
         setSuccess("");
 
         const passwordU = e.target.passwordU.value;
-        const confirmarpassword = e.target.confirmarpassword.value;
+        const confirmarPassword = e.target.confirmarPassword.value;
 
         if (passwordU !== confirmarpassword) {
             setError("Las contraseñas no coinciden");
@@ -100,7 +100,7 @@ const LoginPage = () => {
 
             const response = await api.put("/cambiarpassword", {
                 passwordU,
-                confirmarpassword
+                confirmarPassword
             });
 
             if (response.msg) {
@@ -162,7 +162,7 @@ const LoginPage = () => {
 
             <div className="relative z-20 w-full max-w-md px-4">
 
-                <h1 className="text-2xl font-bold text-center mb-6 text-[#1a4572]">
+                <h1 className="text-2xl font-bold text-center mb-6 text-[#ffffff]">
                     AETERNUS <br /> LXXXIX
                 </h1>
 
@@ -215,7 +215,7 @@ const LoginPage = () => {
 
                                         <input
                                             type="password"
-                                            name="confirmarpassword"
+                                            name="confirmarPassword"
                                             required
                                             minLength={6}
                                             className="w-full pl-10 p-3 border rounded-lg"

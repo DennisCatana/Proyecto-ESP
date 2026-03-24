@@ -6,31 +6,30 @@ import fs from 'fs';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Directorio de uploads
-const uploadDir = path.join(__dirname, '../../uploads/evidencias');
+// ─── DIRECTORIOS ────────────────────────────────────────────────────────────
 
-// Crear directorio si no existe
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
+const evidenciasDir = path.join(__dirname, '../../uploads/evidencias');
+const bulkDir = path.join(__dirname, '../../uploads/bulk');
 
-// Configuración de almacenamiento
-const storage = multer.diskStorage({
+if (!fs.existsSync(evidenciasDir)) fs.mkdirSync(evidenciasDir, { recursive: true });
+if (!fs.existsSync(bulkDir)) fs.mkdirSync(bulkDir, { recursive: true });
+
+
+// ─── UPLOAD DE IMÁGENES (evidencias) ────────────────────────────────────────
+
+const evidenciaStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir);
+        cb(null, evidenciasDir);
     },
     filename: (req, file, cb) => {
-        // Generar nombre único: evidencia_timestamp.extension
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         const ext = path.extname(file.originalname).toLowerCase();
         cb(null, 'evidencia-' + uniqueSuffix + ext);
     }
 });
 
-// Filtrar tipos de archivo válidos
-const fileFilter = (req, file, cb) => {
+const imageFilter = (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
@@ -38,20 +37,57 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Configuración de multer
-const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB máximo
-    },
-    fileFilter: fileFilter
+const uploadEvidencia = multer({
+    storage: evidenciaStorage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+    fileFilter: imageFilter
 });
 
-// Middleware para manejo de errores de multer
+
+// ─── UPLOAD DE ARCHIVOS BULK (xlsx / csv) ───────────────────────────────────
+
+const bulkStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, bulkDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname).toLowerCase();
+        cb(null, 'bulk-' + uniqueSuffix + ext);
+    }
+});
+
+const bulkFilter = (req, file, cb) => {
+    const allowedTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel',                                           // .xls
+        'text/csv',                                                            // .csv
+        'application/csv',
+        'text/plain' // algunos sistemas envían csv como text/plain
+    ];
+    const allowedExts = ['.xlsx', '.xls', '.csv'];
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    if (allowedTypes.includes(file.mimetype) || allowedExts.includes(ext)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Tipo de archivo no válido. Solo se permiten archivos XLSX, XLS o CSV.'), false);
+    }
+};
+
+const uploadBulk = multer({
+    storage: bulkStorage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    fileFilter: bulkFilter
+});
+
+
+// ─── MANEJO DE ERRORES (compartido) ─────────────────────────────────────────
+
 export const handleUploadError = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({ error: 'El archivo es demasiado grande. Tamaño máximo: 5MB' });
+            return res.status(400).json({ error: 'El archivo es demasiado grande.' });
         }
         return res.status(400).json({ error: err.message });
     } else if (err) {
@@ -60,5 +96,8 @@ export const handleUploadError = (err, req, res, next) => {
     next();
 };
 
-export default upload;
 
+// ─── EXPORTS ─────────────────────────────────────────────────────────────────
+
+export { uploadEvidencia, uploadBulk };
+export default uploadEvidencia; // mantiene compatibilidad con imports existentes

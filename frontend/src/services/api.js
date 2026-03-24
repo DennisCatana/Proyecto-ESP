@@ -77,28 +77,53 @@ export const api = {
     },
 
     delete: async (endpoint) => {
-        const headers = {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${getToken()}`
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${getToken()}`
+    };
+
+    try {
+        const response = await fetch(`${API_URL}${endpoint}`, {
+            method: 'DELETE',
+            headers,
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            let errorData;
+            try {
+                errorData = await response.json();
+            } catch {
+                errorData = { msg: 'Network error' };
+            }
+            throw new Error(errorData.msg || `HTTP ${response.status}`);
+        }
+
+        // DELETE exitoso
+        return {
+            success: true,
+            status: response.status,
+            data: response.headers.get('content-length') !== '0' 
+                ? await response.json() 
+                : null
         };
 
-        try {
-            const response = await fetch(`${API_URL}${endpoint}`, {
-                method: 'DELETE',
-                headers
-            });
-
-            if (!response.ok) {
-                const error = await response.json().catch(() => ({ msg: 'Network error' }));
-                throw new Error(error.msg || `Error ${response.status}`);
-            }
-
-            return await response.json();
-        } catch (error) {
-            console.error('API DELETE Error:', error);
-            throw error;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        
+        if (error.name === 'AbortError') {
+            throw new Error('Request timeout (10s)');
         }
-    },
+        
+        console.error('API DELETE Error:', error);
+        throw error;
+    }
+},
 
     // Clear cache when needed
     clearCache: () => {

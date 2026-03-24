@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { UserIcon, User, Lock, ClipboardPlus, Users, Activity, AlertTriangle } from 'lucide-react';
+import { UserIcon, Lock } from 'lucide-react';
 import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -25,6 +25,7 @@ const Disciplina = () => {
   const [error, setError] = useState(null);
   const [oficialActual, setOficialActual] = useState(null);
   const [accesoRestringido, setAccesoRestringido] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Roles permitidos
   const ROLES_PERMITIDOS = ['Administrador', 'Instructor'];
@@ -50,7 +51,6 @@ const Disciplina = () => {
           navigate('/');
           return;
         }
-
         // Parallel fetches
         const [accionesData, cadetesData, accionesDisciplinarias] = await Promise.all([
           api.get('/acciones').catch(() => []),
@@ -167,7 +167,7 @@ const Disciplina = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-50">
         <div className="text-center p-8">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600 font-medium">Cargando sistema disciplinario...</p>
@@ -178,7 +178,7 @@ const Disciplina = () => {
 
   if (accesoRestringido) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-50">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-red-50 to-rose-50">
         <div className="max-w-md p-8 bg-white rounded-2xl shadow-xl border border-red-200">
           <div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Lock className="w-10 h-10 text-red-600" />
@@ -199,19 +199,23 @@ const Disciplina = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
-      <Sidebar 
-        activeSection={activeSection} 
-        setActiveSection={setActiveSection} 
-        rol={oficialActual?.rol} 
-      />
-      <div className="flex-1 flex flex-col overflow-hidden">
+  <div className="flex min-h-screen bg-slate-50">
+    <Sidebar 
+      activeSection={activeSection} 
+      setActiveSection={setActiveSection} 
+      rol={oficialActual?.rol}
+      collapsed={isSidebarCollapsed}
+      setCollapsed={setIsSidebarCollapsed}
+    />
+    <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${
+    isSidebarCollapsed ? 'ml-20' : 'ml-72'
+    }`}>
         {/* Header */}
         <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/50 p-4.5 sticky top-0 z-10">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             <div>
               
-              <h1 className="flex text-2xl font-black bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent ">
+              <h1 className="flex text-2xl font-black bg-linear-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent ">
               Control Disciplinario
               </h1>
               <p className="text-slate-500 font-medium">Registro de acciones positivas y negativas</p>
@@ -219,11 +223,11 @@ const Disciplina = () => {
             <div className="flex items-center gap-4">
               {oficialActual && (
                 <div className="text-sm text-right hidden md:block">
-                  <p className="font-semibold text-slate-800">{oficialActual.gradoU} {oficialActual.nombreU}</p>
+                  <p className="font-semibold text-slate-800">{oficialActual.gradoU}. {oficialActual.nombreU}</p>
                   <p className="text-slate-500">{oficialActual.rol}</p>
                 </div>
               )}
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <UserIcon className="w-6 h-6 text-white" />
               </div>
             </div>

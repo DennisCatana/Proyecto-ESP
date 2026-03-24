@@ -139,7 +139,7 @@ export const sendMailToRegister = (userMail, token) => {
         "Bienvenido a RAP",
         emailTemplate({
             title: "Verificación de Correo",
-            message: "Se le ha registrado en el sistema RAP. Confirme su cuenta para poder actualizar su contraseña.",
+            message: "Se le ha registrado en el sistema RAD. Confirme su cuenta para poder actualizar su contraseña.",
             buttonText: "Confirmar Cuenta",
             buttonLink: link
         })

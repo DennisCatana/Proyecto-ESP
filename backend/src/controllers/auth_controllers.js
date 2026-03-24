@@ -231,6 +231,7 @@ export const login = async (req, res) => {
                     nombreU: usuario.nombreU,
                     correoU: usuario.correoU,
                     rol: usuario.rol,
+                    gradoU: usuario.gradoU,
                     cambioPassword: true
                 }
             });
@@ -241,7 +242,8 @@ export const login = async (req, res) => {
                 id: usuario.id,
                 nombreU: usuario.nombreU,
                 correoU: usuario.correoU,
-                rol: usuario.rol
+                rol: usuario.rol,
+                gradoU: usuario.gradoU
             },
             token,
             cambioPassword: false
