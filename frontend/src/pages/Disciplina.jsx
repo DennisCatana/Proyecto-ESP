@@ -3,7 +3,6 @@ import { UserIcon, Lock } from 'lucide-react';
 import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
-// Componentes principales
 import Sidebar from '../components/disciplina/Sidebar';
 import DashboardSection from '../components/disciplina/DashboardSection';
 import CadetesSection from '../components/disciplina/CadetesSection';
@@ -11,6 +10,7 @@ import RegistrarSection from '../components/disciplina/RegistrarSection';
 import HistorialSection from '../components/disciplina/HistorialSection';
 import EstadisticasSection from '../components/disciplina/EstadisticasSection';
 import ConfigSection from '../components/disciplina/ConfigSection';
+import MiPerfilSection from '../components/disciplina/MiPerfilSection';
 
 const Disciplina = () => {
   const navigate = useNavigate();
@@ -27,41 +27,49 @@ const Disciplina = () => {
   const [accesoRestringido, setAccesoRestringido] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  // Roles permitidos
-  const ROLES_PERMITIDOS = ['Administrador', 'Instructor'];
+  const ROLES_STAFF = ['Administrador', 'Instructor'];
+  const ROLES_PERMITIDOS = ['Administrador', 'Instructor', 'Alumno'];
 
-  // Cargar datos iniciales
+  const fetchAllData = async () => {
+    const [accionesData, cadetesData, accionesDisciplinarias] = await Promise.all([
+      api.get('/acciones').catch(() => []),
+      api.get('/cadetes').catch(() => []),
+      api.get('/accionesdisciplinarias').catch(() => [])
+    ]);
+    setAccionesDefinidas(accionesData);
+    setCadetes(cadetesData);
+    setAcciones(accionesDisciplinarias);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
+    const init = async () => {
       try {
         setLoading(true);
         setError(null);
 
         const usuarioData = localStorage.getItem('usuario');
-        if (usuarioData) {
-          const usuario = JSON.parse(usuarioData);
-          setOficialActual(usuario);
-
-          if (!ROLES_PERMITIDOS.includes(usuario.rol)) {
-            setAccesoRestringido(true);
-            setLoading(false);
-            return;
-          }
-        } else {
+        if (!usuarioData) {
           navigate('/');
           return;
         }
-        // Parallel fetches
-        const [accionesData, cadetesData, accionesDisciplinarias] = await Promise.all([
-          api.get('/acciones').catch(() => []),
-          api.get('/cadetes').catch(() => []),
-          api.get('/accionesdisciplinarias').catch(() => [])
-        ]);
 
-        setAccionesDefinidas(accionesData);
-        setCadetes(cadetesData);
-        setAcciones(accionesDisciplinarias);
+        const usuario = JSON.parse(usuarioData);
+        setOficialActual(usuario);
 
+        if (!ROLES_PERMITIDOS.includes(usuario.rol)) {
+          setAccesoRestringido(true);
+          setLoading(false);
+          return;
+        }
+
+        // Alumno solo necesita acciones definidas (para mi perfil)
+        if (usuario.rol === 'Alumno') {
+          setActiveSection('miPerfil');
+          setLoading(false);
+          return;
+        }
+
+        await fetchAllData();
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Error al cargar los datos. Verifique la conexión.');
@@ -70,37 +78,33 @@ const Disciplina = () => {
       }
     };
 
-    fetchData();
+    init();
   }, [navigate]);
 
-  // Refresh event listener
   useEffect(() => {
-    const refreshHandler = () => {
-      // Re-run fetchData logic
-      const fetchData = async () => {
-        // ... same as above
-      };
-      fetchData();
+    const refreshHandler = async () => {
+      try {
+        await fetchAllData();
+      } catch (err) {
+        console.error('Error refreshing data:', err);
+      }
     };
     window.addEventListener('refreshData', refreshHandler);
     return () => window.removeEventListener('refreshData', refreshHandler);
-  }, [navigate]);
+  }, []);
 
-  // Obtener datos de cadete específico
   const obtenerDatosCadete = async (cadeteId) => {
     try {
-      return await api.get(`/acciones/cadete/${cadeteId}`);
+      return await api.get(`/acciones/${cadeteId}`);
     } catch (error) {
       console.error('Error obteniendo datos cadete:', error);
       return null;
     }
   };
 
-  // Seleccionar cadete
   const handleSelectCadete = async (cadete) => {
     setCadeteSeleccionado(cadete);
     const accionesCadete = acciones.filter(a => a.cadeteId === cadete.id);
-    
     if (accionesCadete.length === 0) {
       const datosCompletos = await obtenerDatosCadete(cadete.id);
       if (datosCompletos) {
@@ -113,52 +117,42 @@ const Disciplina = () => {
     }
   };
 
-  // Registrar acción
   const handleRegistrarAccion = async (data) => {
     setLoadingRegistro(true);
     try {
-      const fechaObj = new Date(data.fecha);
-      const diaSemana = fechaObj.getDay();  // Numeric day (0=Sun)
-
-      const response = await api.post('/acciones/registrar', {
+      await api.post('/registroaccion', {
         cadeteId: data.cadeteId,
         codigo: data.codigo,
         observacion: data.observacion,
         ruta_imagen: data.ruta_imagen || null,
         fecha: data.fecha,
         hora: data.hora,
-        dia: diaSemana
       });
 
-      // Refresh data
       const [accionesActualizadas, cadetesActualizados] = await Promise.all([
         api.get('/accionesdisciplinarias'),
         api.get('/cadetes')
       ]);
-      
+
       setAcciones(accionesActualizadas);
       setCadetes(cadetesActualizados);
 
       const cadeteActualizado = cadetesActualizados.find(c => c.id === data.cadeteId);
-      if (cadeteActualizado) {
-        setCadeteSeleccionado(cadeteActualizado);
-      }
+      if (cadeteActualizado) setCadeteSeleccionado(cadeteActualizado);
 
       setMensaje({ type: 'success', text: '✅ Acción registrada correctamente' });
       setTimeout(() => setMensaje(null), 5000);
     } catch (apiError) {
       console.error(apiError);
-      setMensaje({ type: 'error', text: apiError.response?.data?.error || 'Error al registrar acción' });
+      setMensaje({ type: 'error', text: apiError.message || 'Error al registrar acción' });
       setTimeout(() => setMensaje(null), 5000);
     } finally {
       setLoadingRegistro(false);
     }
   };
 
-  // Acciones por cadete
   const obtenerAccionesCadete = (cadeteId) => acciones.filter(a => a.cadeteId === cadeteId);
 
-  // Estadísticas globales
   const estadisticasGlobales = useMemo(() => {
     const positivas = acciones.filter(a => a.accionDefinida?.tipo === 'Positiva').length;
     const negativas = acciones.filter(a => a.accionDefinida?.tipo === 'Negativa').length;
@@ -167,7 +161,7 @@ const Disciplina = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
         <div className="text-center p-8">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600 font-medium">Cargando sistema disciplinario...</p>
@@ -178,14 +172,14 @@ const Disciplina = () => {
 
   if (accesoRestringido) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-red-50 to-rose-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-rose-50">
         <div className="max-w-md p-8 bg-white rounded-2xl shadow-xl border border-red-200">
           <div className="w-20 h-20 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <Lock className="w-10 h-10 text-red-600" />
           </div>
           <h2 className="text-2xl font-bold text-slate-800 mb-4 text-center">Acceso Denegado</h2>
           <p className="text-slate-600 mb-8 text-center">
-            Módulo reservado para <strong>Instructores</strong> y <strong>Administradores</strong>.
+            No tienes permisos para acceder a este módulo.
           </p>
           <button
             onClick={() => navigate('/home')}
@@ -198,44 +192,64 @@ const Disciplina = () => {
     );
   }
 
+  const esAlumno = oficialActual?.rol === 'Alumno';
+
   return (
-  <div className="flex min-h-screen bg-slate-50">
-    <Sidebar 
-      activeSection={activeSection} 
-      setActiveSection={setActiveSection} 
-      rol={oficialActual?.rol}
-      collapsed={isSidebarCollapsed}
-      setCollapsed={setIsSidebarCollapsed}
-    />
-    <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${
-    isSidebarCollapsed ? 'ml-20' : 'ml-72'
-    }`}>
-        {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200/50 p-4.5 sticky top-0 z-10">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            <div>
-              
-              <h1 className="flex text-2xl font-black bg-linear-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent ">
-              Control Disciplinario
-              </h1>
-              <p className="text-slate-500 font-medium">Registro de acciones positivas y negativas</p>
-            </div>
-            <div className="flex items-center gap-4">
-              {oficialActual && (
-                <div className="text-sm text-right hidden md:block">
-                  <p className="font-semibold text-slate-800">{oficialActual.gradoU}. {oficialActual.nombreU}</p>
-                  <p className="text-slate-500">{oficialActual.rol}</p>
+    <div className="flex min-h-screen bg-slate-50">
+      <Sidebar
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        rol={oficialActual?.rol}
+        collapsed={isSidebarCollapsed}
+        setCollapsed={setIsSidebarCollapsed}
+      />
+
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${
+        isSidebarCollapsed ? 'ml-20' : 'ml-72'
+      }`}>
+        {/* HEADER */}
+        <header className={`fixed top-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-slate-100/50 h-[5.5rem] transition-all duration-300 ${
+          isSidebarCollapsed ? 'left-20' : 'left-72'
+        }`}>
+          <div className="h-full flex items-center px-4 lg:px-6">
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center group">
+                <div className="group-hover:scale-105 transition-transform duration-300">
+                  <h1 className="text-2xl lg:text-3xl font-black bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 bg-clip-text text-transparent leading-tight">
+                    CONTROL DISCIPLINARIO
+                  </h1>
+                  <p className="text-sm lg:text-base text-slate-500 font-medium tracking-wide -mt-1">
+                    {esAlumno ? 'Mi Perfil Disciplinario' : 'Registro de Acciones Positivas y Negativas'}
+                  </p>
                 </div>
-              )}
-              <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <UserIcon className="w-6 h-6 text-white" />
+              </div>
+
+              <div className="flex items-center gap-4">
+                {oficialActual && (
+                  <div className="text-right hidden md:flex flex-col items-end gap-0.5 pr-4 border-r border-slate-200">
+                    <p className="font-bold text-slate-900 text-sm lg:text-base leading-tight">
+                      {oficialActual.gradoU}. {oficialActual.nombreU}
+                    </p>
+                    <p className="text-xs lg:text-sm text-slate-500 font-medium tracking-wide">
+                      {oficialActual.rol}
+                    </p>
+                  </div>
+                )}
+                <div className="relative group">
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 rounded-2xl shadow-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 cursor-pointer border-4 border-white/50">
+                    <UserIcon className="w-7 h-7 text-white drop-shadow-lg" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 border-2 border-white rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </header>
 
         {/* Messages */}
-        <div className="px-6 py-4 max-w-7xl mx-auto">
+        <div className="px-6 pt-24 pb-2">
           {error && (
             <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm font-medium mb-4">
               ⚠️ {error}
@@ -243,8 +257,8 @@ const Disciplina = () => {
           )}
           {mensaje && (
             <div className={`p-4 rounded-xl border text-sm font-medium mb-4 ${
-              mensaje.type === 'success' 
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
+              mensaje.type === 'success'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
                 : 'bg-red-50 border-red-200 text-red-800'
             }`}>
               {mensaje.text}
@@ -253,8 +267,12 @@ const Disciplina = () => {
         </div>
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-6 pb-20 max-w-7xl mx-auto w-full">
-          {activeSection === 'dashboard' && (
+        <main className="flex-1 overflow-y-auto p-6 pt-4 pb-20">
+          {activeSection === 'miPerfil' && (
+            <MiPerfilSection oficialActual={oficialActual} />
+          )}
+
+          {activeSection === 'dashboard' && !esAlumno && (
             <DashboardSection
               cadetes={cadetes}
               acciones={acciones}
@@ -264,7 +282,7 @@ const Disciplina = () => {
             />
           )}
 
-          {activeSection === 'cadetes' && (
+          {activeSection === 'cadetes' && !esAlumno && (
             <CadetesSection
               cadetes={cadetes}
               acciones={acciones}
@@ -275,8 +293,8 @@ const Disciplina = () => {
             />
           )}
 
-          {activeSection === 'registrar' && (
-            <RegistrarSection 
+          {activeSection === 'registrar' && !esAlumno && (
+            <RegistrarSection
               cadetes={cadetes}
               accionesDefinidas={accionesDefinidas}
               onSelectCadete={handleSelectCadete}
@@ -288,15 +306,15 @@ const Disciplina = () => {
             />
           )}
 
-          {activeSection === 'historial' && (
-            <HistorialSection acciones={acciones} />
+          {activeSection === 'historial' && !esAlumno && (
+            <HistorialSection acciones={acciones} cadetes={cadetes} />
           )}
 
-          {activeSection === 'estadisticas' && (
+          {activeSection === 'estadisticas' && !esAlumno && (
             <EstadisticasSection cadetes={cadetes} acciones={acciones} />
           )}
 
-          {activeSection === 'configuracion' && (
+          {activeSection === 'configuracion' && oficialActual?.rol === 'Administrador' && (
             <ConfigSection accionesDefinidas={accionesDefinidas} setAccionesDefinidas={setAccionesDefinidas} />
           )}
         </main>
@@ -306,4 +324,3 @@ const Disciplina = () => {
 };
 
 export default Disciplina;
-

@@ -6,14 +6,14 @@ import { autorizarRoles } from "../middlewares/role_middleware.js";
 
 const router = Router();
 
-// Listar acciones definidas - accesible para Instructor y Administrador
-router.get("/acciones", protegerRuta, autorizarRoles("Administrador", "Instructor"), listarAcciones);
+// Listar acciones definidas - accesible para Instructor, Administrador y Alumno
+router.get("/acciones", protegerRuta, autorizarRoles("Administrador", "Instructor", "Alumno"), listarAcciones);
 
 // Listar todas las acciones disciplinarias (registros) - accesible para Instructor y Administrador
 router.get("/accionesdisciplinarias", protegerRuta, autorizarRoles("Administrador", "Instructor"), listarAccionesDisciplinarias);
 
-// Obtener acciones de un cadete específico - accesible para Instructor y Administrador
-router.get("/acciones/:cadeteId", protegerRuta, autorizarRoles("Administrador", "Instructor"), obtenerAccionesPorCadete);
+// Obtener acciones de un cadete específico - accesible para Instructor, Administrador y Alumno
+router.get("/acciones/:cadeteId", protegerRuta, autorizarRoles("Administrador", "Instructor", "Alumno"), obtenerAccionesPorCadete);
 
 // Registrar una acción aplicada a un cadete - solo Instructor y Administrador
 router.post("/registroaccion", protegerRuta, autorizarRoles("Administrador", "Instructor"), registrarAccion);

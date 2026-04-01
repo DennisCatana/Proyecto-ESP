@@ -11,7 +11,7 @@ model Usuario {
   id                      Int       @id @default(autoincrement())
   cedula                  String    @unique
   gradoU                  String    
-  nombreU                 String    @unique
+  nombreU                 String    
   correoU                 String    @unique
   passwordU               String
   activo                  Boolean   @default(true)
@@ -52,7 +52,7 @@ model Cadete {
   lugar_nacimiento  String?
   lugar_residencia  String?
   estado            Boolean   @default(true)
-  puntajeTotal      Int       @default(0)
+  puntajeTotal      Decimal   @default(0) @db.Decimal(7, 2)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   acciones          Accion[]
@@ -73,6 +73,8 @@ model Accion {
   puntajeAcumulado Decimal        @db.Decimal(7, 2)
   ruta_imagen      String?
   fecha            DateTime       @default(now())
+  dia              Int?
+  fechaRegistro    DateTime       @default(now())
   accionDefinida   AccionDefinida @relation(fields: [accionDefinidaId], references: [id])
   cadete           Cadete         @relation(fields: [cadeteId], references: [id], onDelete: Cascade)
   registradoPor    Usuario        @relation("AccionesRegistradas", fields: [registradoPorId], references: [id])

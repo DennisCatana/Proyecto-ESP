@@ -42,33 +42,41 @@ const ConfigSection = () => {
   };
 
 const saveItem = async () => {
-    try {
-      let msg = '';
-      if (activeTab === 'usuarios') {
-        if (editing) {
-          await api.put(`/usuarios/${editing.id}`, formData);
-          msg = 'Usuario actualizado correctamente';
-        } else {
-          await api.post('/usuarios', formData);
-          msg = 'Usuario registrado correctamente';
-        }
-      } else if (activeTab === 'cadetes') {
-        if (editing) {
-          await api.put(`/cadetes/${editing.id}`, formData);
-          msg = 'Cadete actualizado correctamente';
-        } else {
-          await api.post('/cadetes', formData);
-          msg = 'Cadete registrado correctamente';
-        }
-      } else if (activeTab === 'accionesdefinidas') {
-        if (editing) {
-          await api.put(`/accionesdefinidas/${editing.id}`, formData);
-          msg = 'Acción definida actualizada correctamente';
-        } else {
-          await api.post('/accionesdefinidas', formData);
-          msg = 'Acción definida registrada correctamente';
-        }
+  try {
+    let msg = '';
+    if (activeTab === 'usuarios') {
+      if (!formData.nombreU || !formData.correoU || !formData.cedula || !formData.rol) {
+        alert('Faltan campos requeridos: Nombre, Email, Cédula y Rol');
+        return;
       }
+      if (editing) {
+        await api.put(`/usuarios/${editing.id}`, formData);
+        msg = 'Usuario actualizado correctamente';
+      } else {
+        await api.post('/usuarios', formData);
+        msg = 'Usuario registrado correctamente';
+      }
+    } else if (activeTab === 'cadetes') {
+      if (!formData.nombre || !formData.cedula) {
+        alert('Faltan campos requeridos: Nombre y Cédula');
+        return;
+      }
+      if (editing) {
+        await api.put(`/cadetes/${editing.id}`, formData);
+        msg = 'Cadete actualizado correctamente';
+      } else {
+        await api.post('/cadetes', formData);
+        msg = 'Cadete registrado correctamente';
+      }
+    } else if (activeTab === 'accionesdefinidas') {
+      if (editing) {
+        await api.put(`/accionesdefinidas/${editing.id}`, formData);
+        msg = 'Acción definida actualizada correctamente';
+      } else {
+        await api.post('/accionesdefinidas', formData);
+        msg = 'Acción definida registrada correctamente';
+      }
+    }
       loadData();
       setEditing(null);
       setFormData({});
@@ -85,7 +93,7 @@ const saveItem = async () => {
 
 
 const deleteItem = async (id) => {
-  console.log('deleteItem llamado con id:', id); // ← agregar esto
+  console.log('deleteItem llamado con id:', id);
   if (!confirm('Confirmar eliminación?')) return;
   try {
     if (activeTab === 'usuarios') {
@@ -95,7 +103,10 @@ const deleteItem = async (id) => {
     } else if (activeTab === 'accionesdefinidas') {
       await api.delete(`/accionesdefinidas/${id}`);
     }
-    loadData();
+    setUsuarios(prev => prev.filter(u => u.id !== id));
+    setCadetes(prev => prev.filter(c => c.id !== id));
+    setAccionesDefinidas(prev => prev.filter(a => a.id !== id));
+    await loadData();
     window.dispatchEvent(new CustomEvent('refreshData'));
     alert('Eliminado correctamente');
   } catch (error) {

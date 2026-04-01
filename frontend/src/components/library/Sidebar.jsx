@@ -1,6 +1,6 @@
 import { BookOpen, Clock, FileText, Newspaper, Music } from 'lucide-react';
 
-const Sidebar = ({ activeSection, onSectionChange }) => {
+const Sidebar = ({ activeSection, onSectionChange, classname }) => {
   const menuItems = [
     { id: 'normativa', label: 'Normativa', icon: BookOpen },
     { id: 'horarios', label: 'Horarios', icon: Clock },

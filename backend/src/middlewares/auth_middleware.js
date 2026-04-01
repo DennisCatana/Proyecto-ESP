@@ -25,8 +25,8 @@ export const protegerRuta = async (req, res, next) => {
         if (!usuario.activo)
             return res.status(403).json({ msg: "Usuario desactivado" });
 
-        // 🔥 Bloqueo si no ha cambiado password
-        if (usuario.cambioPassword && !req.path.includes("cambiarpassword")) {
+        const rutasExcluidas = ["/cambiarpassword", "/logout"];
+        if (usuario.cambioPassword && !rutasExcluidas.some(r => req.path.includes(r))) {
             return res.status(403).json({
                 msg: "Debe cambiar su contraseña antes de continuar"
             });

@@ -136,6 +136,77 @@ export const obtenerEstadisticasGlobales = async (req, res) => {
     }
 };
 
+// Obtener mi perfil (para rol Alumno - busca el cadete vinculado al usuario)
+export const obtenerMiPerfil = async (req, res) => {
+    try {
+        const usuarioId = req.usuario.id;
+
+        const usuario = await prisma.usuario.findUnique({
+            where: { id: usuarioId },
+            include: {
+                cadete: {
+                    include: {
+                        acciones: {
+                            orderBy: { fecha: 'desc' },
+                            include: {
+                                accionDefinida: true,
+                                registradoPor: { select: { id: true, gradoU: true, nombreU: true } }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!usuario) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        if (!usuario.cadete) {
+            return res.status(404).json({ error: 'No tienes un expediente de cadete vinculado a tu cuenta' });
+        }
+
+        const cadete = usuario.cadete;
+        const positivas = cadete.acciones.filter(a => a.accionDefinida.tipo === 'Positiva').length;
+        const negativas = cadete.acciones.filter(a => a.accionDefinida.tipo === 'Negativa').length;
+
+        res.json({
+            ...cadete,
+            estadisticas: { positivas, negativas, total: cadete.acciones.length }
+        });
+    } catch (error) {
+        console.error('Error obtenerMiPerfil:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Actualizar mi perfil (para rol Alumno - solo datos de contacto)
+export const actualizarMiPerfil = async (req, res) => {
+    try {
+        const usuarioId = req.usuario.id;
+        const { correo, telefono, numero_emergencia, parentesco, lugar_residencia } = req.body;
+
+        const usuario = await prisma.usuario.findUnique({
+            where: { id: usuarioId },
+            select: { cadeteId: true }
+        });
+
+        if (!usuario || !usuario.cadeteId) {
+            return res.status(404).json({ error: 'No tienes un expediente de cadete vinculado' });
+        }
+
+        const cadete = await prisma.cadete.update({
+            where: { id: usuario.cadeteId },
+            data: { correo, telefono, numero_emergencia, parentesco, lugar_residencia }
+        });
+
+        res.json(cadete);
+    } catch (error) {
+        console.error('Error actualizarMiPerfil:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // Eliminar todos los cadetes
 export const eliminarTodosLosCadetes = async (req, res) => {
     try {

@@ -51,7 +51,7 @@ const LoginPage = () => {
             }
 
             // Primer login -> cambiar contraseña
-            if (response.cambiopassword) {
+            if (response.cambioPassword) {
                 setIsChangePasswordMode(true);
                 setLoading(false);
                 return;
@@ -90,7 +90,7 @@ const LoginPage = () => {
         const passwordU = e.target.passwordU.value;
         const confirmarPassword = e.target.confirmarPassword.value;
 
-        if (passwordU !== confirmarpassword) {
+        if (passwordU !== confirmarPassword) {
             setError("Las contraseñas no coinciden");
             setLoading(false);
             return;

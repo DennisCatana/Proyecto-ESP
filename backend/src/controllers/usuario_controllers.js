@@ -73,21 +73,6 @@ export const actualizarUsuario = async (req, res) => {
     }
 };
 
-export const desactivarUsuario = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const usuario = await prisma.usuario.update({
-            where: { id: parseInt(id) },
-            data: { activo: false }
-        });
-
-        res.json(usuario);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
 export const bulkUploadUsuarios = async (req, res) => {
   try {
     const files = req.files;
@@ -117,6 +102,22 @@ export const bulkUploadUsuarios = async (req, res) => {
     res.json({ msg: 'Usuarios uploaded', count: result.count });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+export const eliminarUsuario = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.usuario.delete({
+      where: { id: parseInt(id) }
+    });
+    res.json({ msg: 'Usuario eliminado correctamente' });
+  } catch (error) {
+    console.error('❌ Error eliminarUsuario:', error);
+    if (error.code === 'P2025') {
+      return res.status(404).json({ msg: 'Usuario no encontrado' });
+    }
+    res.status(500).json({ msg: error.message });
   }
 };
 

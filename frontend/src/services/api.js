@@ -16,6 +16,7 @@ const handleResponse = async (response) => {
     const data = await response.json();
 
     if (!response.ok) {
+        console.error('Backend error:', data);
 
         // Si es sesión inválida
         if (response.status === 401) {
