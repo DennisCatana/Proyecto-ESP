@@ -59,7 +59,7 @@ const ResetPassword = () => {
 
             await api.post(`/nuevapassword/${token}`, {
                 passwordU: password,
-                confirmarpassword: confirmPassword
+                confirmarPassword: confirmPassword
             });
 
             setModalTipo("success");
