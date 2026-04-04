@@ -6,11 +6,11 @@ import InstructorCard from '../../components/ui/instructors/InstructorCard';
 const Brigs = () => {
     const brigs = [
         {
-            image: '/images/photos/Cptn.Solano.jpeg',
+            image: '/images/photos/brig.Vaca.png',
             name: 'Brig Mayor. Vaca Herrera Karla Anahi'
         },
         {
-            image: '/images/photos/Cptn.Herrera.jpeg',
+            image: '/images/photos/brig.Jami.png',
             name: 'Brig. Nazate Jami Ammy Katherin',
         },
         {
@@ -18,11 +18,11 @@ const Brigs = () => {
             name: 'Brig. Peralta Cabrera William Steven',
         },
         {
-            image: '/images/photos/Cptn.Solano.jpeg',
+            image: '/images/photos/brig.Flores.png',
             name: 'Brig. Flores Tapia Adrian Alejandro',
         },
         {
-            image: '/images/photos/brig.SAndoval.jpg',
+            image: '/images/photos/brig.Sandoval.jpg',
             name: 'Brig. Sandoval Cunalata Miguel Angel',
         },
         {
@@ -42,19 +42,19 @@ const Brigs = () => {
             name: 'Brig. Abarca Robles Joselyn Ariana'
         },
         {
-            image: '/images/photos/Cptn.Solano.jpeg',
+            image: '/images/photos/brig.Quinteros.png',
             name: 'Brig. Quinteros Nuñez Fernando Andres'
         },
         {
-            image: '/images/photos/Cptn.Herrera.jpeg',
+            image: '/images/photos/brig.Tapia.png',
             name: 'Brig. Tapia Lucas Kevin Enrique',
         },
         {
-            image: '/images/photos/Cptn.Solano.jpeg',
+            image: '/images/photos/brig.Llumitasig.png',
             name: 'Brig. Llumitasig Travez Danilo Hernan'
         },
         {
-            image: '/images/photos/Cptn.Solano.jpeg',
+            image: '/images/photos/brig.Unapucha.png',
             name: 'Brig. Correa Unapucha Henry Oswaldo'
         }
     ];

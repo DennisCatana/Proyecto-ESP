@@ -24,12 +24,12 @@ const Instructors = () => {
     },
     // Additional instructors without photos - using placeholder
     {
-      image: '/images/image1.jpeg',
+      image: '/images/photos/Tnte.Estrella.jpeg',
       name: 'Tnte. Estrella Viscarra Yessenia Poema',
       phrase: 'Frase.'
     },
     {
-      image: '/images/image2.jpeg',
+      image: '/images/photos/Tnte.Escobar.jpeg',
       name: 'Tnte. Escobar Cevallos Yajaira Marcela',
       phrase: 'Frase'
     },
@@ -44,7 +44,7 @@ const Instructors = () => {
       phrase: 'El dolor es pasajero, la gloria es eterna.'
     },
     {
-      image: '/images/image4.jpg',
+      image: '/images/photos/Tnte.Martinez.jpeg',
       name: 'Tnte. Martinez Martinez Erick Santiago',
       phrase: 'Frase'
     },
@@ -54,7 +54,7 @@ const Instructors = () => {
       phrase: 'Frase'
     },
     {
-      image: '/images/image6.jpeg',
+      image: '/images/photos/Tnte.Mendoza.jpeg',
       name: 'Tnte. Mendoza Carrillo Jenifer Nicol',
       phrase: 'Frase'
     },

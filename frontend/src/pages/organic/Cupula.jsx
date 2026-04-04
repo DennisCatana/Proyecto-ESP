@@ -6,24 +6,24 @@ import InstructorCard from '../../components/ui/instructors/InstructorCard';
 const Cupula = () => {
     const Cupula = [
         {
-            image: '/images/photos/01.png',
-            name: 'kdt. Martínez Gallegos Juan José',
-            phrase: 'Comandante de la sección "A" ',
+            image: '',
+            name: '',
+            phrase: ' ',
         },
         {
-            image: '/images/photos/02.png',
-            name: 'kdt Dávila Durán Oscar Emilio',
-            phrase: 'Comandante de la sección "B" ',
+            image: '',
+            name: '',
+            phrase: '',
         },
         {
-            image: '/images/photos/03.png',
-            name: 'kdt. Moreira Macías Edison Yasser',
-            phrase: 'Comandante de la sección "C" ',
+            image: '',
+            name: '',
+            phrase: ' ',
         },
         {
-            image: '/images/photos/03.png',
-            name: 'kdt. Moreira Macías Edison Yasser',
-            phrase: 'Comandante de la sección "C" ',
+            image: '',
+            name: '',
+            phrase: '',
         },
     ];
 
