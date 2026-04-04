@@ -58,6 +58,7 @@ model Cadete {
   seccion           String
   genero            String?
   habitacion        String?
+  edad              String?
   grupo_guardia     String?
   antiguedad        Int?
   correo            String?

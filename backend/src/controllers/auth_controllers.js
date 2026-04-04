@@ -7,17 +7,17 @@ import { sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodema
 //Creación de usuario 
 export const registro = async (req, res) => {
     try {
-const { nombre, correo, cedula, grado, rol } = req.body;
+        const { nombre, correo, cedula, grado, rol } = req.body;
 
         // Validar campos
-if (!nombre || !correo || !cedula || !rol) {
+        if (!nombre || !correo || !cedula || !rol) {
             return res.status(400).json({ error: "Todos los campos obligatorios deben estar completos" });
         }
 
         // Verificar si ya existe por correo o cédula
         const existe = await prisma.usuario.findFirst({
             where: {
-OR: [{ correo }]
+                OR: [{ correo }]
             }
         });
 
@@ -35,7 +35,7 @@ OR: [{ correo }]
 
         // Crear usuario
         let usuario = await prisma.usuario.create({
-data: {
+            data: {
                 correo,
                 password: passwordHash,
                 rol,
@@ -45,7 +45,7 @@ data: {
             }
         });
 
-await sendMailToRegister(correo, tokenVerificacion)
+        await sendMailToRegister(correo, tokenVerificacion)
 
         return res.status(201).json({
             msg: "Usuario registrado. Revisa tu correo para confirmar la cuenta."
@@ -100,7 +100,7 @@ export const recuperarPassword = async (req, res) => {
                 tokenRecuperacionExpira: expiracion
             }
         });
-await sendMailToRecoveryPassword(correo, tokenRecuperacion);
+        await sendMailToRecoveryPassword(correo, tokenRecuperacion);
 
         return res.json({ msg: "Correo de recuperación enviado. Revisa tu bandeja." });
 
@@ -181,8 +181,9 @@ export const nuevaPassword = async (req, res) => {
 
 //creacion del login
 export const login = async (req, res) => {
+
     try {
-const { correo, password } = req.body;
+        const { correo, password } = req.body;
 
         if (!correo || !password)
             return res.status(400).json({ msg: "Correo y contraseña obligatorios" });
