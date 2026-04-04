@@ -138,7 +138,16 @@ export const listarAccionesDisciplinarias = async (req, res) => {
                 cadete: true,
                 accionDefinida: true,
                 registradoPor: {
-                    select: { id: true, gradoU: true, nombreU: true }
+                    select: {
+                        id: true,
+                        rol: true,
+                        instructor: {
+                            select: { nombre: true, grado: true }
+                        },
+                        administrador: {
+                            select: { nombre: true }
+                        }
+                    }
                 }
             },
             orderBy: { fecha: 'desc' }
@@ -161,16 +170,25 @@ export const obtenerAccionesPorCadete = async (req, res) => {
     try {
         const { cadeteId } = req.params;
         const acciones = await prisma.accion.findMany({
-            where: { cadeteId: parseInt(cadeteId) },
-            include: {
-                cadete: true,
-                accionDefinida: true,
-                registradoPor: {
-                    select: { id: true, gradoU: true, nombreU: true }
+        where: { cadeteId: parseInt(cadeteId) },
+        include: {
+            cadete: true,
+            accionDefinida: true,
+            registradoPor: {
+                select: {
+                    id: true,
+                    rol: true,
+                    instructor: {
+                        select: { nombre: true, grado: true }
+                    },
+                    administrador: {
+                        select: { nombre: true }
+                    }
                 }
-            },
-            orderBy: { fecha: 'desc' }
-        });
+            }
+        },
+        orderBy: { fecha: 'desc' }
+    });
 
         const estadisticas = await obtenerEstadisticasCadete(parseInt(cadeteId));
         res.json({ acciones, estadisticas });
@@ -292,4 +310,18 @@ export const eliminarAccionDefinida = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const eliminarTodasLasAccionesDefinidas = async (req, res) => {
+  try {
+    const resultado = await prisma.accionDefinida.deleteMany({});
+    res.json({
+      msg: "Todas las acciones definidas eliminadas",
+      totalEliminados: resultado.count
+    });
+  } catch (error) {
+    console.error('❌ Error eliminarTodasLasAccionesDefinidas:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 

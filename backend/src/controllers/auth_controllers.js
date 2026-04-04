@@ -7,17 +7,17 @@ import { sendMailToRegister, sendMailToRecoveryPassword } from "../config/nodema
 //Creación de usuario 
 export const registro = async (req, res) => {
     try {
-        const { nombreU, correoU, cedula, gradoU, rol } = req.body;
+const { nombre, correo, cedula, grado, rol } = req.body;
 
         // Validar campos
-        if (!nombreU || !correoU || !cedula || !gradoU || !rol) {
+if (!nombre || !correo || !cedula || !rol) {
             return res.status(400).json({ error: "Todos los campos obligatorios deben estar completos" });
         }
 
         // Verificar si ya existe por correo o cédula
         const existe = await prisma.usuario.findFirst({
             where: {
-                OR: [{ correoU }, { cedula }, { nombreU }]
+OR: [{ correo }]
             }
         });
 
@@ -35,12 +35,9 @@ export const registro = async (req, res) => {
 
         // Crear usuario
         let usuario = await prisma.usuario.create({
-            data: {
-                nombreU,
-                correoU,
-                cedula,
-                gradoU,
-                passwordU: passwordHash,
+data: {
+                correo,
+                password: passwordHash,
                 rol,
                 tokenVerificacion,
                 confirmarCorreo: false,
@@ -48,7 +45,7 @@ export const registro = async (req, res) => {
             }
         });
 
-        await sendMailToRegister(correoU, tokenVerificacion)
+await sendMailToRegister(correo, tokenVerificacion)
 
         return res.status(201).json({
             msg: "Usuario registrado. Revisa tu correo para confirmar la cuenta."
@@ -85,11 +82,11 @@ export const confirmarCorreo = async (req, res) => {
 export const recuperarPassword = async (req, res) => {
     console.log("BODY RECIBIDO:", req.body);
     try {
-        const { correoU } = req.body;
+        const { correo } = req.body;
 
-        if (!correoU) return res.status(400).json({ msg: "El correo es obligatorio" });
+        if (!correo) return res.status(400).json({ msg: "El correo es obligatorio" });
 
-        const usuario = await prisma.usuario.findUnique({ where: { correoU } });
+        const usuario = await prisma.usuario.findUnique({ where: { correo } });
 
         if (!usuario) return res.status(400).json({ msg: "Usuario no existe" });
 
@@ -103,7 +100,7 @@ export const recuperarPassword = async (req, res) => {
                 tokenRecuperacionExpira: expiracion
             }
         });
-        await sendMailToRecoveryPassword(correoU, tokenRecuperacion);
+await sendMailToRecoveryPassword(correo, tokenRecuperacion);
 
         return res.json({ msg: "Correo de recuperación enviado. Revisa tu bandeja." });
 
@@ -161,19 +158,12 @@ export const nuevaPassword = async (req, res) => {
                 return res.status(404).json({ msg: "Usuario no encontrado" });
         }
 
-        // 🔐 No permitir usar la cédula como password
-        if (passwordU === usuario.cedula) {
-            return res.status(400).json({
-                msg: "La nueva contraseña no puede ser igual a la cédula"
-            });
-        }
-
         const passwordHash = await hashPassword(passwordU);
 
         await prisma.usuario.update({
             where: { id: usuario.id },
             data: {
-                passwordU: passwordHash,
+                password: passwordHash,
                 tokenRecuperacion: null,
                 tokenRecuperacionExpira: null,
                 cambioPassword: false
@@ -192,13 +182,13 @@ export const nuevaPassword = async (req, res) => {
 //creacion del login
 export const login = async (req, res) => {
     try {
-        const { correoU, passwordU } = req.body;
+const { correo, password } = req.body;
 
-        if (!correoU || !passwordU)
+        if (!correo || !password)
             return res.status(400).json({ msg: "Correo y contraseña obligatorios" });
 
         const usuario = await prisma.usuario.findUnique({
-            where: { correoU }
+            where: { correo }
         });
 
         if (!usuario)
@@ -207,7 +197,7 @@ export const login = async (req, res) => {
         if (!usuario.activo)
             return res.status(403).json({ msg: "Usuario desactivado" });
 
-        const valido = await comparePassword(passwordU, usuario.passwordU);
+        const valido = await comparePassword(password, usuario.password);
 
         if (!valido)
             return res.status(400).json({ msg: "Contraseña incorrecta" });
@@ -228,10 +218,8 @@ export const login = async (req, res) => {
                 token,
                 usuario: {
                     id: usuario.id,
-                    nombreU: usuario.nombreU,
-                    correoU: usuario.correoU,
+                    correo: usuario.correo,
                     rol: usuario.rol,
-                    gradoU: usuario.gradoU,
                     cambioPassword: true
                 }
             });
@@ -240,10 +228,8 @@ export const login = async (req, res) => {
         return res.json({
             usuario: {
                 id: usuario.id,
-                nombreU: usuario.nombreU,
-                correoU: usuario.correoU,
-                rol: usuario.rol,
-                gradoU: usuario.gradoU
+                correo: usuario.correo,
+                rol: usuario.rol
             },
             token,
             cambioPassword: false

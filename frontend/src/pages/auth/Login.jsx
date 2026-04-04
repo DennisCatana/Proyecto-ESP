@@ -41,8 +41,8 @@ const LoginPage = () => {
         try {
 
             const response = await api.post("/login", {
-                correoU: email,
-                passwordU: password
+                correo: email,
+                password: password
             });
 
             if (response.token) {
@@ -140,7 +140,7 @@ const LoginPage = () => {
         try {
 
             await api.post("/recuperarpassword", {
-                correoU: email
+                correo: email
             });
 
             setSuccess("Se ha enviado un correo de recuperación.");

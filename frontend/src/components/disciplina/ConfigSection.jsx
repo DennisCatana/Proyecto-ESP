@@ -1,359 +1,512 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import { Plus, Edit, Trash2, Users, User, FileText, UploadCloud } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, FileText, UploadCloud, ShieldCheck, GraduationCap, UserCog } from 'lucide-react';
+
+const CADETE_FIELDS = [
+  { name: 'nombre',    label: 'Nombre',     type: 'text'   },
+  { name: 'cedula',    label: 'Cédula',     type: 'text'   },
+  { name: 'correo',    label: 'Correo',     type: 'email'  },
+  { name: 'promocion', label: 'Promoción',  type: 'text'   },
+  { name: 'cia',       label: 'Compañía',   type: 'text'   },
+  { name: 'seccion',   label: 'Sección',    type: 'text'   },
+  { name: 'genero',    label: 'Género',     type: 'select', options: ['M', 'F'] },
+  { name: 'telefono',  label: 'Teléfono',   type: 'text'   },
+];
+
+const INSTRUCTOR_FIELDS = [
+  { name: 'nombre',      label: 'Nombre',      type: 'text'   },
+  { name: 'cedula',      label: 'Cédula',      type: 'text'   },
+  { name: 'correo',      label: 'Correo',      type: 'email'  },
+  { name: 'grado',       label: 'Grado',       type: 'select', options: ['SBTE', 'TNTE', 'CPTN', 'MYR', 'TCNL', 'CRNL'] },
+  { name: 'especialidad',label: 'Especialidad', type: 'text'   },
+  { name: 'telefono',    label: 'Teléfono',    type: 'text'   },
+];
+
+const ADMIN_FIELDS = [
+  { name: 'nombre',          label: 'Nombre',            type: 'text'     },
+  { name: 'correo',          label: 'Correo',            type: 'email'    },
+  { name: 'passwordInicial', label: 'Contraseña Inicial', type: 'password' },
+];
+
+const ACCION_FIELDS = [
+  { name: 'codigo',      label: 'Código',      type: 'text'     },
+  { name: 'titulo',      label: 'Título',      type: 'text'     },
+  { name: 'puntaje',     label: 'Puntaje',     type: 'number'   },
+  { name: 'descripcion', label: 'Descripción', type: 'textarea' },
+];
 
 const ConfigSection = () => {
-  const [activeTab, setActiveTab] = useState('usuarios');
-  const [usuarios, setUsuarios] = useState([]);
-  const [cadetes, setCadetes] = useState([]);
-  const [accionesDefinidas, setAccionesDefinidas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null);
-  const [formData, setFormData] = useState({});
-  const [uploadFile, setUploadFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
+  const [activeTab, setActiveTab]         = useState('usuarios');
+  const [subTabUsuario, setSubTabUsuario] = useState('cadete');
+  const [subTabAccion, setSubTabAccion]   = useState('Positiva');
+
+  const [cadetes,         setCadetes]         = useState([]);
+  const [instructores,    setInstructores]    = useState([]);
+  const [administradores, setAdministradores] = useState([]);
+  const [accionesPos,     setAccionesPos]     = useState([]);
+  const [accionesNeg,     setAccionesNeg]     = useState([]);
+
+  const [loading,     setLoading]     = useState(false);
+  const [editing,     setEditing]     = useState(null);
+  const [formData,    setFormData]    = useState({});
+  const [uploadFile,  setUploadFile]  = useState(null);
+  const [uploading,   setUploading]   = useState(false);
+  const [successMsg,  setSuccessMsg]  = useState('');
+  const [errorMsg,    setErrorMsg]    = useState('');
 
   useEffect(() => {
     loadData();
-  }, [activeTab]);
+    setEditing(null);
+    setFormData({});
+  }, [activeTab, subTabUsuario, subTabAccion]);
+
+  const showMsg = (text, isError = false) => {
+    if (isError) { setErrorMsg(text); setSuccessMsg(''); }
+    else          { setSuccessMsg(text); setErrorMsg(''); }
+    setTimeout(() => { setSuccessMsg(''); setErrorMsg(''); }, 3500);
+  };
 
   const loadData = async () => {
     setLoading(true);
     try {
       if (activeTab === 'usuarios') {
-        const data = await api.get('/usuarios');
-        setUsuarios(data);
-      } else if (activeTab === 'cadetes') {
-        const data = await api.get('/cadetes');
-        setCadetes(data);
-      } else if (activeTab === 'accionesdefinidas') {
+        if (subTabUsuario === 'cadete') {
+          setCadetes(await api.get('/cadetes'));
+        } else if (subTabUsuario === 'instructor') {
+          setInstructores(await api.get('/usuarios/instructores'));
+        } else {
+          setAdministradores(await api.get('/usuarios/administradores'));
+        }
+      } else {
         const data = await api.get('/acciones');
-        setAccionesDefinidas(data);
+        setAccionesPos(data.filter(a => a.tipo === 'Positiva'));
+        setAccionesNeg(data.filter(a => a.tipo === 'Negativa'));
       }
-    } catch (error) {
-      console.error('Error loading data:', error);
+    } catch (err) {
+      console.error('Error loading data:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-const saveItem = async () => {
-  try {
-    let msg = '';
-    if (activeTab === 'usuarios') {
-      if (!formData.nombreU || !formData.correoU || !formData.cedula || !formData.rol) {
-        alert('Faltan campos requeridos: Nombre, Email, Cédula y Rol');
-        return;
-      }
-      if (editing) {
-        await api.put(`/usuarios/${editing.id}`, formData);
-        msg = 'Usuario actualizado correctamente';
+  const saveItem = async () => {
+    try {
+      if (activeTab === 'usuarios') {
+        if (subTabUsuario === 'cadete') {
+          const { nombre, cedula, correo, promocion, cia, seccion } = formData;
+          if (!nombre || !cedula || !correo || !promocion || !cia || !seccion)
+            return showMsg('Faltan campos obligatorios: Nombre, Cédula, Correo, Promoción, Compañía y Sección', true);
+          if (editing) {
+            await api.put(`/cadetes/${editing.id}`, formData);
+            showMsg('Cadete actualizado correctamente');
+          } else {
+            await api.post('/cadetes', formData);
+            showMsg('Cadete registrado correctamente');
+          }
+        } else if (subTabUsuario === 'instructor') {
+          const { nombre, cedula, correo } = formData;
+          if (!nombre || !cedula || !correo)
+            return showMsg('Nombre, cédula y correo son obligatorios', true);
+          await api.post('/usuarios/instructor', formData);
+          showMsg('Instructor registrado correctamente');
+        } else {
+          const { nombre, correo, passwordInicial } = formData;
+          if (!nombre || !correo || !passwordInicial)
+            return showMsg('Nombre, correo y contraseña inicial son obligatorios', true);
+          await api.post('/usuarios/administrador', formData);
+          showMsg('Administrador registrado correctamente');
+        }
       } else {
-        await api.post('/usuarios', formData);
-        msg = 'Usuario registrado correctamente';
+        const payload = { ...formData, tipo: subTabAccion };
+        const { codigo, titulo, puntaje } = payload;
+        if (!codigo || !titulo || puntaje == null || puntaje === '')
+          return showMsg('Código, título y puntaje son obligatorios', true);
+        if (editing) {
+          await api.put(`/accionesdefinidas/${editing.id}`, payload);
+          showMsg('Acción actualizada correctamente');
+        } else {
+          await api.post('/accionesdefinidas', payload);
+          showMsg(`Acción ${subTabAccion === 'Positiva' ? 'positiva' : 'negativa'} creada correctamente`);
+        }
       }
-    } else if (activeTab === 'cadetes') {
-      if (!formData.nombre || !formData.cedula) {
-        alert('Faltan campos requeridos: Nombre y Cédula');
-        return;
-      }
-      if (editing) {
-        await api.put(`/cadetes/${editing.id}`, formData);
-        msg = 'Cadete actualizado correctamente';
-      } else {
-        await api.post('/cadetes', formData);
-        msg = 'Cadete registrado correctamente';
-      }
-    } else if (activeTab === 'accionesdefinidas') {
-      if (editing) {
-        await api.put(`/accionesdefinidas/${editing.id}`, formData);
-        msg = 'Acción definida actualizada correctamente';
-      } else {
-        await api.post('/accionesdefinidas', formData);
-        msg = 'Acción definida registrada correctamente';
-      }
-    }
-      loadData();
       setEditing(null);
       setFormData({});
-      // Show message
-      alert(msg);
-      // Refresh parent
+      loadData();
       window.dispatchEvent(new CustomEvent('refreshData'));
-    } catch (error) {
-      console.error('Error saving:', error);
-      alert('Error: ' + error.message);
+    } catch (err) {
+      showMsg(err.message || 'Error al guardar', true);
     }
   };
 
-
-
-const deleteItem = async (id) => {
-  console.log('deleteItem llamado con id:', id);
-  if (!confirm('Confirmar eliminación?')) return;
-  try {
-    if (activeTab === 'usuarios') {
-      await api.delete(`/usuarios/${id}`);
-    } else if (activeTab === 'cadetes') {
-      await api.delete(`/cadetes/${id}`);
-    } else if (activeTab === 'accionesdefinidas') {
-      await api.delete(`/accionesdefinidas/${id}`);
+  const deleteItem = async (item) => {
+    if (!confirm('¿Confirmar eliminación?')) return;
+    try {
+      if (activeTab === 'usuarios') {
+        if (subTabUsuario === 'cadete') {
+          await api.delete(`/cadetes/${item.id}`);
+        } else {
+          const uid = item.usuarioId || item.usuario?.id;
+          await api.delete(`/usuarios/${uid}`);
+        }
+      } else {
+        await api.delete(`/accionesdefinidas/${item.id}`);
+      }
+      loadData();
+      showMsg('Eliminado correctamente');
+      window.dispatchEvent(new CustomEvent('refreshData'));
+    } catch (err) {
+      showMsg('Error al eliminar: ' + err.message, true);
     }
-    setUsuarios(prev => prev.filter(u => u.id !== id));
-    setCadetes(prev => prev.filter(c => c.id !== id));
-    setAccionesDefinidas(prev => prev.filter(a => a.id !== id));
-    await loadData();
+  };
+
+  const deleteAll = async () => {
+  const confirmMsg = `¿Confirmar eliminación de TODOS los ${dataList.length} registros? ESTA ACCIÓN NO SE PUEDE DESHACER.`;
+  if (!confirm(confirmMsg)) return;
+  try {
+    let endpoint;
+    if (activeTab === 'usuarios') {
+      if (subTabUsuario === 'cadete')           endpoint = '/cadetes/eliminar-todos';
+      else if (subTabUsuario === 'instructor')  endpoint = '/instructores/eliminar-todos';
+      else                                      endpoint = '/administradores/eliminar-todos';
+    } else {
+      endpoint = '/accionesdefinidas/all';
+    }
+    await api.delete(endpoint);
+    loadData();
+    showMsg('Todos los registros eliminados correctamente');
     window.dispatchEvent(new CustomEvent('refreshData'));
-    alert('Eliminado correctamente');
-  } catch (error) {
-    console.error('Error deleting:', error);
-    alert('Error al eliminar: ' + (error?.message || error));
+  } catch (err) {
+    showMsg('Error al eliminar todos: ' + err.message, true);
   }
 };
+
 
   const editItem = (item) => {
     setEditing(item);
     setFormData(item);
   };
 
-  const tabs = [
-    { id: 'usuarios', label: 'Usuarios', icon: Users },
-    { id: 'cadetes', label: 'Cadetes', icon: User },
-    { id: 'accionesdefinidas', label: 'Acciones Definidas', icon: FileText }
-  ];
-
-  const getFields = () => {
-    if (activeTab === 'usuarios') return [
-      { name: 'nombreU', label: 'Nombre', type: 'text' },
-      { name: 'gradoU', label: 'Grado', type: 'select', options: ['ADMIN', 'ASPD', 'SBTE', 'TNTE', 'CPTN', 'MYR', 'TCNL', 'CRNL' ]},
-      { name: 'correoU', label: 'Email', type: 'email' },
-      { name: 'rol', label: 'Rol', type: 'select', options: ['Administrador', 'Instructor', 'Servicio', 'Alumno'] },
-      { name: 'cedula', label: 'Cédula', type: 'text' }
-    ];
-    if (activeTab === 'cadetes') return [
-      { name: 'nombre', label: 'Nombre', type: 'text' },
-      { name: 'cedula', label: 'Cédula', type: 'text' },
-      { name: 'cia', label: 'Compañía', type: 'text' },
-      { name: 'seccion', label: 'Sección', type: 'text' }
-    ];
-    return [
-      { name: 'codigo', label: 'Código', type: 'text' },
-      { name: 'titulo', label: 'Título', type: 'text' },
-      { name: 'tipo', label: 'Tipo', type: 'select', options: ['Positiva', 'Negativa'] },
-      { name: 'puntaje', label: 'Puntaje', type: 'number' },
-      { name: 'descripcion', label: 'Descripción', type: 'textarea' }
-    ];
-  };
-
-  const dataList = activeTab === 'usuarios' ? usuarios : activeTab === 'cadetes' ? cadetes : accionesDefinidas;
-
-  const handleFileChange = (e) => {
-    setUploadFile(e.target.files[0]);
-  };
-
   const handleBulkUpload = async () => {
     if (!uploadFile) return;
     setUploading(true);
     try {
-      const endpoint = activeTab === 'usuarios' ? '/usuarios/bulk-upload' : activeTab === 'cadetes' ? '/cadetes/bulk-upload' : null;
-      if (!endpoint) return alert('Bulk upload not implemented for this tab');
-      const result = await api.upload(endpoint, uploadFile, 'files');
-      alert(`Éxito: ${result.count || 0} registros cargados`);
+      const result = await api.upload('/cadetes/bulk-upload', uploadFile, 'files');
+      showMsg(`${result.count || 0} cadetes cargados`);
       loadData();
-    } catch (error) {
-      console.error(error);
-      alert('Error: ' + error.message);
+    } catch (err) {
+      showMsg('Error: ' + err.message, true);
+    } finally {
+      setUploading(false);
+      setUploadFile(null);
     }
-    setUploading(false);
-    setUploadFile(null);
   };
 
-  const handleDeleteAll = async () => {
-    if (!confirm('¿Eliminar todos los registros de esta categoría?')) return;
-    try {
-      const endpoint = activeTab === 'usuarios' ? '/usuarios/all' : activeTab === 'cadetes' ? '/elimiarcadetes' : null;
-      if (!endpoint) return alert('Delete all not implemented for this tab');
-      await api.delete(endpoint);
-      loadData();
-      alert('Eliminados todos los registros');
-    } catch (error) {
-      console.error(error);
-      alert('Error: ' + error.message);
+  const getActiveFields = () => {
+    if (activeTab === 'usuarios') {
+      if (subTabUsuario === 'cadete')       return CADETE_FIELDS;
+      if (subTabUsuario === 'instructor')   return INSTRUCTOR_FIELDS;
+      return ADMIN_FIELDS;
     }
+    return ACCION_FIELDS;
+  };
+
+  const getDataList = () => {
+    if (activeTab === 'usuarios') {
+      if (subTabUsuario === 'cadete')       return cadetes;
+      if (subTabUsuario === 'instructor')   return instructores;
+      return administradores;
+    }
+    return subTabAccion === 'Positiva' ? accionesPos : accionesNeg;
+  };
+
+  const getTableConfig = () => {
+    if (activeTab === 'usuarios') {
+      if (subTabUsuario === 'cadete') return {
+        headers: ['Nombre', 'Cédula', 'Compañía', 'Sección', 'Puntaje'],
+        row: (item) => [item.nombre, item.cedula, item.cia, item.seccion, item.puntajeTotal],
+      };
+      if (subTabUsuario === 'instructor') return {
+        headers: ['Nombre', 'Cédula', 'Grado', 'Especialidad', 'Correo'],
+        row: (item) => [item.nombre, item.cedula, item.grado || '-', item.especialidad || '-', item.usuario?.correo || '-'],
+      };
+      return {
+        headers: ['Nombre', 'Correo', 'Estado'],
+        row: (item) => [item.nombre, item.usuario?.correo || '-', item.estado ? 'Activo' : 'Inactivo'],
+      };
+    }
+    return {
+      headers: ['Código', 'Título', 'Puntaje', 'Descripción'],
+      row: (item) => [item.codigo, item.titulo, item.puntaje, item.descripcion?.slice(0, 50) || '-'],
+    };
+  };
+
+  // Solo cadetes y acciones tienen edición
+  const canEdit = activeTab === 'acciones' || (activeTab === 'usuarios' && subTabUsuario === 'cadete');
+
+  const tableConfig = getTableConfig();
+  const dataList    = getDataList();
+
+  const formTitle = () => {
+    const action = editing ? 'Editar' : 'Registrar';
+    if (activeTab === 'usuarios') {
+      if (subTabUsuario === 'cadete')     return `${action} Cadete`;
+      if (subTabUsuario === 'instructor') return `${action} Instructor`;
+      return `${action} Administrador`;
+    }
+    return `${action} Acción ${subTabAccion === 'Positiva' ? 'Positiva' : 'Negativa'}`;
   };
 
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-slate-800">Configuración del Sistema</h2>
-      
-      {/* Tabs */}
+
+      {/* Tabs principales */}
       <div className="border-b border-slate-200">
         <nav className="-mb-px flex space-x-8">
-          {tabs.map((tab) => (
+          {[
+            { id: 'usuarios', label: 'Registro de Usuarios', Icon: Users },
+            { id: 'acciones', label: 'Tipos de Acciones',    Icon: FileText },
+          ].map(({ id, label, Icon }) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === tab.id
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 transition-colors ${
+                activeTab === id
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
               }`}
             >
-              <tab.icon className="w-4 h-4 mr-1 inline" />
-              {tab.label}
+              <Icon className="w-4 h-4" />
+              {label}
             </button>
           ))}
         </nav>
       </div>
 
+      {/* Sub-tabs Usuarios */}
+      {activeTab === 'usuarios' && (
+        <div className="flex gap-2">
+          {[
+            { id: 'cadete',        label: 'Cadete',          Icon: GraduationCap, active: 'bg-blue-600 text-white'   },
+            { id: 'instructor',    label: 'Instructor',      Icon: UserCog,       active: 'bg-green-600 text-white'  },
+            { id: 'administrador', label: 'Administrador',   Icon: ShieldCheck,   active: 'bg-purple-600 text-white' },
+          ].map(({ id, label, Icon, active }) => (
+            <button
+              key={id}
+              onClick={() => { setSubTabUsuario(id); setEditing(null); setFormData({}); }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors ${
+                subTabUsuario === id ? active : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Sub-tabs Acciones */}
+      {activeTab === 'acciones' && (
+        <div className="flex gap-2">
+          {[
+            { id: 'Positiva', label: 'Acciones Positivas', active: 'bg-emerald-600 text-white' },
+            { id: 'Negativa', label: 'Acciones Negativas', active: 'bg-red-600 text-white'     },
+          ].map(({ id, label, active }) => (
+            <button
+              key={id}
+              onClick={() => { setSubTabAccion(id); setEditing(null); setFormData({}); }}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                subTabAccion === id ? active : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Mensajes */}
+      {successMsg && (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg text-sm">
+          {successMsg}
+        </div>
+      )}
+      {errorMsg && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
+          {errorMsg}
+        </div>
+      )}
+
       {loading ? (
-        <div className="text-center py-8">Cargando...</div>
+        <div className="text-center py-12 text-slate-500">Cargando...</div>
       ) : (
-        <>
-        <div className='flex space-x-6'>
-        {/* Form */}
-          <div className="bg-white p-4 w-3xl rounded-xl shadow-md border border-slate-200">
-            <h3 className="text-lg font-bold text-slate-800 mb-6">{editing ? 'Editar' : 'Agregar Nuevo'} {activeTab}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              {getFields().map((field) => (
-                <div key={field.name}>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    {field.label} *
-                  </label>
-                  {field.type === 'textarea' ? (
-                    <textarea
-                      name={field.name}
-                      value={formData[field.name] || ''}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      rows="3"
-                    />
-                  ) : field.type === 'select' ? (
-                    <select
-                      name={field.name}
-                      value={formData[field.name] || ''}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Seleccione {field.label}</option>
-                      {field.options?.map((opt) => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type={field.type}
-                      name={field.name}
-                      value={formData[field.name] || ''}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  )}
-                </div>
-              ))}
+        <div className="space-y-6">
+
+          {/* Formulario + Carga masiva */}
+          <div className="flex gap-6 items-start">
+            <div className="bg-white p-6 flex-1 rounded-xl shadow-md border border-slate-200">
+              <h3 className="text-base font-bold text-slate-800 mb-4">{formTitle()}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                {getActiveFields().map(field => (
+                  <div key={field.name} className={field.type === 'textarea' ? 'lg:col-span-3' : ''}>
+                    <label className="block text-xs font-medium text-slate-600 mb-1">{field.label}</label>
+                    {field.type === 'textarea' ? (
+                      <textarea
+                        name={field.name}
+                        value={formData[field.name] || ''}
+                        onChange={handleInputChange}
+                        rows="2"
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    ) : field.type === 'select' ? (
+                      <select
+                        name={field.name}
+                        value={formData[field.name] || ''}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Seleccionar...</option>
+                        {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      </select>
+                    ) : (
+                      <input
+                        type={field.type}
+                        name={field.name}
+                        value={formData[field.name] || ''}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={saveItem}
+                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 font-medium flex items-center justify-center gap-2 text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  {editing ? 'Actualizar' : 'Registrar'}
+                </button>
+                {editing && (
+                  <button
+                    onClick={() => { setEditing(null); setFormData({}); }}
+                    className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 font-medium text-sm"
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={saveItem}
-                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 font-semibold flex items-center justify-center gap-2 shadow-md transition-all"
-              >
-                <Plus className="w-5 h-5" />
-                {editing ? 'Actualizar' : 'Crear Nuevo'}
-              </button>
-              <button
-                onClick={() => {
-                  setEditing(null);
-                  setFormData({});
-                }}
-                className="flex-1 bg-slate-200 text-slate-800 py-3 px-6 rounded-lg hover:bg-slate-300 font-semibold flex items-center justify-center shadow-md transition-all"
-              >
-                Cancelar
-              </button>
-            </div>
+
+            {/* Carga masiva — solo para cadetes */}
+            {activeTab === 'usuarios' && subTabUsuario === 'cadete' && (
+              <div className="bg-slate-50 p-4 w-56 rounded-xl border-2 border-dashed border-slate-300 flex flex-col shrink-0">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={e => setUploadFile(e.target.files[0])}
+                  className="hidden"
+                  id="upload-cadetes"
+                />
+                <label htmlFor="upload-cadetes" className="cursor-pointer flex flex-col items-center p-4 text-center">
+                  <UploadCloud className="w-10 h-10 text-slate-400 mb-2" />
+                  <p className="text-sm font-medium text-slate-700">Carga masiva</p>
+                  <p className="text-xs text-slate-500 mt-1">XLSX / CSV</p>
+                  {uploadFile && <p className="text-xs text-green-600 mt-2 break-all">{uploadFile.name}</p>}
+                </label>
+                <button
+                  onClick={handleBulkUpload}
+                  disabled={!uploadFile || uploading}
+                  className="w-full px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm"
+                >
+                  {uploading ? 'Cargando...' : 'Cargar'}
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Upload Section */}
-          <div className="bg-slate-50 p-2 w-sm rounded-lg border-2 border-dashed border-slate-300">
-            <input 
-              type="file" 
-              accept=".xlsx,.xls,.csv" 
-              onChange={handleFileChange}
-              className="hidden"
-              id={`upload-${activeTab}`}
-            />
-            <label htmlFor={`upload-${activeTab}`} className="cursor-pointer flex flex-col items-center justify-center p-10 text-center">
-              <UploadCloud className="w-25 h-25 text-slate-400 mb-5" />
-              <p className="text-sm font-medium text-slate-700 mb-1">Cargar XLSX/CSV ({activeTab})</p>
-              <p className="text-xs text-slate-500">Subir archivo para {activeTab}</p>
-              {uploadFile && (
-                <p className="text-xs text-green-600 mt-2">{uploadFile.name}</p>
-              )}
-            </label>
-            <button 
-              onClick={handleBulkUpload}
-              disabled={!uploadFile || uploading}
-              className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {uploading ? 'Cargando...' : 'Cargar Archivo'}
-            </button>
-          </div>
-          </div>
-
-          {/* Delete All */}
-          <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-            <button 
-              onClick={handleDeleteAll}
-              className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 font-medium flex items-center justify-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" />
-              Eliminar TODOS los {activeTab}
-            </button>
-          </div>
-
-          {/* Table */}
+          {/* Tabla */}
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
+            <div className="px-6 py-3 border-b border-slate-200 flex justify-between items-center">
+              <span className="font-semibold text-slate-700 text-sm">
+                {activeTab === 'usuarios'
+                  ? subTabUsuario === 'cadete'       ? 'Cadetes'
+                  : subTabUsuario === 'instructor'   ? 'Instructores'
+                  : 'Administradores'
+                  : `Acciones ${subTabAccion === 'Positiva' ? 'Positivas' : 'Negativas'}`}
+                <span className="ml-2 text-slate-400 font-normal">({dataList.length})</span>
+              </span>
+              {dataList.length > 0 && (
+                <button
+                  onClick={deleteAll}
+                  className="px-3 py-1 bg-red-600 text-white text-xs rounded-md hover:bg-red-700 flex items-center gap-1 font-medium"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Eliminar Todos
+                </button>
+              )}
+            </div>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full text-sm">
                 <thead className="bg-slate-50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Datos</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Acciones</th>
+                    {tableConfig.headers.map(h => (
+                      <th key={h} className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                        {h}
+                      </th>
+                    ))}
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      Acciones
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {dataList.map((item) => (
+                <tbody className="divide-y divide-slate-100">
+                  {dataList.map(item => (
                     <tr key={item.id} className="hover:bg-slate-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{item.id}</td>
-                      <td className="px-6 py-4">
-                        {Object.entries(item).slice(0, 4).map(([key, val]) => (
-                          <div key={key} className="text-sm text-slate-900">
-                            <span className="font-medium">{key}:</span> {val?.toString().slice(0, 30)}
-                          </div>
-                        ))}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onClick={() => editItem(item)} className="text-blue-600 hover:text-blue-900 p-1 rounded">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => deleteItem(item.id)} className="text-red-600 hover:text-red-900 p-1 rounded ml-1">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      {tableConfig.row(item).map((cell, i) => (
+                        <td key={i} className="px-4 py-3 text-slate-700">{cell ?? '-'}</td>
+                      ))}
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1">
+                          {canEdit && (
+                            <button
+                              onClick={() => editItem(item)}
+                              className="p-1 text-blue-600 hover:text-blue-800 rounded"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteItem(item)}
+                            className="p-1 text-red-600 hover:text-red-800 rounded"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
+                  {dataList.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={tableConfig.headers.length + 1}
+                        className="px-4 py-10 text-center text-slate-400"
+                      >
+                        No hay registros
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
 
-          
-        </>
+        </div>
       )}
     </div>
   );

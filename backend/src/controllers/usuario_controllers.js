@@ -1,39 +1,11 @@
 import prisma from "../prisma/client.js";
 import { hashPassword } from "../utils/password.js";
+import { crearInstructor as crearInstructorService, crearAdministrador as crearAdministradorService } from "../services/perfil.service.js";
 
 export const crearUsuario = async (req, res) => {
-    try {
-        const { nombreU, correoU, cedula, gradoU, rol } = req.body;
-        
-        // Validación de campos requeridos
-        if (!nombreU || !correoU || !cedula || !rol) {
-            return res.status(400).json({ 
-                error: 'Faltan campos requeridos: nombreU, correoU, cedula, rol' 
-            });
-        }
-        
-        const passwordHash = await hashPassword(cedula || '123456');
-        
-        const usuario = await prisma.usuario.create({
-            data: {
-                nombreU,
-                correoU,
-                cedula,
-                gradoU: gradoU || 'Cadete',
-                passwordU: passwordHash,
-                rol
-            }
-        });
-        res.status(201).json(usuario);
-    } catch (error) {
-        console.error('❌ Error crearUsuario:', error);
-        if (error.code === 'P2002') {
-            return res.status(400).json({ 
-                error: `Campo duplicado: ${error.meta?.target?.join(', ') || 'desconocido'}` 
-            });
-        }
-        res.status(500).json({ error: error.message });
-    }
+    return res.status(410).json({ 
+        error: 'Endpoint deprecado. Use /api/cadetes, /api/usuarios/instructor or /api/usuarios/administrador' 
+    });
 };
 
 export const listarUsuarios = async (req, res) => {
@@ -48,15 +20,12 @@ export const listarUsuarios = async (req, res) => {
 export const actualizarUsuario = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombreU, correoU, cedula, gradoU, rol } = req.body;
-        
+        const { correo, rol } = req.body;
+
         const usuario = await prisma.usuario.update({
             where: { id: parseInt(id) },
             data: {
-                nombreU,
-                correoU,
-                cedula,
-                gradoU: gradoU || 'Cadete',
+                correo,
                 rol
             }
         });
@@ -79,7 +48,7 @@ export const bulkUploadUsuarios = async (req, res) => {
     if (!files || files.length === 0) {
       return res.status(400).json({ error: "No file uploaded" });
     }
-    const XLSX = await import('xlsx');
+    const XLSX = (await import('xlsx')).default;
     const workbook = XLSX.readFile(files[0].path, { type: 'buffer' });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const json = XLSX.utils.sheet_to_json(sheet);
@@ -132,4 +101,6 @@ export const eliminarTodosLosUsuarios = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
 

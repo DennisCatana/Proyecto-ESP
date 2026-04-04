@@ -10,6 +10,8 @@ import cadeteRoutes from "./routers/cadete_routes.js";
 import accionRoutes from "./routers/accion_routes.js";
 import uploadRoutes from "./routers/upload_routes.js";
 import usuarioRoutes from "./routers/usuario_routes.js";
+import instructorRoutes from "./routers/instructor_routes.js";
+import administradorRoutes from "./routers/administrador_routes.js";
 
 dotenv.config()
 
@@ -54,6 +56,8 @@ app.use("/api", authRoutes);
 app.use("/api", cadeteRoutes);
 app.use("/api", accionRoutes);
 app.use("/api", uploadRoutes);
+app.use("/api", instructorRoutes);
+app.use("/api", administradorRoutes);
 app.use("/api", usuarioRoutes);
 
 
