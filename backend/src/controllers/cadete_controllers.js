@@ -35,9 +35,15 @@ export const listarCadetes = async (req, res) => {
     });
     res.json(cadetes);
   } catch (error) {
-    console.error("Error listarCadetes:", error);
-    res.status(500).json({ error: error.message });
-  }
+    console.error("Error listarCadetes:", error.message);
+    console.error("Código:", error.code);
+    console.error("Meta:", error.meta);
+    res.status(500).json({ 
+      error: error.message, 
+      code: error.code,
+      meta: error.meta 
+    });
+}
 };
 
 // Obtener info de un cadete
@@ -209,36 +215,51 @@ export const bulkUploadCadetes = async (req, res) => {
 
     // Para CSV con ; usar esto:
     const json = XLSX.utils.sheet_to_json(sheet, {
-      defval: '',       // campos vacíos quedan como '' en vez de undefined
+      defval: '', 
       raw: false
+      
     });
+    console.log('=== TOTAL FILAS ===', json.length);
+    console.log('=== COLUMNAS ===', Object.keys(json[0] || {}));
+    console.log('=== PRIMERA FILA ===', json[0]);
+
+
+
 
     // Helper para limpiar texto y manejar tildes
     const str = (val) => (val ? String(val).trim() : null);
     const num = (val) => (val !== '' && !isNaN(val) ? Number(val) : null);
 
     const cadetesData = json.map(row => ({
-      // Campos obligatorios
-      promocion:    str(row['Promoción']    || row['Promocion']    || row['PROMOCION']),
-      cia:          str(row['CIA']          || row['Cia']          || row['cia']),
-      nombre:       str(row['Nombres']      || row['Nombre']       || row['NOMBRE']),
-      cedula:       str(row['Cédula']       || row['Cedula']       || row['cedula']    || row['CEDULA']),
-      seccion:      str(row['Sección']      || row['Seccion']      || row['SECCION']),
+      // Obligatorios
+      promocion: str(row['Promoción'] || row['Promocion'] || row['PROMOCION']),
+      cia:       str(row['CIA']       || row['Cia']       || row['cia']),
+      nombre:    str(row['Nombres']   || row['Nombre']    || row['NOMBRE']),
+      cedula:    str(row['cédula']    || row['Cédula']    || row['Cedula']  || row['CEDULA']),
+      seccion:   str(row['Sección']   || row['Seccion']   || row['SECCION']),
 
-      // Campos opcionales
-      genero:           str(row['Género']          || row['Genero']          || row['GENERO']),
-      habitacion:       str(row['Habitación']       || row['Habitacion']      || row['HABITACION']),
-      grupo_guardia:    str(row['Grupo_guardia']    || row['grupo_guardia']   || row['Guardia']  || row['GUARDIA']),
-      antiguedad:       num(row['Antigüedad']       || row['Antiguedad']      || row['ANTIGUEDAD']),
-      telefono:         str(row['Teléfono']         || row['Telefono']        || row['TELEFONO']),
-      correo:           str(row['Correo']           || row['correo']          || row['CORREO']),
-      fecha_nacimiento: str(row['Fecha_nacimiento'] || row['fecha_nacimiento']|| row['FechaNacimiento']),
-      seguro_medico:    str(row['Seguro_medico']    || row['seguro_medico']   || row['Seguro']),
-      numero_emergencia:str(row['Numero_emergencia']|| row['numero_emergencia']|| row['NumeroEmergencia']),
-      parentesco:       str(row['Parentesco']       || row['parentesco']),
-      lugar_nacimiento: str(row['Lugar_nacimiento'] || row['lugar_nacimiento']|| row['LugarNacimiento']),
-      lugar_residencia: str(row['Lugar_residencia'] || row['lugar_residencia']|| row['LugarResidencia']),
-    })).filter(row => row.nombre && row.cedula); // solo filas con datos mínimos
+      // Opcionales — ajustados a los nombres reales del CSV
+      genero:            str(row['Género']               || row['Genero']),
+      habitacion:        str(row['Habitación']            || row['Habitacion']),
+      grupo_guardia:     str(row['guardia']               || row['Guardia']    || row['GUARDIA']),
+      antiguedad:        num(row['Antiguedad']             || row['Antigüedad']),
+      correo:            str(row['Gmail']                 || row['Correo']     || row['correo']),
+      telefono:          str(row['telefóno']              || row['Teléfono']   || row['Telefono']),
+      fecha_nacimiento:  str(row['FechaN']                || row['Fecha_nacimiento']),
+      seguro_medico:     str(row['Seguro']                || row['Seguro_medico']),
+      numero_emergencia: str(row['telefóno_emergencia']   || row['Numero_emergencia']),
+      parentesco:        str(row['Relación']              || row['Parentesco']),
+      lugar_nacimiento:  str(row['LugarN']                || row['Lugar_nacimiento']),
+      lugar_residencia:  str(row['LugarR']                || row['Lugar_residencia']),
+
+    })).filter(row => {
+      const valido = row.nombre && row.cedula && row.promocion && row.cia && row.seccion;
+      if (!valido) console.warn('⚠️ Fila ignorada:', { 
+        nombre: row.nombre, cedula: row.cedula, 
+        promocion: row.promocion, cia: row.cia, seccion: row.seccion 
+      });
+      return valido;
+    });
 
     // Log para depuración — ver qué llega del CSV
     console.log(`📋 Filas válidas encontradas: ${cadetesData.length}`);
@@ -262,9 +283,8 @@ export const bulkUploadCadetes = async (req, res) => {
         await crearCadeteService({ ...datos, correo });
         count++;
       } catch (err) {
-        // No detener todo si un registro falla
-        errores.push({ cedula: datos.cedula, error: err.message });
-        console.error(`❌ Error en cédula ${datos.cedula}:`, err.message);
+        errores.push({ cedula: datos.cedula, error: err.message })
+        console.error(`❌ Error en cédula ${datos.cedula}:`, err.message)
       }
     }
 

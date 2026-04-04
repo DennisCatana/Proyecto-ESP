@@ -192,18 +192,24 @@ const ConfigSection = () => {
 
   const handleBulkUpload = async () => {
     if (!uploadFile) return;
+    
+    // 👇 agrega esto
+    console.log('Archivo a subir:', uploadFile.name, uploadFile.size, uploadFile.type);
+    
     setUploading(true);
     try {
-      const result = await api.upload('/cadetes/bulk-upload', uploadFile, 'files');
-      showMsg(`${result.count || 0} cadetes cargados`);
-      loadData();
+        const result = await api.upload('/cadetes/bulk-upload', uploadFile, 'files');
+        console.log('Resultado:', result);  // 👈 y esto
+        showMsg(`${result.count || 0} cadetes cargados`);
+        loadData();
     } catch (err) {
-      showMsg('Error: ' + err.message, true);
+        console.error('Error completo:', err);  // 👈 y esto
+        showMsg('Error: ' + err.message, true);
     } finally {
-      setUploading(false);
-      setUploadFile(null);
+        setUploading(false);
+        setUploadFile(null);
     }
-  };
+};
 
   const getActiveFields = () => {
     if (activeTab === 'usuarios') {
