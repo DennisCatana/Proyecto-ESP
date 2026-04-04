@@ -225,7 +225,7 @@ const PositionedArrow = ({ x, y, label, color, rotation = '0deg' }) => {
       {/* Flecha - orden dinámico */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-10 w-10 drop-shadow-lg flex-shrink-0"
+        className="h-10 w-10 drop-shadow-lg shrink-0"
         fill={color}
         viewBox="0 0 24 24"
         style={{ 
