@@ -27,6 +27,28 @@ export const crearAdministrador = async (req, res) => {
   }
 };
 
+export const actualizarAdministrador = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre } = req.body;
+
+    if (!nombre)
+      return res.status(400).json({ error: 'El nombre es obligatorio' });
+
+    const admin = await prisma.administrador.update({
+      where: { id: parseInt(id) },
+      data: { nombre },
+      include: { usuario: { select: { id: true, correo: true, activo: true } } }
+    });
+
+    res.json(admin);
+  } catch (error) {
+    if (error.code === 'P2025')
+      return res.status(404).json({ error: 'Administrador no encontrado' });
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const eliminarTodosAdministradores = async (req, res) => {
   try {
     const miUsuarioId = req.usuario.id; // del middleware auth

@@ -4,9 +4,18 @@ import { crearCadete as crearCadeteService } from "../services/perfil.service.js
 // Crear nuevo cadete (usa service)
 export const crearCadete = async (req, res) => {
   try {
+    const { nombre, cedula, correo, promocion, cia, seccion } = req.body;
+    if (!nombre || !cedula || !correo || !promocion || !cia || !seccion) {
+      return res.status(400).json({
+        error: 'Nombre, cédula, correo, promoción, compañía y sección son obligatorios'
+      });
+    }
     const result = await crearCadeteService(req.body);
     res.status(201).json(result);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'Cédula o correo ya registrado' });
+    }
     res.status(500).json({ error: error.message });
   }
 };
@@ -17,16 +26,25 @@ export const listarCadetes = async (req, res) => {
     const cadetes = await prisma.cadete.findMany({
       select: {
         id: true,
-        promocion: true,
-        cia: true,
         nombre: true,
         cedula: true,
+        correo: true,
+        promocion: true,
+        cia: true,
         seccion: true,
         genero: true,
+        telefono: true,
         habitacion: true,
         grupo_guardia: true,
         antiguedad: true,
+        fecha_nacimiento: true,
+        lugar_nacimiento: true,
+        lugar_residencia: true,
+        seguro_medico: true,
+        numero_emergencia: true,
+        parentesco: true,
         puntajeTotal: true,
+        estado: true,
         createdAt: true
       },
       orderBy: {
@@ -160,7 +178,7 @@ export const eliminarTodosCadetes = async (req, res) => {
     });
     res.json({ msg: 'Todos los cadetes eliminados correctamente' });
   } catch (error) {
-    console.error('ERROR DETALLADO:', error); // 👈 mira esto en la terminal del backend
+    console.error('ERROR DETALLADO:', error);
     res.status(500).json({ msg: error.message, code: error.code, meta: error.meta });
   }
 };
@@ -170,13 +188,52 @@ export const eliminarTodosCadetes = async (req, res) => {
 export const actualizarCadete = async (req, res) => {
   try {
     const { id } = req.params;
-    const cadeteData = req.body;
+    const {
+      nombre, cedula, correo, promocion, cia, seccion,
+      genero, telefono, habitacion, grupo_guardia, antiguedad,
+      seguro_medico, numero_emergencia, parentesco,
+      lugar_nacimiento, lugar_residencia, fecha_nacimiento
+    } = req.body;
+
+    if (!nombre || !cedula || !promocion || !cia || !seccion) {
+      return res.status(400).json({
+        error: 'Nombre, cédula, promoción, compañía y sección son obligatorios'
+      });
+    }
+
     const cadete = await prisma.cadete.update({
       where: { id: parseInt(id) },
-      data: cadeteData
+      data: {
+        nombre,
+        cedula,
+        correo:            correo            || undefined,
+        promocion,
+        cia,
+        seccion,
+        genero:            genero            || undefined,
+        telefono:          telefono          || undefined,
+        habitacion:        habitacion        || undefined,
+        grupo_guardia:     grupo_guardia     || undefined,
+        // antiguedad es Int? — parsear explícitamente
+        antiguedad:        antiguedad != null && antiguedad !== ''
+                             ? parseInt(antiguedad, 10)
+                             : undefined,
+        seguro_medico:     seguro_medico     || undefined,
+        numero_emergencia: numero_emergencia || undefined,
+        parentesco:        parentesco        || undefined,
+        lugar_nacimiento:  lugar_nacimiento  || undefined,
+        lugar_residencia:  lugar_residencia  || undefined,
+        fecha_nacimiento:  fecha_nacimiento  ? new Date(fecha_nacimiento) : undefined,
+      }
     });
     res.json(cadete);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(400).json({ error: 'Cédula o correo ya registrado en otro cadete' });
+    }
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Cadete no encontrado' });
+    }
     res.status(500).json({ error: error.message });
   }
 };
@@ -195,103 +252,151 @@ export const eliminarCadete = async (req, res) => {
   }
 };
 
+// ── helpers bulk upload ─────────────────
+const normKey = (s) =>
+  String(s).trim()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+const normalizeRow = (row) => {
+  const r = {};
+  for (const [k, v] of Object.entries(row)) r[normKey(k)] = v;
+  return r;
+};
+
+const col = (r, ...aliases) => {
+  for (const a of aliases) {
+    const v = r[normKey(a)];
+    if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
+  }
+  return null;
+};
+
+const colNum = (r, ...aliases) => {
+  const v = col(r, ...aliases);
+  if (v === null) return null;
+  const n = Number(v.replace(',', '.')); 
+  return isNaN(n) ? null : n;
+};
+// ────────────────────────────────────
+
 // Bulk upload
 export const bulkUploadCadetes = async (req, res) => {
   try {
     const files = req.files;
-    if (!files || files.length === 0) {
-      return res.status(400).json({ error: "No se subió ningún archivo" });
-    }
+    if (!files || files.length === 0)
+      return res.status(400).json({ error: 'No se subió ningún archivo' });
 
     const XLSX = (await import('xlsx')).default;
-
-    // Leer el archivo — soporta xlsx y csv con ; o ,
-    const workbook = XLSX.readFile(files[0].path, {
-      raw: false,       // convierte fechas automáticamente
-      dateNF: 'yyyy-mm-dd'
-    });
-
+    const workbook = XLSX.readFile(files[0].path, { raw: true });
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-    // Para CSV con ; usar esto:
-    const json = XLSX.utils.sheet_to_json(sheet, {
-      defval: '', 
-      raw: false
-      
-    });
-    console.log('=== TOTAL FILAS ===', json.length);
-    console.log('=== COLUMNAS ===', Object.keys(json[0] || {}));
-    console.log('=== PRIMERA FILA ===', json[0]);
+    if (rawData.length < 2)
+      return res.status(400).json({ error: 'El archivo está vacío o solo tiene encabezados' });
 
+    const cabeceras = rawData[0].map(h => normKey(String(h)));
+    const filasDatos = rawData.slice(1).filter(row =>
+      row.some(c => c !== '' && c !== null && c !== undefined)
+    );
 
+    console.log('=== CABECERAS ===', cabeceras);
+    console.log('=== FILAS ===', filasDatos.length);
 
+    const idx = (...aliases) => {
+      for (const a of aliases) {
+        const i = cabeceras.indexOf(normKey(a));
+        if (i !== -1) return i;
+      }
+      return -1;
+    };
 
-    // Helper para limpiar texto y manejar tildes
-    const str = (val) => (val ? String(val).trim() : null);
-    const num = (val) => (val !== '' && !isNaN(val) ? Number(val) : null);
+    const getStr = (row, i) => {
+      if (i === -1) return null;
+      const v = row[i];
+      if (v === undefined || v === null || String(v).trim() === '') return null;
+      return String(v).trim();
+    };
 
-    const cadetesData = json.map(row => ({
-      // Obligatorios
-      promocion: str(row['Promoción'] || row['Promocion'] || row['PROMOCION']),
-      cia:       str(row['CIA']       || row['Cia']       || row['cia']),
-      nombre:    str(row['Nombres']   || row['Nombre']    || row['NOMBRE']),
-      cedula:    str(row['cédula']    || row['Cédula']    || row['Cedula']  || row['CEDULA']),
-      seccion:   str(row['Sección']   || row['Seccion']   || row['SECCION']),
+    const getNum = (row, i) => {
+      if (i === -1) return null;
+      const v = row[i];
+      if (v === undefined || v === null || v === '') return null;
+      if (typeof v === 'number') return v;
+      const n = Number(String(v).replace(',', '.'));
+      return isNaN(n) ? null : n;
+    };
 
-      // Opcionales — ajustados a los nombres reales del CSV
-      genero:            str(row['Género']               || row['Genero']),
-      habitacion:        str(row['Habitación']            || row['Habitacion']),
-      grupo_guardia:     str(row['guardia']               || row['Guardia']    || row['GUARDIA']),
-      antiguedad:        num(row['Antiguedad']             || row['Antigüedad']),
-      correo:            str(row['Gmail']                 || row['Correo']     || row['correo']),
-      telefono:          str(row['telefóno']              || row['Teléfono']   || row['Telefono']),
-      fecha_nacimiento:  str(row['FechaN']                || row['Fecha_nacimiento']),
-      seguro_medico:     str(row['Seguro']                || row['Seguro_medico']),
-      numero_emergencia: str(row['telefóno_emergencia']   || row['Numero_emergencia']),
-      parentesco:        str(row['Relación']              || row['Parentesco']),
-      lugar_nacimiento:  str(row['LugarN']                || row['Lugar_nacimiento']),
-      lugar_residencia:  str(row['LugarR']                || row['Lugar_residencia']),
+    // Índices de columnas
+    const iNombre    = idx('nombre','nombres');
+    const iCedula    = idx('cedula');
+    const iPromocion = idx('promocion');
+    const iCia       = idx('cia','compania','compañia');
+    const iSeccion   = idx('seccion');
+    const iGenero    = idx('genero','sexo');
+    const iHabitacion= idx('habitacion');
+    const iGuardia   = idx('grupo_guardia','guardia','grupo');
+    const iAntiguedad= idx('antiguedad');
+    const iCorreo    = idx('correo','email','gmail');
+    const iTelefono  = idx('telefono');
+    const iFechaNac  = idx('fecha_nacimiento','fechain','fnacimiento');
+    const iSeguro    = idx('seguro_medico','seguro');
+    const iEmergencia= idx('numero_emergencia','telefono_emergencia','emergencia');
+    const iParentesco= idx('parentesco','relacion');
+    const iLugarNac  = idx('lugar_nacimiento','lugarn');
+    const iLugarRes  = idx('lugar_residencia','lugarr');
 
-    })).filter(row => {
-      const valido = row.nombre && row.cedula && row.promocion && row.cia && row.seccion;
-      if (!valido) console.warn('⚠️ Fila ignorada:', { 
-        nombre: row.nombre, cedula: row.cedula, 
-        promocion: row.promocion, cia: row.cia, seccion: row.seccion 
-      });
-      return valido;
-    });
+    const allParsed = filasDatos.map(row => ({
+      nombre:            getStr(row, iNombre),
+      cedula:            getStr(row, iCedula),
+      promocion:         getStr(row, iPromocion),
+      cia:               getStr(row, iCia),
+      seccion:           getStr(row, iSeccion),
+      genero:            getStr(row, iGenero),
+      habitacion:        getStr(row, iHabitacion),
+      grupo_guardia:     getStr(row, iGuardia),
+      antiguedad:        getNum(row, iAntiguedad),
+      correo:            getStr(row, iCorreo),
+      telefono:          getStr(row, iTelefono),
+      fecha_nacimiento:  getStr(row, iFechaNac),
+      seguro_medico:     getStr(row, iSeguro),
+      numero_emergencia: getStr(row, iEmergencia),
+      parentesco:        getStr(row, iParentesco),
+      lugar_nacimiento:  getStr(row, iLugarNac),
+      lugar_residencia:  getStr(row, iLugarRes),
+    }));
 
-    // Log para depuración — ver qué llega del CSV
-    console.log(`📋 Filas válidas encontradas: ${cadetesData.length}`);
-    if (cadetesData.length > 0) {
-      console.log('🔍 Primer registro:', cadetesData[0]);
-    }
+    const filtradosArr = allParsed.filter(d => !(d.nombre && d.cedula && d.promocion && d.cia && d.seccion));
+    filtradosArr.forEach(d => console.warn('⚠️ Fila ignorada:', JSON.stringify(d)));
+    const filtrados = filtradosArr.length;
+    const cadetesData = allParsed.filter(d => d.nombre && d.cedula && d.promocion && d.cia && d.seccion);
+
+    console.log(`✅ Válidas: ${cadetesData.length} | Filtradas: ${filtrados}`);
 
     let count = 0;
+    let omitidas = 0;
     const errores = [];
 
     for (const datos of cadetesData) {
       try {
-        const existe = await prisma.cadete.findUnique({
-          where: { cedula: datos.cedula }
-        });
-        if (existe) continue;
-
-        // Correo: usar el del CSV si existe, sino generar uno temporal
+        const existe = await prisma.cadete.findUnique({ where: { cedula: datos.cedula } });
+        if (existe) { omitidas++; continue; }
         const correo = datos.correo || `${datos.cedula}@esp.edu.ec`;
-
         await crearCadeteService({ ...datos, correo });
         count++;
       } catch (err) {
-        errores.push({ cedula: datos.cedula, error: err.message })
-        console.error(`❌ Error en cédula ${datos.cedula}:`, err.message)
+        errores.push({ cedula: datos.cedula, error: err.message });
+        console.error(`❌ Error en cédula ${datos.cedula}:`, err.message);
       }
     }
 
     res.json({
       msg: 'Proceso completado',
       count,
-      errores: errores.length > 0 ? errores : undefined
+      omitidas,
+      filtradas: filtrados,
+      columnas: cabeceras,
+      errores: errores.length ? errores : undefined
     });
 
   } catch (error) {

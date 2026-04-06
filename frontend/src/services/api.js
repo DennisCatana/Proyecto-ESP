@@ -21,10 +21,10 @@ const handleResponse = async (response) => {
         // Si es sesión inválida
         if (response.status === 401) {
             localStorage.clear();
-            window.location.href = "/"; //observar aqui despues 
+            window.location.href = "/";
         }
 
-        throw new Error(data.msg || "Error en la petición");
+        throw new Error(data.msg || data.error || "Error en la petición");
     }
 
     return data;
@@ -106,13 +106,9 @@ export const api = {
         }
 
         // DELETE exitoso
-        return {
-            success: true,
-            status: response.status,
-            data: response.headers.get('content-length') !== '0' 
-                ? await response.json() 
-                : null
-        };
+        let data = null;
+        try { data = await response.json(); } catch { data = null; }
+        return { success: true, status: response.status, data };
 
     } catch (error) {
         clearTimeout(timeoutId);
@@ -125,11 +121,6 @@ export const api = {
         throw error;
     }
 },
-
-    // Clear cache when needed
-    clearCache: () => {
-        cache.clear();
-    },
 
     // Upload file to server
     upload: async (endpoint, file, fieldName = 'evidencia') => {
@@ -153,6 +144,13 @@ export const api = {
 
             if (!response.ok) {
                 const error = await response.json().catch(() => ({ msg: 'Network error' }));
+
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = '/';
+                    return;
+                }
+
                 throw new Error(error.msg || error.error || `Error ${response.status}`);
             }
 

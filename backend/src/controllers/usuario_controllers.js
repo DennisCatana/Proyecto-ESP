@@ -58,7 +58,7 @@ export const bulkUploadUsuarios = async (req, res) => {
       correoU: row.correo || row.Correo,
       cedula: row.cedula,
       gradoU: row.grado || row.Grado,
-      rol: row.rol || 'Alumno',
+      rol: row.rol || 'Cadete',
       passwordU: await hashPassword(row.cedula)
     }));
 

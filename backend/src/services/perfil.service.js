@@ -24,6 +24,11 @@ export const crearCadete = async (datos) => {
       }
     })
 
+    // antiguedad es Int? — parsear explícitamente para evitar strings vacíos
+    const antiguedadInt = (datos.antiguedad != null && datos.antiguedad !== '')
+      ? parseInt(datos.antiguedad, 10)
+      : null;
+
     const cadete = await tx.cadete.create({
       data: {
         usuarioId:        usuario.id,
@@ -32,17 +37,17 @@ export const crearCadete = async (datos) => {
         promocion:        datos.promocion,
         cia:              datos.cia,
         seccion:          datos.seccion,
-        correo:           datos.correo   || null,
-        telefono:         datos.telefono || null,
-        genero:           datos.genero   || null,
-        habitacion:       datos.habitacion     || null,
-        grupo_guardia:    datos.grupo_guardia  || null,
-        antiguedad:       datos.antiguedad     ?? null,
-        seguro_medico:    datos.seguro_medico  || null,
-        numero_emergencia:datos.numero_emergencia || null,
-        parentesco:       datos.parentesco     || null,
-        lugar_nacimiento: datos.lugar_nacimiento || null,
-        lugar_residencia: datos.lugar_residencia || null,
+        correo:           datos.correo             || null,
+        telefono:         datos.telefono           || null,
+        genero:           datos.genero             || null,
+        habitacion:       datos.habitacion         || null,
+        grupo_guardia:    datos.grupo_guardia       || null,
+        antiguedad:       Number.isNaN(antiguedadInt) ? null : antiguedadInt,
+        seguro_medico:    datos.seguro_medico       || null,
+        numero_emergencia:datos.numero_emergencia   || null,
+        parentesco:       datos.parentesco          || null,
+        lugar_nacimiento: datos.lugar_nacimiento    || null,
+        lugar_residencia: datos.lugar_residencia    || null,
         fecha_nacimiento, // ya convertida a Date o null
       }
     })
@@ -52,7 +57,7 @@ export const crearCadete = async (datos) => {
 }
 
 export const crearInstructor = async (datos) => {
-  const passwordHash = await bcrypt.hash(generarPasswordTemporal(datos.cedula), 10)
+  const passwordHash = await bcrypt.hash(datos.cedula, 10)
 
   return await prisma.$transaction(async (tx) => {
     const usuario = await tx.usuario.create({

@@ -12,12 +12,16 @@ const NavbarDesktop = () => {
 
     const simpleLinks = [
         { name: 'Inicio', path: '/home' },
-        { name: 'APP', path: '/rap' },
         { name: 'Biblioteca', path: '/library/regulations' },
-        { name: 'Control Disciplinario', path: '/disciplina' },
         { name: 'Servicios', path: '/contacts' },
         { name: 'Galería', path: '/gallery' },
     ];
+
+    const appsItems = [
+        { name: 'Control Disciplinario', path: '/aplications/disciplina' },
+        { name: 'Descansos Médicos', path: '/aplications/descansos' },
+        { name: 'Control Vehicular', path: '/aplications/vehiculos' },
+    ];    
 
     const scaleItems = [
         { name: 'Mando Politico', path: '/organic/politicos' },
@@ -50,6 +54,39 @@ const NavbarDesktop = () => {
                         </Link>
                     </li>
                 ))}
+
+                {/* Dropdown Aplicaciones */}
+                <li
+                    className="relative"
+                    onMouseEnter={() => setOpenDropdown('applications')}
+                    onMouseLeave={() => setOpenDropdown(null)}
+                >
+                    <button className="text-white font-medium px-3 py-2 rounded-md hover:bg-white/20 flex items-center gap-1">
+                        Aplicaciones
+                        <svg
+                            className={`w-4 h-4 transition-transform duration-300 ${openDropdown === 'applications' ? 'rotate-180' : ''}`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    {openDropdown === 'applications' && (
+                        <div className="absolute top-full left-0 min-w-44 bg-white rounded-lg shadow-xl py-2 z-50">
+                            {appsItems.map((item) => (
+                                <Link
+                                    key={item.name}
+                                    to={item.path}
+                                    className="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition"
+                                >
+                                    {item.name}
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </li>
 
                 {/* Dropdown Orgánico */}
                 <li

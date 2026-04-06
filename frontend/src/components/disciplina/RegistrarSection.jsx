@@ -10,7 +10,7 @@ const RegistrarSection = ({
   cadeteSeleccionado,
   onCancel,
   loadingRegistro,
-  oficialActual,
+  usuarioActual,
   handleRegistrarAccion
 }) => {
   return (
@@ -36,7 +36,7 @@ const RegistrarSection = ({
         onSubmit={handleRegistrarAccion}
         onCancel={onCancel}
         loading={loadingRegistro}
-        oficialActual={oficialActual}
+        oficialActual={usuarioActual}
       />
     </div>
   );
