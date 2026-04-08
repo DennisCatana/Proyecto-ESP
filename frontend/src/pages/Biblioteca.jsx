@@ -120,9 +120,9 @@ const Biblioteca = () => {
     {
       title: 'La Importancia de la Etica en la Formacion Policial',
       description: 'Articulo sobre los fundamentos eticos que rigen la formacion de los futuros oficiales de policia y su importancia en el servicio a la comunidad.',
-      author: 'Cmte. Alberto Enriquez',
-      date: '15 de Enero, 2024',
-      readMoreUrl: '#',
+      author: 'María José Bernal Ballesteros',
+      date: '05 Diciembre 2017',
+      readMoreUrl: 'https://www.redalyc.org/journal/2932/293261227011/html/#:~:text=Las%20herramientas%20legales%20con%20las,gran%20parte%20de%20Am%C3%A9rica%20Latina.',
     },
     {
       title: 'Nuevas Tecnicas de Defensa Personal Policial',

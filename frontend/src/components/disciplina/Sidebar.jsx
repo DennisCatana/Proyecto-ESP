@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Users, ClipboardPlus, History, BarChart3, Settings,
   Home, ChevronLeft, ChevronRight, UserCircle
 } from 'lucide-react';
+import logo from '../../assets/Logo_ESP.png';
 
 const Sidebar = ({ activeSection, setActiveSection, rol, collapsed, setCollapsed, className }) => {
   const navigate = useNavigate();
@@ -33,11 +34,7 @@ const Sidebar = ({ activeSection, setActiveSection, rol, collapsed, setCollapsed
       <div className="p-4 border-b border-slate-700 flex items-center justify-between">
         {!collapsed && (
           <div className="flex items-center gap-2">
-            <img
-              src="src/assets/Logo_ESP.png"
-              alt="Logo ESP"
-              className="h-12 w-12 shrink-0"
-            />
+            <img src={logo} alt="Logo ESP" className="h-12 w-12 shrink-0" />
             <div>
               <h2 className="font-bold text-sm leading-tight">
                 Escuela Superior de Policía

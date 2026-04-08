@@ -1,39 +1,74 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../services/api';
-import { Plus, Edit, Trash2, Users, FileText, UploadCloud, ShieldCheck, GraduationCap, UserCog } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, User, FileText, UploadCloud, ShieldCheck, GraduationCap, UserCog } from 'lucide-react';
+
+// ──────────────────────────────────────────────────────────────────
+// Definición de campos alineada con el schema.prisma
+// required:true  → campo obligatorio siempre
+// createOnly:true → obligatorio al crear, opcional al editar
+// ──────────────────────────────────────────────────────────────────
 
 const CADETE_FIELDS = [
-  { name: 'nombre',    label: 'Nombre',     type: 'text'   },
-  { name: 'cedula',    label: 'Cédula',     type: 'text'   },
-  { name: 'correo',    label: 'Correo',     type: 'email'  },
-  { name: 'promocion', label: 'Promoción',  type: 'text'   },
-  { name: 'cia',       label: 'Compañía',   type: 'text'   },
-  { name: 'seccion',   label: 'Sección',    type: 'text'   },
-  { name: 'genero',    label: 'Género',     type: 'select', options: ['M', 'F'] },
-  { name: 'telefono',  label: 'Teléfono',   type: 'text'   },
+  // ── Datos principales ──────────────────────────────────────────
+  { name: 'nombre',    label: 'Nombre completo',    type: 'text',   required: true  },
+  { name: 'cedula',    label: 'Cédula',             type: 'text',   required: true  },
+  { name: 'correo',    label: 'Correo electrónico', type: 'email',  createOnly: true },
+  { name: 'genero',    label: 'Género',             type: 'select', options: ['M', 'F'] },
+  // ── Información académica ───────────────────────────────────────
+  { name: 'promocion', label: 'Promoción',          type: 'text',   required: true  },
+  { name: 'cia',       label: 'Compañía',           type: 'text',   required: true  },
+  { name: 'seccion',   label: 'Sección',            type: 'text',   required: true  },
+  { name: 'habitacion',     label: 'Habitación',       type: 'text' },
+  { name: 'grupo_guardia',  label: 'Grupo de Guardia', type: 'text' },
+  { name: 'antiguedad',     label: 'Antigüedad (años)', type: 'number' },
+  // ── Datos de contacto ──────────────────────────────────────────
+  { name: 'telefono',          label: 'Teléfono',         type: 'text' },
+  { name: 'numero_emergencia', label: 'N° Emergencias',   type: 'text' },
+  { name: 'parentesco',        label: 'Parentesco',       type: 'text' },
+  // ── Datos adicionales ──────────────────────────────────────────
+  { name: 'fecha_nacimiento',  label: 'Fecha Nacimiento', type: 'date' },
+  { name: 'lugar_nacimiento',  label: 'Lugar Nacimiento', type: 'text' },
+  { name: 'lugar_residencia',  label: 'Lugar Residencia', type: 'text' },
+  { name: 'seguro_medico',     label: 'Seguro Médico',    type: 'text' },
 ];
 
 const INSTRUCTOR_FIELDS = [
-  { name: 'nombre',      label: 'Nombre',      type: 'text'   },
-  { name: 'cedula',      label: 'Cédula',      type: 'text'   },
-  { name: 'correo',      label: 'Correo',      type: 'email'  },
-  { name: 'grado',       label: 'Grado',       type: 'select', options: ['SBTE', 'TNTE', 'CPTN', 'MYR', 'TCNL', 'CRNL'] },
-  { name: 'especialidad',label: 'Especialidad', type: 'text'   },
-  { name: 'telefono',    label: 'Teléfono',    type: 'text'   },
+  { name: 'nombre',       label: 'Nombre completo', type: 'text',   required: true                     },
+  { name: 'cedula',       label: 'Cédula',          type: 'text',   required: true                     },
+  // correo pertenece a Usuario — solo visible al crear
+  { name: 'correo',       label: 'Correo',          type: 'email',  createOnly: true, required: true   },
+  { name: 'grado',        label: 'Grado',           type: 'select',
+    options: ['SBTE', 'TNTE', 'CPTN', 'MYR', 'TCNL', 'CRNL']                                          },
+  { name: 'especialidad', label: 'Especialidad',    type: 'text'                                       },
+  { name: 'telefono',     label: 'Teléfono',        type: 'text'                                       },
 ];
 
 const ADMIN_FIELDS = [
-  { name: 'nombre',          label: 'Nombre',            type: 'text'     },
-  { name: 'correo',          label: 'Correo',            type: 'email'    },
-  { name: 'passwordInicial', label: 'Contraseña Inicial', type: 'password' },
+  { name: 'nombre',          label: 'Nombre completo',    type: 'text',     required: true             },
+  // correo y password pertenecen a Usuario — solo visibles al crear
+  { name: 'correo',          label: 'Correo',             type: 'email',    createOnly: true, required: true },
+  { name: 'passwordInicial', label: 'Contraseña inicial', type: 'password', createOnly: true, required: true },
 ];
 
 const ACCION_FIELDS = [
-  { name: 'codigo',      label: 'Código',      type: 'text'     },
-  { name: 'titulo',      label: 'Título',      type: 'text'     },
-  { name: 'puntaje',     label: 'Puntaje',     type: 'number'   },
-  { name: 'descripcion', label: 'Descripción', type: 'textarea' },
+  { name: 'codigo',      label: 'Código',      type: 'text',     required: true },
+  { name: 'titulo',      label: 'Título',      type: 'text',     required: true },
+  { name: 'puntaje',     label: 'Puntaje',     type: 'number',   required: true },
+  { name: 'descripcion', label: 'Descripción', type: 'textarea'                 },
 ];
+
+// Convierte valores del objeto para mostrarlos correctamente en el formulario
+const getFormValue = (field, formData) => {
+  const val = formData[field.name];
+  if (val === null || val === undefined) return '';
+  if (field.type === 'date') {
+    // Fecha puede venir como ISO string "2000-01-15T00:00:00.000Z" → "2000-01-15"
+    if (typeof val === 'string') return val.split('T')[0];
+    if (val instanceof Date)     return val.toISOString().split('T')[0];
+    return '';
+  }
+  return String(val);
+};
 
 const ConfigSection = () => {
   const [activeTab, setActiveTab]         = useState('usuarios');
@@ -66,27 +101,38 @@ const ConfigSection = () => {
     setTimeout(() => { setSuccessMsg(''); setErrorMsg(''); }, 3500);
   };
 
+  const fetchCurrentData = async () => {
+    if (activeTab === 'usuarios') {
+      if (subTabUsuario === 'cadete') {
+        setCadetes(await api.get('/cadetes'));
+      } else if (subTabUsuario === 'instructor') {
+        setInstructores(await api.get('/usuarios/instructores'));
+      } else {
+        setAdministradores(await api.get('/usuarios/administradores'));
+      }
+    } else {
+      const data = await api.get('/acciones');
+      setAccionesPos(data.filter(a => a.tipo === 'Positiva'));
+      setAccionesNeg(data.filter(a => a.tipo === 'Negativa'));
+    }
+  };
+
+  // Carga inicial — muestra spinner
   const loadData = async () => {
     setLoading(true);
     try {
-      if (activeTab === 'usuarios') {
-        if (subTabUsuario === 'cadete') {
-          setCadetes(await api.get('/cadetes'));
-        } else if (subTabUsuario === 'instructor') {
-          setInstructores(await api.get('/usuarios/instructores'));
-        } else {
-          setAdministradores(await api.get('/usuarios/administradores'));
-        }
-      } else {
-        const data = await api.get('/acciones');
-        setAccionesPos(data.filter(a => a.tipo === 'Positiva'));
-        setAccionesNeg(data.filter(a => a.tipo === 'Negativa'));
-      }
+      await fetchCurrentData();
     } catch (err) {
       console.error('Error loading data:', err);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Refresco silencioso tras guardar — sin spinner, la lista se actualiza en segundo plano
+  const refreshSilent = () => {
+    fetchCurrentData().catch(err => console.error('Error refreshing:', err));
+    window.dispatchEvent(new CustomEvent('refreshData'));
   };
 
   const handleInputChange = (e) => {
@@ -98,45 +144,84 @@ const ConfigSection = () => {
       if (activeTab === 'usuarios') {
         if (subTabUsuario === 'cadete') {
           const { nombre, cedula, correo, promocion, cia, seccion } = formData;
-          if (!nombre || !cedula || !correo || !promocion || !cia || !seccion)
-            return showMsg('Faltan campos obligatorios: Nombre, Cédula, Correo, Promoción, Compañía y Sección', true);
+
           if (editing) {
-            await api.put(`/cadetes/${editing.id}`, formData);
+            // Al editar, solo se requieren los campos de identidad
+            if (!nombre || !cedula || !promocion || !cia || !seccion)
+              return showMsg('Faltan campos obligatorios: Nombre, Cédula, Promoción, Compañía y Sección', true);
+
+            // Enviar solo los campos editables (no enviar id, puntajeTotal, etc.)
+            const { id, puntajeTotal, estado, createdAt, updatedAt, ...camposEditables } = formData;
+            await api.put(`/cadetes/${editing.id}`, camposEditables);
             showMsg('Cadete actualizado correctamente');
           } else {
+            // Al crear, correo es obligatorio (se usa para la cuenta de usuario)
+            if (!nombre || !cedula || !correo || !promocion || !cia || !seccion)
+              return showMsg('Faltan campos obligatorios: Nombre, Cédula, Correo, Promoción, Compañía y Sección', true);
             await api.post('/cadetes', formData);
             showMsg('Cadete registrado correctamente');
           }
+
         } else if (subTabUsuario === 'instructor') {
           const { nombre, cedula, correo } = formData;
-          if (!nombre || !cedula || !correo)
-            return showMsg('Nombre, cédula y correo son obligatorios', true);
-          await api.post('/usuarios/instructor', formData);
-          showMsg('Instructor registrado correctamente');
+
+          if (editing) {
+            if (!nombre || !cedula)
+              return showMsg('Nombre y cédula son obligatorios', true);
+            const { id, usuarioId, estado, createdAt, updatedAt, usuario, ...camposEditables } = formData;
+            await api.put(`/instructores/${editing.id}`, camposEditables);
+            showMsg('Instructor actualizado correctamente');
+          } else {
+            if (!nombre || !cedula || !correo)
+              return showMsg('Nombre, cédula y correo son obligatorios', true);
+            await api.post('/usuarios/instructor', formData);
+            showMsg('Instructor registrado correctamente');
+          }
+
         } else {
           const { nombre, correo, passwordInicial } = formData;
-          if (!nombre || !correo || !passwordInicial)
-            return showMsg('Nombre, correo y contraseña inicial son obligatorios', true);
-          await api.post('/usuarios/administrador', formData);
-          showMsg('Administrador registrado correctamente');
+
+          if (editing) {
+            if (!nombre)
+              return showMsg('El nombre es obligatorio', true);
+            await api.put(`/administradores/${editing.id}`, { nombre });
+            showMsg('Administrador actualizado correctamente');
+          } else {
+            if (!nombre || !correo || !passwordInicial)
+              return showMsg('Nombre, correo y contraseña inicial son obligatorios', true);
+            await api.post('/usuarios/administrador', formData);
+            showMsg('Administrador registrado correctamente');
+          }
         }
+
       } else {
         const payload = { ...formData, tipo: subTabAccion };
         const { codigo, titulo, puntaje } = payload;
         if (!codigo || !titulo || puntaje == null || puntaje === '')
           return showMsg('Código, título y puntaje son obligatorios', true);
+
+        // Enviar solo campos relevantes (limpiar campos internos del objeto)
+        const payloadLimpio = {
+          codigo:      payload.codigo,
+          titulo:      payload.titulo,
+          descripcion: payload.descripcion || '',
+          tipo:        payload.tipo,
+          puntaje:     Number(payload.puntaje),
+          ...(editing && payload.activa !== undefined ? { activa: payload.activa } : {}),
+        };
+
         if (editing) {
-          await api.put(`/accionesdefinidas/${editing.id}`, payload);
+          await api.put(`/accionesdefinidas/${editing.id}`, payloadLimpio);
           showMsg('Acción actualizada correctamente');
         } else {
-          await api.post('/accionesdefinidas', payload);
+          await api.post('/accionesdefinidas', payloadLimpio);
           showMsg(`Acción ${subTabAccion === 'Positiva' ? 'positiva' : 'negativa'} creada correctamente`);
         }
       }
+
       setEditing(null);
       setFormData({});
-      loadData();
-      window.dispatchEvent(new CustomEvent('refreshData'));
+      refreshSilent();
     } catch (err) {
       showMsg(err.message || 'Error al guardar', true);
     }
@@ -155,9 +240,8 @@ const ConfigSection = () => {
       } else {
         await api.delete(`/accionesdefinidas/${item.id}`);
       }
-      loadData();
+      refreshSilent();
       showMsg('Eliminado correctamente');
-      window.dispatchEvent(new CustomEvent('refreshData'));
     } catch (err) {
       showMsg('Error al eliminar: ' + err.message, true);
     }
@@ -176,9 +260,8 @@ const ConfigSection = () => {
       endpoint = '/accionesdefinidas/all';
     }
     await api.delete(endpoint);
-    loadData();
+    refreshSilent();
     showMsg('Todos los registros eliminados correctamente');
-    window.dispatchEvent(new CustomEvent('refreshData'));
   } catch (err) {
     showMsg('Error al eliminar todos: ' + err.message, true);
   }
@@ -192,16 +275,54 @@ const ConfigSection = () => {
 
   const handleBulkUpload = async () => {
     if (!uploadFile) return;
+
+    let endpoint;
+    let label;
+    if (activeTab === 'usuarios') {
+      if (subTabUsuario === 'cadete') {
+        endpoint = '/cadetes/bulk-upload';
+        label = 'cadetes';
+      } else if (subTabUsuario === 'instructor') {
+        endpoint = '/instructores/bulk-upload';
+        label = 'instructores';
+      } else {
+        return showMsg('Carga masiva no disponible para administradores', true);
+      }
+    } else {
+      endpoint = `/accionesdefinidas/bulk-upload?tipo=${subTabAccion}`;
+      label = 'acciones';
+    }
+
     setUploading(true);
     try {
-      const result = await api.upload('/cadetes/bulk-upload', uploadFile, 'files');
-      showMsg(`${result.count || 0} cadetes cargados`);
-      loadData();
+      const result = await api.upload(endpoint, uploadFile, 'files');
+      const count     = result.count ?? 0;
+      const omitidas  = result.omitidas ?? 0;
+      const filtradas = result.filtradas ?? 0;
+      const errCount  = result.errores?.length ?? 0;
+
+      const columnas = result.columnas ? `Columnas detectadas: ${result.columnas.join(', ')}` : '';
+      if (count === 0 && errCount === 0 && omitidas === 0 && filtradas === 0) {
+        showMsg(`El archivo no contiene filas con datos válidos. ${columnas}`, true);
+      } else if (count === 0 && filtradas > 0 && omitidas === 0) {
+        showMsg(`${filtradas} fila(s) con datos incompletos — ninguna insertada. ${columnas}`, true);
+      } else if (count === 0 && omitidas > 0) {
+        showMsg(`Todos los registros del archivo ya existen en el sistema (${omitidas} omitidos)`);
+      } else {
+        let msg = `${count} ${label} cargados correctamente`;
+        if (omitidas > 0) msg += ` · ${omitidas} ya existían (omitidos)`;
+        if (filtradas > 0) msg += ` · ${filtradas} filas ignoradas por datos incompletos`;
+        if (errCount > 0) msg += ` · ${errCount} con error`;
+        showMsg(msg, errCount > 0);
+      }
+      refreshSilent();
     } catch (err) {
       showMsg('Error: ' + err.message, true);
     } finally {
       setUploading(false);
       setUploadFile(null);
+      const input = document.getElementById(uploadId);
+      if (input) input.value = '';
     }
   };
 
@@ -244,8 +365,8 @@ const ConfigSection = () => {
     };
   };
 
-  // Solo cadetes y acciones tienen edición
-  const canEdit = activeTab === 'acciones' || (activeTab === 'usuarios' && subTabUsuario === 'cadete');
+  // Todos los sub-tabs tienen edición
+  const canEdit = true;
 
   const tableConfig = getTableConfig();
   const dataList    = getDataList();
@@ -259,6 +380,8 @@ const ConfigSection = () => {
     }
     return `${action} Acción ${subTabAccion === 'Positiva' ? 'Positiva' : 'Negativa'}`;
   };
+
+  const uploadId = `upload-bulk-${activeTab}-${subTabUsuario}-${subTabAccion}`;
 
   return (
     <div className="space-y-6">
@@ -291,9 +414,9 @@ const ConfigSection = () => {
       {activeTab === 'usuarios' && (
         <div className="flex gap-2">
           {[
-            { id: 'cadete',        label: 'Cadete',          Icon: GraduationCap, active: 'bg-blue-600 text-white'   },
-            { id: 'instructor',    label: 'Instructor',      Icon: UserCog,       active: 'bg-green-600 text-white'  },
-            { id: 'administrador', label: 'Administrador',   Icon: ShieldCheck,   active: 'bg-purple-600 text-white' },
+            { id: 'cadete',        label: 'Cadete',          Icon: User, active: 'bg-blue-600 text-white'   },
+            { id: 'instructor',    label: 'Instructor',      Icon: ShieldCheck,       active: 'bg-green-600 text-white'  },
+            { id: 'administrador', label: 'Administrador',   Icon: UserCog,   active: 'bg-purple-600 text-white' },
           ].map(({ id, label, Icon, active }) => (
             <button
               key={id}
@@ -351,38 +474,57 @@ const ConfigSection = () => {
             <div className="bg-white p-6 flex-1 rounded-xl shadow-md border border-slate-200">
               <h3 className="text-base font-bold text-slate-800 mb-4">{formTitle()}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                {getActiveFields().map(field => (
-                  <div key={field.name} className={field.type === 'textarea' ? 'lg:col-span-3' : ''}>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">{field.label}</label>
-                    {field.type === 'textarea' ? (
-                      <textarea
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleInputChange}
-                        rows="2"
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    ) : field.type === 'select' ? (
-                      <select
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Seleccionar...</option>
-                        {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                      </select>
-                    ) : (
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        value={formData[field.name] || ''}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    )}
-                  </div>
-                ))}
+                {getActiveFields().map(field => {
+                  // Ocultar correo al editar (solo requerido en crear)
+                  if (field.createOnly && editing) return null;
+
+                  const isRequired = field.required || (!editing && field.createOnly);
+                  const inputCls   = 'w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none';
+
+                  return (
+                    <div key={field.name} className={field.type === 'textarea' ? 'lg:col-span-3' : ''}>
+                      <label htmlFor={field.name} className="block text-xs font-medium text-slate-600 mb-1">
+                        {field.label}
+                        {isRequired && <span className="text-red-500 ml-0.5">*</span>}
+                      </label>
+
+                      {field.type === 'textarea' ? (
+                        <textarea
+                          id={field.name}
+                          name={field.name}
+                          value={getFormValue(field, formData)}
+                          onChange={handleInputChange}
+                          rows="2"
+                          className={inputCls}
+                        />
+                      ) : field.type === 'select' ? (
+                        <select
+                          id={field.name}
+                          name={field.name}
+                          value={getFormValue(field, formData)}
+                          onChange={handleInputChange}
+                          className={inputCls}
+                        >
+                          <option value="">Seleccionar...</option>
+                          {field.options.map(opt => (
+                            <option key={opt} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          id={field.name}
+                          type={field.type}
+                          name={field.name}
+                          value={getFormValue(field, formData)}
+                          onChange={handleInputChange}
+                          className={inputCls}
+                          step={field.type === 'number' ? '1' : undefined}
+                          min={field.type === 'number' ? '0' : undefined}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               <div className="flex gap-3">
                 <button
@@ -403,17 +545,18 @@ const ConfigSection = () => {
               </div>
             </div>
 
-            {/* Carga masiva — solo para cadetes */}
-            {activeTab === 'usuarios' && subTabUsuario === 'cadete' && (
+            {/* Carga masiva — cadetes, instructores y acciones */}
+            {(activeTab === 'acciones' || (activeTab === 'usuarios' && subTabUsuario !== 'administrador')) && (
               <div className="bg-slate-50 p-4 w-56 rounded-xl border-2 border-dashed border-slate-300 flex flex-col shrink-0">
                 <input
+                  key={uploadFile ? 'has-file' : 'empty'}
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   onChange={e => setUploadFile(e.target.files[0])}
                   className="hidden"
-                  id="upload-cadetes"
+                  id={uploadId}
                 />
-                <label htmlFor="upload-cadetes" className="cursor-pointer flex flex-col items-center p-4 text-center">
+                <label htmlFor={uploadId} className="cursor-pointer flex flex-col items-center p-4 text-center">
                   <UploadCloud className="w-10 h-10 text-slate-400 mb-2" />
                   <p className="text-sm font-medium text-slate-700">Carga masiva</p>
                   <p className="text-xs text-slate-500 mt-1">XLSX / CSV</p>

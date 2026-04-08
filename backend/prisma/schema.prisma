@@ -70,6 +70,7 @@ model Cadete {
   lugar_nacimiento  String?
   lugar_residencia  String?
   estado            Boolean   @default(true)
+  existe            Boolean   @default(true)
   puntajeTotal      Decimal   @default(0) @db.Decimal(7, 2)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

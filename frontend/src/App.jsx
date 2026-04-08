@@ -55,7 +55,7 @@ const Map = lazy(() => import('./pages/identity/Map'))
 const Simbolismos = lazy(() => import('./pages/identity/Simbolismos'))
 const Historia = lazy(() => import('./pages/identity/Historia'))
 const Biblioteca = lazy(() => import('./pages/Biblioteca'))
-const Disciplina = lazy(() => import('./pages/Disciplina'))
+const Disciplina = lazy(() => import('./pages/aplications/Disciplina'))
 const Politicos = lazy(() => import('./pages/organic/Politic'))
 const Cupula = lazy(() => import('./pages/organic/Cupula'))
 
@@ -101,7 +101,7 @@ function App() {
 
             {/* Biblioteca y Disciplina */}
             <Route path='/library/regulations' element={<Biblioteca />} />
-            <Route path='/disciplina' element={<Disciplina />} />
+            <Route path='/aplications/disciplina' element={<Disciplina />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

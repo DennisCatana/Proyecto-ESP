@@ -7,6 +7,7 @@ const BuscadorCadetes = ({ onSelect, cadetes }) => {
 
   const filteredCadetes = useMemo(() => {
     if (!searchTerm.trim()) return cadetes.slice(0, 8);
+    
     const term = searchTerm.toLowerCase();
     return cadetes.filter(cadete =>
       cadete.nombre?.toLowerCase().includes(term) ||

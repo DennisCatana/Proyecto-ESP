@@ -189,7 +189,12 @@ export const login = async (req, res) => {
             return res.status(400).json({ msg: "Correo y contraseña obligatorios" });
 
         const usuario = await prisma.usuario.findUnique({
-            where: { correo }
+            where: { correo },
+            include: {
+                instructor:    { select: { nombre: true, grado: true } },
+                administrador: { select: { nombre: true } },
+                cadete:        { select: { nombre: true, cedula: true } },
+            }
         });
 
         if (!usuario)
@@ -211,27 +216,39 @@ export const login = async (req, res) => {
             data: { tokenSession: token }
         });
 
+        // Armar datos de perfil según el rol
+        const perfil = (() => {
+            if (usuario.rol === 'Instructor' && usuario.instructor) {
+                return { nombreU: usuario.instructor.nombre, gradoU: usuario.instructor.grado || '' };
+            }
+            if (usuario.rol === 'Administrador' && usuario.administrador) {
+                return { nombreU: usuario.administrador.nombre, gradoU: '' };
+            }
+            if (usuario.rol === 'Cadete' && usuario.cadete) {
+                return { nombreU: usuario.cadete.nombre, gradoU: '' };
+            }
+            return { nombreU: '', gradoU: '' };
+        })();
+
+        const usuarioData = {
+            id: usuario.id,
+            correo: usuario.correo,
+            rol: usuario.rol,
+            ...perfil,
+        };
+
         // ⚠️ verificar si debe cambiar contraseña
         if (usuario.cambioPassword) {
             return res.json({
                 msg: "Debe cambiar su contraseña",
                 cambioPassword: true,
                 token,
-                usuario: {
-                    id: usuario.id,
-                    correo: usuario.correo,
-                    rol: usuario.rol,
-                    cambioPassword: true
-                }
+                usuario: { ...usuarioData, cambioPassword: true }
             });
         }
 
         return res.json({
-            usuario: {
-                id: usuario.id,
-                correo: usuario.correo,
-                rol: usuario.rol
-            },
+            usuario: usuarioData,
             token,
             cambioPassword: false
         });
