@@ -13,20 +13,33 @@ export const obtenerEstadisticasCadete = async (cadeteId) => {
 
 // Registrar acción para un cadete
 export const registrarAccion = async (req, res) => {
-    const { cadeteId, codigo, observacion, fecha, hora } = req.body;
-    const usuarioId = req.usuario.id;
-
-    const ruta_imagen = req.file 
-    ? `/uploads/evidencias/${req.file.filename}` 
-    : null;
-
     try {
+        const { cadeteId, codigo, observacion, fecha, hora } = req.body;
+
+        // 🔴 Validaciones básicas
+        if (!cadeteId) {
+            return res.status(400).json({ error: "cadeteId es requerido" });
+        }
+
+        if (!codigo) {
+            return res.status(400).json({ error: "codigo de acción es requerido" });
+        }
+
+        if (!req.usuario || !req.usuario.id) {
+            return res.status(401).json({ error: "Usuario no autenticado" });
+        }
+
+        const usuarioId = req.usuario.id;
+
+        // 🟢 Manejo correcto de imagen (FIX)
         let ruta_imagen = null;
         if (req.file) {
-        ruta_imagen = `/uploads/evidencias/${req.file.filename}`;
+            ruta_imagen = `/uploads/evidencias/${req.file.filename}`;
         }
-        // Determinar la fecha de la acción
+
+        // 🟢 Determinar fecha de la acción
         let fechaAccion;
+
         if (fecha && hora) {
             fechaAccion = new Date(`${fecha}T${hora}`);
         } else if (fecha) {
@@ -35,28 +48,34 @@ export const registrarAccion = async (req, res) => {
             fechaAccion = new Date();
         }
 
-        // Calcular el día automáticamente
         const dia = fechaAccion.getDay();
 
-        // Transacción para asegurar consistencia de puntajes
+        // 🔁 Transacción
         const accionCreada = await prisma.$transaction(async (tx) => {
-            // Buscar acción definida
+
+            // 🔎 Buscar acción definida
             const accionDef = await tx.accionDefinida.findUnique({
                 where: { codigo }
             });
 
-            if (!accionDef) throw new Error("La acción no existe");
-            if (!accionDef.activa) throw new Error("La acción está inactiva");
+            if (!accionDef) {
+                throw new Error("La acción no existe");
+            }
 
-            // Calcular puntos aplicados
+            if (!accionDef.activa) {
+                throw new Error("La acción está inactiva");
+            }
+
+            // 🔢 Calcular puntos
             let puntosAplicados = new Prisma.Decimal(accionDef.puntaje);
+
             if (accionDef.tipo === "Negativa") {
                 puntosAplicados = puntosAplicados.negated();
             }
 
-            // Obtener suma actual
+            // 📊 Obtener total actual
             const sumaActual = await tx.accion.aggregate({
-                where: { cadeteId },
+                where: { cadeteId: Number(cadeteId) },
                 _sum: { puntajeAplicado: true }
             });
 
@@ -66,32 +85,32 @@ export const registrarAccion = async (req, res) => {
 
             const nuevoTotal = totalActual.plus(puntosAplicados);
 
-            // Crear acción
+            // ✅ Crear acción
             const accion = await tx.accion.create({
                 data: {
-                    cadete: { connect: { id: cadeteId } },
+                    cadete: { connect: { id: Number(cadeteId) } }, // 🔴 IMPORTANTE: Number
                     accionDefinida: { connect: { id: accionDef.id } },
-                    registradoPor: { connect: { id: req.usuario.id } },
-                    observacion,
+                    registradoPor: { connect: { id: usuarioId } }, // ✔ correcto
+                    observacion: observacion || null,
                     puntajeAplicado: puntosAplicados,
                     puntajeAcumulado: nuevoTotal,
-                    ruta_imagen,
+                    ruta_imagen, // ✔ ya corregido
                     fecha: fechaAccion,
                     dia
                 }
             });
 
-            // Actualizar puntaje del cadete
+            // 🔄 Actualizar puntaje del cadete
             await tx.cadete.update({
-                where: { id: cadeteId },
+                where: { id: Number(cadeteId) },
                 data: { puntajeTotal: nuevoTotal }
             });
 
-            console.log("🔹 Cadete actualizado correctamente");
             return accion;
         });
 
-        const estadisticas = await obtenerEstadisticasCadete(cadeteId);
+        // 📊 Estadísticas
+        const estadisticas = await obtenerEstadisticasCadete(Number(cadeteId));
 
         return res.status(201).json({
             msg: "Acción registrada correctamente",
@@ -101,7 +120,10 @@ export const registrarAccion = async (req, res) => {
 
     } catch (error) {
         console.error("❌ ERROR EN registrarAccion:", error);
-        return res.status(400).json({ error: error.message });
+
+        return res.status(400).json({
+            error: error.message || "Error al registrar acción"
+        });
     }
 };
 
@@ -128,17 +150,13 @@ export const listarAcciones = async (req, res) => {
 // Listar todas las acciones disciplinarias (registros)
 export const listarAccionesDisciplinarias = async (req, res) => {
     try {
-        const { cadeteId, tipo, fechaInicio, fechaFin } = req.query;
-        const where = {};
 
-        if (cadeteId) where.cadeteId = parseInt(cadeteId);
-        if (tipo) where.accionDefinida = { tipo };
-
-        if (fechaInicio || fechaFin) {
-            where.fecha = {};
-            if (fechaInicio) where.fecha.gte = new Date(fechaInicio);
-            if (fechaFin) where.fecha.lte = new Date(fechaFin);
-        }
+        const where = {
+            cadete: {
+                existe: true,
+                estado: true
+            }
+        };
 
         const acciones = await prisma.accion.findMany({
             where,
@@ -160,15 +178,19 @@ export const listarAccionesDisciplinarias = async (req, res) => {
             },
             orderBy: { fecha: 'desc' }
         });
+
         res.json(acciones);
+
     } catch (error) {
         console.error('🚨 listarAccionesDisciplinarias ERROR:', {
             message: error.message,
-            stack: error.stack,
             code: error.code,
             meta: error.meta
         });
-        res.status(500).json({ error: error.message });
+
+        res.status(500).json({
+            error: 'Error al listar acciones disciplinarias'
+        });
     }
 };
 
@@ -178,25 +200,25 @@ export const obtenerAccionesPorCadete = async (req, res) => {
     try {
         const { cadeteId } = req.params;
         const acciones = await prisma.accion.findMany({
-        where: { cadeteId: parseInt(cadeteId) },
-        include: {
-            cadete: true,
-            accionDefinida: true,
-            registradoPor: {
-                select: {
-                    id: true,
-                    rol: true,
-                    instructor: {
-                        select: { nombre: true, grado: true }
-                    },
-                    administrador: {
-                        select: { nombre: true }
+            where: { cadeteId: parseInt(cadeteId) },
+            include: {
+                cadete: true,
+                accionDefinida: true,
+                registradoPor: {
+                    select: {
+                        id: true,
+                        rol: true,
+                        instructor: {
+                            select: { nombre: true, grado: true }
+                        },
+                        administrador: {
+                            select: { nombre: true }
+                        }
                     }
                 }
-            }
-        },
-        orderBy: { fecha: 'desc' }
-    });
+            },
+            orderBy: { fecha: 'desc' }
+        });
 
         const estadisticas = await obtenerEstadisticasCadete(parseInt(cadeteId));
         res.json({ acciones, estadisticas });
@@ -265,7 +287,7 @@ export const obtenerResumenCadete = async (req, res) => {
             accionesPositivas,
             accionesNegativas,
             acciones,
-            accionesPorDia 
+            accionesPorDia
         });
 
     } catch (error) {
@@ -300,12 +322,12 @@ export const actualizarAccionDefinida = async (req, res) => {
         const { codigo, titulo, descripcion, tipo, puntaje, activa } = req.body;
 
         const data = {};
-        if (codigo     !== undefined) data.codigo      = codigo;
-        if (titulo     !== undefined) data.titulo      = titulo;
-        if (descripcion!== undefined) data.descripcion = descripcion;
-        if (tipo       !== undefined) data.tipo        = tipo;
-        if (puntaje    !== undefined) data.puntaje     = Number(puntaje);
-        if (activa     !== undefined) data.activa      = Boolean(activa);
+        if (codigo !== undefined) data.codigo = codigo;
+        if (titulo !== undefined) data.titulo = titulo;
+        if (descripcion !== undefined) data.descripcion = descripcion;
+        if (tipo !== undefined) data.tipo = tipo;
+        if (puntaje !== undefined) data.puntaje = Number(puntaje);
+        if (activa !== undefined) data.activa = Boolean(activa);
 
         if (Object.keys(data).length === 0) {
             return res.status(400).json({ error: 'No se enviaron campos para actualizar' });
@@ -345,162 +367,162 @@ export const eliminarAccionDefinida = async (req, res) => {
 };
 
 export const eliminarTodasLasAccionesDefinidas = async (req, res) => {
-  try {
-    // Verificar si existen acciones aplicadas antes de intentar eliminar
-    const conRegistros = await prisma.accion.count();
-    if (conRegistros > 0) {
-      return res.status(400).json({
-        error: `No se pueden eliminar las acciones definidas porque existen ${conRegistros} registros disciplinarios asociados. Elimine primero los registros.`
-      });
+    try {
+        // Verificar si existen acciones aplicadas antes de intentar eliminar
+        const conRegistros = await prisma.accion.count();
+        if (conRegistros > 0) {
+            return res.status(400).json({
+                error: `No se pueden eliminar las acciones definidas porque existen ${conRegistros} registros disciplinarios asociados. Elimine primero los registros.`
+            });
+        }
+        const resultado = await prisma.accionDefinida.deleteMany({});
+        res.json({
+            msg: "Todas las acciones definidas eliminadas",
+            totalEliminados: resultado.count
+        });
+    } catch (error) {
+        console.error('❌ Error eliminarTodasLasAccionesDefinidas:', error);
+        res.status(500).json({ error: error.message });
     }
-    const resultado = await prisma.accionDefinida.deleteMany({});
-    res.json({
-      msg: "Todas las acciones definidas eliminadas",
-      totalEliminados: resultado.count
-    });
-  } catch (error) {
-    console.error('❌ Error eliminarTodasLasAccionesDefinidas:', error);
-    res.status(500).json({ error: error.message });
-  }
 };
 
 const normKey = (s) =>
-  String(s).trim()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
+    String(s).trim()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
 
 const normalizeRow = (row) => {
-  const r = {};
-  for (const [k, v] of Object.entries(row)) r[normKey(k)] = v;
-  return r;
+    const r = {};
+    for (const [k, v] of Object.entries(row)) r[normKey(k)] = v;
+    return r;
 };
 
 const col = (r, ...aliases) => {
-  for (const a of aliases) {
-    const v = r[normKey(a)];
-    if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
-  }
-  return null;
+    for (const a of aliases) {
+        const v = r[normKey(a)];
+        if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();
+    }
+    return null;
 };
 
 const colNum = (r, ...aliases) => {
-  const v = col(r, ...aliases);
-  if (v === null) return null;
-  const n = Number(v.replace(',', '.'));  // soporta decimales con coma
-  return isNaN(n) ? null : n;
+    const v = col(r, ...aliases);
+    if (v === null) return null;
+    const n = Number(v.replace(',', '.'));  // soporta decimales con coma
+    return isNaN(n) ? null : n;
 };
 
 // Normaliza el tipo al enum exacto de Prisma
 const normTipo = (val) => {
-  if (!val) return null;
-  const low = val.trim().toLowerCase();
-  if (low === 'positiva' || low === 'pos' || low === 'p' || low === '+') return 'Positiva';
-  if (low === 'negativa' || low === 'neg' || low === 'n' || low === '-') return 'Negativa';
-  return null;
+    if (!val) return null;
+    const low = val.trim().toLowerCase();
+    if (low === 'positiva' || low === 'pos' || low === 'p' || low === '+') return 'Positiva';
+    if (low === 'negativa' || low === 'neg' || low === 'n' || low === '-') return 'Negativa';
+    return null;
 };
 
 export const bulkUploadAccionesDefinidas = async (req, res) => {
-  try {
-    const files = req.files;
-    if (!files || files.length === 0)
-      return res.status(400).json({ error: 'No se subió ningún archivo' });
+    try {
+        const files = req.files;
+        if (!files || files.length === 0)
+            return res.status(400).json({ error: 'No se subió ningún archivo' });
 
-    const XLSX = (await import('xlsx')).default;
-    // raw:true para obtener números reales en vez de strings formateados
-    const workbook = XLSX.readFile(files[0].path, { raw: true });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const XLSX = (await import('xlsx')).default;
+        // raw:true para obtener números reales en vez de strings formateados
+        const workbook = XLSX.readFile(files[0].path, { raw: true });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-    // Leer como arrays: fila 0 = cabeceras, resto = datos
-    const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+        // Leer como arrays: fila 0 = cabeceras, resto = datos
+        const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-    if (rawData.length < 2)
-      return res.status(400).json({ error: 'El archivo está vacío o solo tiene encabezados' });
+        if (rawData.length < 2)
+            return res.status(400).json({ error: 'El archivo está vacío o solo tiene encabezados' });
 
-    // Normalizar cabeceras
-    const cabeceras = rawData[0].map(h => normKey(String(h)));
-    const filasDatos = rawData.slice(1).filter(row =>
-      row.some(c => c !== '' && c !== null && c !== undefined)
-    );
+        // Normalizar cabeceras
+        const cabeceras = rawData[0].map(h => normKey(String(h)));
+        const filasDatos = rawData.slice(1).filter(row =>
+            row.some(c => c !== '' && c !== null && c !== undefined)
+        );
 
-    console.log('=== CABECERAS DETECTADAS ===', cabeceras);
-    console.log('=== FILAS DE DATOS ===', filasDatos.length);
+        console.log('=== CABECERAS DETECTADAS ===', cabeceras);
+        console.log('=== FILAS DE DATOS ===', filasDatos.length);
 
-    // Encontrar índice de columna por alias
-    const idx = (...aliases) => {
-      for (const a of aliases) {
-        const i = cabeceras.indexOf(normKey(a));
-        if (i !== -1) return i;
-      }
-      return -1;
-    };
+        // Encontrar índice de columna por alias
+        const idx = (...aliases) => {
+            for (const a of aliases) {
+                const i = cabeceras.indexOf(normKey(a));
+                if (i !== -1) return i;
+            }
+            return -1;
+        };
 
-    const iCodigo      = idx('codigo','cod','code','clave');
-    const iTitulo      = idx('titulo','nombre','accion','name','title','descripcion_corta');
-    const iPuntaje     = idx('puntaje','puntos','valor','score','pts','puntuacion');
-    const iDescripcion = idx('descripcion','detalle','observacion','description','desc');
+        const iCodigo = idx('codigo', 'cod', 'code', 'clave');
+        const iTitulo = idx('titulo', 'nombre', 'accion', 'name', 'title', 'descripcion_corta');
+        const iPuntaje = idx('puntaje', 'puntos', 'valor', 'score', 'pts', 'puntuacion');
+        const iDescripcion = idx('descripcion', 'detalle', 'observacion', 'description', 'desc');
 
-    console.log(`Índices → codigo:${iCodigo} titulo:${iTitulo} puntaje:${iPuntaje} descripcion:${iDescripcion}`);
+        console.log(`Índices → codigo:${iCodigo} titulo:${iTitulo} puntaje:${iPuntaje} descripcion:${iDescripcion}`);
 
-    const getStr = (row, i) => {
-      if (i === -1) return null;
-      const v = row[i];
-      if (v === undefined || v === null || String(v).trim() === '') return null;
-      return String(v).trim();
-    };
+        const getStr = (row, i) => {
+            if (i === -1) return null;
+            const v = row[i];
+            if (v === undefined || v === null || String(v).trim() === '') return null;
+            return String(v).trim();
+        };
 
-    const getNum = (row, i) => {
-      if (i === -1) return null;
-      const v = row[i];
-      if (v === undefined || v === null || v === '') return null;
-      if (typeof v === 'number') return v;                       // xlsx raw number
-      const n = Number(String(v).replace(',', '.'));
-      return isNaN(n) ? null : n;
-    };
+        const getNum = (row, i) => {
+            if (i === -1) return null;
+            const v = row[i];
+            if (v === undefined || v === null || v === '') return null;
+            if (typeof v === 'number') return v;                       // xlsx raw number
+            const n = Number(String(v).replace(',', '.'));
+            return isNaN(n) ? null : n;
+        };
 
-    const tipoForzado = normTipo(req.query.tipo);
+        const tipoForzado = normTipo(req.query.tipo);
 
-    const parsed = filasDatos.map(row => ({
-      codigo:      getStr(row, iCodigo),
-      titulo:      getStr(row, iTitulo),
-      descripcion: getStr(row, iDescripcion) ?? '',
-      tipo:        tipoForzado || normTipo(getStr(row, idx('tipo','type','categoria'))),
-      puntaje:     getNum(row, iPuntaje),
-    }));
+        const parsed = filasDatos.map(row => ({
+            codigo: getStr(row, iCodigo),
+            titulo: getStr(row, iTitulo),
+            descripcion: getStr(row, iDescripcion) ?? '',
+            tipo: tipoForzado || normTipo(getStr(row, idx('tipo', 'type', 'categoria'))),
+            puntaje: getNum(row, iPuntaje),
+        }));
 
-    const filtradas = parsed.filter(d => !(d.codigo && d.titulo && d.tipo && d.puntaje != null));
-    filtradas.forEach(d => console.warn('⚠️ Fila ignorada:', JSON.stringify(d)));
-    const accionesData = parsed.filter(d => d.codigo && d.titulo && d.tipo && d.puntaje != null);
+        const filtradas = parsed.filter(d => !(d.codigo && d.titulo && d.tipo && d.puntaje != null));
+        filtradas.forEach(d => console.warn('⚠️ Fila ignorada:', JSON.stringify(d)));
+        const accionesData = parsed.filter(d => d.codigo && d.titulo && d.tipo && d.puntaje != null);
 
-    console.log(`✅ Válidas: ${accionesData.length} | Filtradas: ${filtradas.length}`);
+        console.log(`✅ Válidas: ${accionesData.length} | Filtradas: ${filtradas.length}`);
 
-    let count = 0;
-    let omitidas = 0;
-    const errores = [];
+        let count = 0;
+        let omitidas = 0;
+        const errores = [];
 
-    for (const datos of accionesData) {
-      try {
-        const existe = await prisma.accionDefinida.findUnique({ where: { codigo: datos.codigo } });
-        if (existe) { omitidas++; continue; }
-        await prisma.accionDefinida.create({ data: datos });
-        count++;
-      } catch (err) {
-        errores.push({ codigo: datos.codigo, error: err.message });
-        console.error(`❌ Error en código "${datos.codigo}":`, err.message);
-      }
+        for (const datos of accionesData) {
+            try {
+                const existe = await prisma.accionDefinida.findUnique({ where: { codigo: datos.codigo } });
+                if (existe) { omitidas++; continue; }
+                await prisma.accionDefinida.create({ data: datos });
+                count++;
+            } catch (err) {
+                errores.push({ codigo: datos.codigo, error: err.message });
+                console.error(`❌ Error en código "${datos.codigo}":`, err.message);
+            }
+        }
+
+        res.json({
+            msg: 'Proceso completado',
+            count,
+            omitidas,
+            filtradas: filtradas.length,
+            columnas: cabeceras,
+            errores: errores.length ? errores : undefined
+        });
+    } catch (error) {
+        console.error('❌ bulkUploadAccionesDefinidas ERROR:', error);
+        res.status(500).json({ error: error.message });
     }
-
-    res.json({
-      msg: 'Proceso completado',
-      count,
-      omitidas,
-      filtradas: filtradas.length,
-      columnas: cabeceras,
-      errores: errores.length ? errores : undefined
-    });
-  } catch (error) {
-    console.error('❌ bulkUploadAccionesDefinidas ERROR:', error);
-    res.status(500).json({ error: error.message });
-  }
 };
 
 

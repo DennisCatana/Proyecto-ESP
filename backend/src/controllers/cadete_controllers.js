@@ -56,12 +56,12 @@ export const listarCadetes = async (req, res) => {
     console.error("Error listarCadetes:", error.message);
     console.error("Código:", error.code);
     console.error("Meta:", error.meta);
-    res.status(500).json({ 
-      error: error.message, 
+    res.status(500).json({
+      error: error.message,
       code: error.code,
-      meta: error.meta 
+      meta: error.meta
     });
-}
+  }
 };
 
 // Obtener info de un cadete
@@ -206,24 +206,24 @@ export const actualizarCadete = async (req, res) => {
       data: {
         nombre,
         cedula,
-        correo:            correo            || undefined,
+        correo: correo || undefined,
         promocion,
         cia,
         seccion,
-        genero:            genero            || undefined,
-        telefono:          telefono          || undefined,
-        habitacion:        habitacion        || undefined,
-        grupo_guardia:     grupo_guardia     || undefined,
+        genero: genero || undefined,
+        telefono: telefono || undefined,
+        habitacion: habitacion || undefined,
+        grupo_guardia: grupo_guardia || undefined,
         // antiguedad es Int? — parsear explícitamente
-        antiguedad:        antiguedad != null && antiguedad !== ''
-                             ? parseInt(antiguedad, 10)
-                             : undefined,
-        seguro_medico:     seguro_medico     || undefined,
+        antiguedad: antiguedad != null && antiguedad !== ''
+          ? parseInt(antiguedad, 10)
+          : undefined,
+        seguro_medico: seguro_medico || undefined,
         numero_emergencia: numero_emergencia || undefined,
-        parentesco:        parentesco        || undefined,
-        lugar_nacimiento:  lugar_nacimiento  || undefined,
-        lugar_residencia:  lugar_residencia  || undefined,
-        fecha_nacimiento:  fecha_nacimiento  ? new Date(fecha_nacimiento) : undefined,
+        parentesco: parentesco || undefined,
+        lugar_nacimiento: lugar_nacimiento || undefined,
+        lugar_residencia: lugar_residencia || undefined,
+        fecha_nacimiento: fecha_nacimiento ? new Date(fecha_nacimiento) : undefined,
       }
     });
     res.json(cadete);
@@ -275,7 +275,7 @@ const col = (r, ...aliases) => {
 const colNum = (r, ...aliases) => {
   const v = col(r, ...aliases);
   if (v === null) return null;
-  const n = Number(v.replace(',', '.')); 
+  const n = Number(v.replace(',', '.'));
   return isNaN(n) ? null : n;
 };
 // ────────────────────────────────────
@@ -328,42 +328,42 @@ export const bulkUploadCadetes = async (req, res) => {
     };
 
     // Índices de columnas
-    const iNombre    = idx('nombre','nombres');
-    const iCedula    = idx('cedula');
+    const iNombre = idx('nombre', 'nombres');
+    const iCedula = idx('cedula');
     const iPromocion = idx('promocion');
-    const iCia       = idx('cia','compania','compañia');
-    const iSeccion   = idx('seccion');
-    const iGenero    = idx('genero','sexo');
-    const iHabitacion= idx('habitacion');
-    const iGuardia   = idx('grupo_guardia','guardia','grupo');
-    const iAntiguedad= idx('antiguedad');
-    const iCorreo    = idx('correo','email','gmail');
-    const iTelefono  = idx('telefono');
-    const iFechaNac  = idx('fecha_nacimiento','fechain','fnacimiento');
-    const iSeguro    = idx('seguro_medico','seguro');
-    const iEmergencia= idx('numero_emergencia','telefono_emergencia','emergencia');
-    const iParentesco= idx('parentesco','relacion');
-    const iLugarNac  = idx('lugar_nacimiento','lugarn');
-    const iLugarRes  = idx('lugar_residencia','lugarr');
+    const iCia = idx('cia', 'compania', 'compañia');
+    const iSeccion = idx('seccion');
+    const iGenero = idx('genero', 'sexo');
+    const iHabitacion = idx('habitacion');
+    const iGuardia = idx('grupo_guardia', 'guardia', 'grupo');
+    const iAntiguedad = idx('antiguedad');
+    const iCorreo = idx('correo', 'email', 'gmail');
+    const iTelefono = idx('telefono');
+    const iFechaNac = idx('fecha_nacimiento', 'fechain', 'fnacimiento');
+    const iSeguro = idx('seguro_medico', 'seguro');
+    const iEmergencia = idx('numero_emergencia', 'telefono_emergencia', 'emergencia');
+    const iParentesco = idx('parentesco', 'relacion');
+    const iLugarNac = idx('lugar_nacimiento', 'lugarn');
+    const iLugarRes = idx('lugar_residencia', 'lugarr');
 
     const allParsed = filasDatos.map(row => ({
-      nombre:            getStr(row, iNombre),
-      cedula:            getStr(row, iCedula),
-      promocion:         getStr(row, iPromocion),
-      cia:               getStr(row, iCia),
-      seccion:           getStr(row, iSeccion),
-      genero:            getStr(row, iGenero),
-      habitacion:        getStr(row, iHabitacion),
-      grupo_guardia:     getStr(row, iGuardia),
-      antiguedad:        getNum(row, iAntiguedad),
-      correo:            getStr(row, iCorreo),
-      telefono:          getStr(row, iTelefono),
-      fecha_nacimiento:  getStr(row, iFechaNac),
-      seguro_medico:     getStr(row, iSeguro),
+      nombre: getStr(row, iNombre),
+      cedula: getStr(row, iCedula),
+      promocion: getStr(row, iPromocion),
+      cia: getStr(row, iCia),
+      seccion: getStr(row, iSeccion),
+      genero: getStr(row, iGenero),
+      habitacion: getStr(row, iHabitacion),
+      grupo_guardia: getStr(row, iGuardia),
+      antiguedad: getNum(row, iAntiguedad),
+      correo: getStr(row, iCorreo),
+      telefono: getStr(row, iTelefono),
+      fecha_nacimiento: getStr(row, iFechaNac),
+      seguro_medico: getStr(row, iSeguro),
       numero_emergencia: getStr(row, iEmergencia),
-      parentesco:        getStr(row, iParentesco),
-      lugar_nacimiento:  getStr(row, iLugarNac),
-      lugar_residencia:  getStr(row, iLugarRes),
+      parentesco: getStr(row, iParentesco),
+      lugar_nacimiento: getStr(row, iLugarNac),
+      lugar_residencia: getStr(row, iLugarRes),
     }));
 
     const filtradosArr = allParsed.filter(d => !(d.nombre && d.cedula && d.promocion && d.cia && d.seccion));

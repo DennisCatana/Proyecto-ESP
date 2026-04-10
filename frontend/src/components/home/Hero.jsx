@@ -11,7 +11,7 @@ return (
     <div className="hero-content">
       <h2 className="text-5xl font-bold mb-4 drop-shadow-lg">PRIMERA COMPAÑÍA</h2>
       <h2 className="text-3xl font-bold mb-4 drop-shadow-lg">Promoción LXXXIX</h2>
-      <p className="text-xl mb-8">Nombre de la promoción</p>
+      <p className="text-xl mb-8">Tnte. Víctor Humberto Moya Galarraga</p>
 
       <Link 
         to="nosotros"

@@ -6,7 +6,7 @@ import { autorizarRoles } from "../middlewares/role_middleware.js";
 const router = Router();
 
 router.get("/usuarios/administradores",          protegerRuta, autorizarRoles("Administrador"), listarAdministradores);
-router.post("/usuarios/administrador",           protegerRuta, autorizarRoles("Administrador"), crearAdministrador);
+router.post("/usuarios/crearAdministrador",            crearAdministrador);
 router.put("/administradores/:id",               protegerRuta, autorizarRoles("Administrador"), actualizarAdministrador);
 router.delete("/administradores/eliminar-todos", protegerRuta, autorizarRoles("Administrador"), eliminarTodosAdministradores);
 

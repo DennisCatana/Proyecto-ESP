@@ -131,7 +131,7 @@ const Disciplina = () => {
 
       const [accionesActualizadas, cadetesActualizados] = await Promise.all([
         api.get('/accionesdisciplinarias'),
-        api.get('/cadetes/cadetes')
+        api.get(`/cadetes/${data.cadeteId}`) ////OJO
       ]);
 
       setAcciones(accionesActualizadas);

@@ -15,7 +15,7 @@ const About = () => {
             {/* Text Content */}
             <div className="about-text">
               <p className="mb-4 text-justify text-gray-700 leading-relaxed">
-                La <strong>Primera compañía</strong> ingresó el 5 de mayo de 2025, con alrededor de 210 Aspirantes, quienes han sido formados bajo un régimen académico, físico y disciplinario orientado al fortalecimiento 
+                La <strong>Primera compañía</strong> ingresó el 04 de mayo del 2025, con alrededor de 210 Aspirantes, quienes han sido formados bajo un régimen académico, físico y disciplinario orientado al fortalecimiento 
                 del carácter, la ética profesional y las competencias operativas propias de la función policial.
               </p>
               <p className="mb-4 text-justify text-gray-700 leading-relaxed">

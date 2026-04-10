@@ -65,36 +65,31 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
     e.preventDefault();
     setError(null);
 
-    if (!cadete) { setError('Debe seleccionar un cadete.'); return; }
-    if (!selectedTipo) { setError('Debe seleccionar el tipo de acción.'); return; }
-    if (!selectedAccion) { setError('Debe seleccionar la acción disciplinaria.'); return; }
+    if (!cadete) return setError('Debe seleccionar un cadete.');
+    if (!selectedTipo) return setError('Debe seleccionar el tipo de acción.');
+    if (!selectedAccion) return setError('Debe seleccionar la acción.');
 
     try {
-      let rutaImagen = null;
+      const formData = new FormData();
 
-      if (evidencia) {
-        setUploading(true);
-        try {
-          const uploadResult = await api.upload('/upload-evidencia', evidencia, 'evidencia');
-          rutaImagen = uploadResult.ruta_imagen;
-        } catch (uploadError) {
-          setError('Error al subir la evidencia: ' + uploadError.message);
-          setUploading(false);
-          return;
-        }
-        setUploading(false);
+      formData.append('cadeteId', cadete.id);
+      formData.append('codigo', selectedAccion);
+      formData.append('observacion', observacion.trim());
+
+      // Fecha y hora
+      if (!usarFechaActual) {
+        if (fechaAccion) formData.append('fecha', fechaAccion);
+        if (horaAccion) formData.append('hora', horaAccion);
       }
 
-      await onSubmit({
-        cadeteId: cadete.id,
-        codigo: selectedAccion,
-        observacion: observacion.trim(),
-        ruta_imagen: rutaImagen,
-        fecha: usarFechaActual ? null : (fechaAccion || null),
-        hora: usarFechaActual ? null : (horaAccion || null),
-      });
+      // Imagen (IMPORTANTE)
+      if (evidencia) {
+        formData.append('evidencia', evidencia);
+      }
 
-      // Limpiar formulario
+      await onSubmit(formData);
+
+      // Reset
       setSelectedTipo('');
       setSelectedAccion('');
       setObservacion('');
@@ -102,6 +97,7 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
       setFechaAccion('');
       setHoraAccion('');
       setUsarFechaActual(true);
+
     } catch (err) {
       setError(err.message || 'Error al registrar la acción.');
     }
@@ -162,11 +158,10 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
             <button
               type="button"
               onClick={() => handleSelectTipo('Positiva')}
-              className={`p-4 rounded-xl border-2 text-center transition font-semibold flex flex-col items-center gap-2 ${
-                selectedTipo === 'Positiva'
+              className={`p-4 rounded-xl border-2 text-center transition font-semibold flex flex-col items-center gap-2 ${selectedTipo === 'Positiva'
                   ? 'border-green-500 bg-green-50 text-green-700 shadow-sm'
                   : 'border-slate-200 hover:border-green-200 hover:bg-green-50/50 text-slate-600'
-              }`}
+                }`}
             >
               <Award className={`w-7 h-7 ${selectedTipo === 'Positiva' ? 'text-green-500' : 'text-slate-400'}`} />
               Acción Positiva
@@ -174,11 +169,10 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
             <button
               type="button"
               onClick={() => handleSelectTipo('Negativa')}
-              className={`p-4 rounded-xl border-2 text-center transition font-semibold flex flex-col items-center gap-2 ${
-                selectedTipo === 'Negativa'
+              className={`p-4 rounded-xl border-2 text-center transition font-semibold flex flex-col items-center gap-2 ${selectedTipo === 'Negativa'
                   ? 'border-red-500 bg-red-50 text-red-700 shadow-sm'
                   : 'border-slate-200 hover:border-red-200 hover:bg-red-50/50 text-slate-600'
-              }`}
+                }`}
             >
               <AlertTriangle className={`w-7 h-7 ${selectedTipo === 'Negativa' ? 'text-red-500' : 'text-slate-400'}`} />
               Acción Negativa
@@ -201,13 +195,12 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
               <select
                 value={selectedAccion}
                 onChange={e => setSelectedAccion(e.target.value)}
-                className={`w-full px-4 py-3 border-2 rounded-xl outline-none text-sm font-medium transition ${
-                  selectedAccion
+                className={`w-full px-4 py-3 border-2 rounded-xl outline-none text-sm font-medium transition ${selectedAccion
                     ? selectedTipo === 'Positiva'
                       ? 'border-green-400 bg-green-50 text-green-800'
                       : 'border-red-400 bg-red-50 text-red-800'
                     : 'border-slate-300 focus:border-blue-400'
-                }`}
+                  }`}
               >
                 <option value="">— Selecciona la acción —</option>
                 {accionesFiltradas.map(accion => (
@@ -222,19 +215,17 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
 
         {/* Descripción de la acción seleccionada */}
         {accionSeleccionada && (
-          <div className={`p-4 rounded-xl border-2 ${
-            accionSeleccionada.tipo === 'Positiva'
+          <div className={`p-4 rounded-xl border-2 ${accionSeleccionada.tipo === 'Positiva'
               ? 'bg-green-50 border-green-300'
               : 'bg-red-50 border-red-300'
-          }`}>
+            }`}>
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <p className="font-bold text-slate-800">{accionSeleccionada.titulo}</p>
                 <p className="text-sm text-slate-600 mt-1">{accionSeleccionada.descripcion}</p>
               </div>
-              <p className={`text-2xl font-black shrink-0 ${
-                accionSeleccionada.tipo === 'Positiva' ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <p className={`text-2xl font-black shrink-0 ${accionSeleccionada.tipo === 'Positiva' ? 'text-green-600' : 'text-red-600'
+                }`}>
                 {accionSeleccionada.tipo === 'Positiva' ? '+' : '-'}{accionSeleccionada.puntaje}
               </p>
             </div>
@@ -383,13 +374,12 @@ const FormularioRegistro = ({ cadete, accionesDefinidas, onSubmit, onCancel, loa
           <button
             type="submit"
             disabled={!cadete || !selectedTipo || !selectedAccion || loading || uploading}
-            className={`flex-2 flex-1 px-6 py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
-              selectedTipo === 'Positiva'
+            className={`flex-2 flex-1 px-6 py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2 shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${selectedTipo === 'Positiva'
                 ? 'bg-green-600 hover:bg-green-700 text-white'
                 : selectedTipo === 'Negativa'
-                ? 'bg-red-600 hover:bg-red-700 text-white'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
           >
             {uploading ? (
               <>
