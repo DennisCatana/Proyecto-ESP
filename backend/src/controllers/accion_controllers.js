@@ -145,8 +145,6 @@ export const listarAcciones = async (req, res) => {
     }
 };
 
-
-
 // Listar todas las acciones disciplinarias (registros)
 export const listarAccionesDisciplinarias = async (req, res) => {
     try {
@@ -194,7 +192,6 @@ export const listarAccionesDisciplinarias = async (req, res) => {
     }
 };
 
-
 // Obtener acciones de un cadete específico
 export const obtenerAccionesPorCadete = async (req, res) => {
     try {
@@ -232,7 +229,6 @@ export const obtenerAccionesPorCadete = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-
 
 // Obtener resumen de un cadete
 export const obtenerResumenCadete = async (req, res) => {

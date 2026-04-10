@@ -28,7 +28,7 @@ const MiPerfilSection = ({ oficialActual }) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.get('/mi-perfil');
+      const data = await api.get('/cadetes/mi-perfil');
       setCadete(data);
       setFormData({
         correo: data.correo || '',
@@ -47,7 +47,7 @@ const MiPerfilSection = ({ oficialActual }) => {
   const handleGuardar = async () => {
     setGuardando(true);
     try {
-      const actualizado = await api.put('/mi-perfil', formData);
+      const actualizado = await api.put('/cadetes/mi-perfil', formData);
       setCadete(prev => ({ ...prev, ...actualizado }));
       setEditando(false);
       setMensaje({ type: 'success', text: 'Datos actualizados correctamente.' });
