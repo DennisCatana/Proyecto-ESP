@@ -100,7 +100,7 @@ const Biblioteca = () => {
       type: 'PDF'
     },
     { 
-      title: 'Cronograma de Actividades de la UCE', 
+      title: 'Cronograma de Actividades de la UCE 2026', 
       category: 'UCE', 
       description: 'Cronograma general de actividades de la Unidad de Comando Estrategico',
       pdfUrl: '#',
